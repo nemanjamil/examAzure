@@ -1,0 +1,20 @@
+{
+  "disabled": false,
+  "bindings": [
+    {
+      "name": "myBlob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "images/{blobname}.{blobextension}",
+      "connection": "AzureWebJobsStorage"
+    },
+    {
+      "type": "blob",
+      "name": "myOutputBlob",
+      "path": "cognito/original-{blobname}.json", 
+      "connection": "AzureWebJobsStorage",
+      "direction": "out",
+      "dataType": "string"
+    }
+  ]
+}

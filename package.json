@@ -1,0 +1,29 @@
+{
+  "name": "firstazurefunction",
+  "version": "1.0.0",
+  "description": "Test Version First Azure Function",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nemanja",
+  "license": "ISC",
+  "dependencies": {
+    "azure-function-express": "^2.0.0",
+    "azure-storage": "^2.10.2",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "formidable": "^1.2.1",
+    "into-stream": "^4.0.0",
+    "jimp": "^0.6.0",
+    "memory-streams": "^0.1.3",
+    "mongodb": "^3.1.13",
+    "multer": "^1.4.1",
+    "multer-azure-storage": "^0.2.0",
+    "multiparty": "^4.2.1",
+    "node-fetch": "^2.3.0",
+    "parse-multipart": "^1.0.4",
+    "querystring": "^0.2.0",
+    "uuid": "^3.3.2"
+  }
+}

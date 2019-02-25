@@ -1,0 +1,23 @@
+{
+  "disabled": false,
+  "bindings": [{
+      "name": "myBlob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "images/{blobname}.{blobextension}",
+      "connection": "AzureWebJobsStorage"
+    },
+    {
+      "type": "blob",
+      "name": "myOutputBlob",
+      "path": "exams/{blobname}.json",
+      "connection": "AzureWebJobsStorage",
+      "direction": "out",
+      "properties": {
+        "cacheControl": "public, max-age 86400",
+        "contentType": "application/json",
+        "contentEncoding": "gzip"
+      }
+    }
+  ]
+}
