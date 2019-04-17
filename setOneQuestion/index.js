@@ -32,7 +32,6 @@ module.exports = async function (context, req) {
         };
 
     } catch (error) {
-        console.log("error",error);
         context.res = {
             status: 400, 
             body: { 

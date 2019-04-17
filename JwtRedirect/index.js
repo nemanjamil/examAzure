@@ -69,7 +69,7 @@ async function copyExamVersion(verifyTokenResponse, containerName) {
         clone.BulkEvent_EXTERNAL_ID = verifyTokenResponse.BulkEvent_EXTERNAL_ID;
         clone.ExamVersion_plannedDuration = verifyTokenResponse.ExamVersion_plannedDuration;
         clone.ExamEvent_GenerationTime = verifyTokenResponse.ExamEvent_GenerationTime;
-        clone.ExamEvent_GenerationTime = verifyTokenResponse.ExamEvent_GenerationTime;
+        clone.ExamEvent_ReadyTime = Math.floor(new Date() / 1000);
         clone.ExamEvent_EXTERNAL_ID = verifyTokenResponse.ExamEvent_EXTERNAL_ID;
 
         let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" + 

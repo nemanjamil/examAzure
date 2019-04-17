@@ -47,7 +47,7 @@ let test = {
                 "answer_text": "This answer with id [268] is wrong. It is associated to question with ID [212]",
                 "correct": 0
             }],
-            "answersSelected": ["aa","bbb"],
+            "answersSelected": [],
             "answersHashORG": "hash('sha512', 0000000264000000026512345)",
             "answersHash": "323b0db231cc5338f8fafb87659d5917aa88c224846ec1ad69780625c8ab5986b5fb8fe1e4dd5bab55d07809aeea3d0d0591d1421465860d2b0ddfdfa8d0a64f"
         },
@@ -87,14 +87,19 @@ let oneQuestionShuffle = test.examQuestions.filter(element => {
     }
 })
 if (Common.isArray(oneQuestionShuffle)) {
-    delete oneQuestionShuffle[0]['answersSelected']; 
-    delete oneQuestionShuffle[0]['answersHashORG']; 
-    delete oneQuestionShuffle[0]['answersHash']; 
 
-    oneQuestionShuffle[0].answers.forEach(element => {
+    let samples = sample(oneQuestionShuffle)
+    let shuffleRsp =  shuffle(samples.answers);
+    samples.answers = shuffleRsp;
+   
+    delete samples['answersSelected']; 
+    delete samples['answersHashORG']; 
+    delete samples['answersHash']; 
+
+    samples.answers.forEach(element => {
         delete element['correct']; 
     })
-    console.log(oneQuestionShuffle[0].answers);
+    console.log(samples);
 } else {
     //console.log("empty");
 }

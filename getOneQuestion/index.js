@@ -1,7 +1,9 @@
 const Utils = require('../utils/utilsBlob');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const examsuser = process.env.examsuser;
+const secret_key = process.env.secret_key;
 //const { parse } = require('querystring');
+const { verifyToken, responseOkJson, responseErrorJson } = require('../utils/common');
 const shuffle = require('lodash.shuffle');
 const sample = require('lodash.sample');
 const {
@@ -12,34 +14,38 @@ const {
 module.exports = async function (context, req) {
 
     //let parses = parse(req.body);
-    let parses = req.body;
-    let folder = parses.folder;
-    let blobname = parses.blobname;
-    let blobLocation = folder + '/' + blobname;
+    const token = req.headers.authorization;
+    console.log(token);
+    // "folder": "4444/99293945/8888",
+    //"blobname": "4444_99293945_8888_score.json"
+    // let parses = req.body;
+    // let folder = parses.folder;
+    // let blobname = parses.blobname;
+    // let blobLocation = folder + '/' + blobname;
    
     try {
-
-        let getJsonExamBlobResponse = await Utils.getJsonExamBlob(blobLocation, examsuser);
+        let verifyTokenResponse = await verifyToken(token, secret_key);
+        let createNamePathRsp = await createNamePath(verifyTokenResponse);
+        let getJsonExamBlobResponse = await Utils.getJsonExamBlob(createNamePathRsp, examsuser);
         let getOneQuestionResponse = await getOneQuestion(getJsonExamBlobResponse);
-
-        context.res = {
-            status: 200,
-            body: getOneQuestionResponse,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
+        // getOneQuestionResponse.state==false && { hasQuestions : false }
+        context.res = await responseOkJson(getOneQuestionResponse.msg, { hasQuestions : getOneQuestionResponse.state });
+        
 
     } catch (error) {
-        context.res = {
-            status: 400,
-            body: error,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
+        context.res = await responseErrorJson(error);
     }
 };
+
+function createNamePath(verifyTokenResponse){
+    let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" + 
+                       verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" + 
+                       verifyTokenResponse.ExamEvent_EXTERNAL_ID + "_score.json";
+
+    return verifyTokenResponse.Participant_EXTERNAL_ID + "/" + 
+           verifyTokenResponse.ExamVersion_EXTERNAL_ID + "/" + 
+           verifyTokenResponse.ExamEvent_EXTERNAL_ID + "/" + blobNameJson;
+}
 
 
 async function getOneQuestion(jsonTextObject) {
@@ -57,6 +63,12 @@ async function getOneQuestion(jsonTextObject) {
         let sh = await shuffle(oneQuestionShuffle);
         let getOneQuestion = await sample(sh);
 
+        // shuffle the answers!!! modify
+        let shuffleAnswers = await shuffle(getOneQuestion.answers);
+        getOneQuestion.answers = shuffleAnswers;
+        
+       
+
         getOneQuestion.answers.forEach(element => {
             delete element['correct']; 
         })
@@ -65,9 +77,17 @@ async function getOneQuestion(jsonTextObject) {
         delete getOneQuestion['answersHashORG']; 
         delete getOneQuestion['answersHash']; 
         
-        return getOneQuestion;
+        return  { 
+            msg : getOneQuestion,
+            state : true
+        }
+      
 
     } else {
-        return SENTENCES.questionsAnswered;
+        
+        return  { 
+                  msg : SENTENCES.questionsAnswered,
+                  state : false
+        }
     }
 }
