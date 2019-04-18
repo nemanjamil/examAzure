@@ -15,6 +15,10 @@ const questionSchema = new Schema({
         type: Date,
         required: true
     },
+    eventId:{
+        type: Number,
+        required: true
+    },
     examName:{
         type: String,
         required: true
