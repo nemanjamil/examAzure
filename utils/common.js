@@ -1,15 +1,44 @@
 const jwt = require('jsonwebtoken');
 
 const isArray = (array) => {
-    if (Array.isArray(array)  && array.length) {
+    if (Array.isArray(array) && array.length) {
         return true;
     } else {
         return false;
     }
 }
 
+const responseOkJson = (response, addedElements) => {
+  
+    return {
+        status: 200,
+        body: {
+            message: response,
+            status: true,
+            addedElements
+        },
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+}
+
+const responseErrorJson = (error) => {
+    return {
+        status: 400, 
+        body: { 
+            message : error,
+            status : false
+         },
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+}
+
+
 const SENTENCES = {
-    questionsAnswered : "All questions are answered"
+    questionsAnswered: "All questions are answered"
 }
 
 const verifyToken = (token, secret_key) => {
@@ -25,5 +54,7 @@ const verifyToken = (token, secret_key) => {
 module.exports = {
     isArray,
     SENTENCES,
-    verifyToken
+    verifyToken,
+    responseOkJson,
+    responseErrorJson
 }

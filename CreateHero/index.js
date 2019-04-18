@@ -2,6 +2,7 @@ var MongoClient = require('mongodb').MongoClient;
 
 module.exports = function(context, req) {
   MongoClient.connect(process.env.CosmosDBConnectionString,{ useNewUrlParser: true }, (err, client) => {
+
     let send = response(client, context);
 
     if (err) send(500, err.message);

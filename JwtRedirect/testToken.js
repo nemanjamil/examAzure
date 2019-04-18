@@ -44,4 +44,7 @@ jwt.verify(token, secret_key, function(err, decoded) {
 
   
   
-  console.log("aaaa",m.ExamVersion_EXTERNAL_ID);
+ // console.log("aaaa",m.ExamVersion_EXTERNAL_ID);
+
+
+  console.log(Math.floor(new Date() / 1000));
