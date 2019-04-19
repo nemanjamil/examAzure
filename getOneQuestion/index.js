@@ -15,7 +15,6 @@ module.exports = async function (context, req) {
 
     //let parses = parse(req.body);
     const token = req.headers.authorization;
-    console.log(token);
     // "folder": "4444/99293945/8888",
     //"blobname": "4444_99293945_8888_score.json"
     // let parses = req.body;

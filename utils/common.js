@@ -38,7 +38,8 @@ const responseErrorJson = (error) => {
 
 
 const SENTENCES = {
-    questionsAnswered: "All questions are answered"
+    questionsAnswered: "All questions are answered",
+    somethingWentWrong: "Something went wrong"
 }
 
 const verifyToken = (token, secret_key) => {

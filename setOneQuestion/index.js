@@ -3,6 +3,7 @@ const examtemplatecontainer = process.env.examtemplatecontainer;
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { isArray, verifyToken } = require('../utils/common');
+const path = require('path');
 
 var mongoose = require('mongoose');
 const Question = require('../models/question');
@@ -26,6 +27,8 @@ module.exports = async function (context, req) {
     })
         .then(() => console.log('Connection to CosmosDB successful'))
         .catch((err) => console.error(err));
+    
+       
 
     const saveQuestAndAnsw = async (createNamePathRsp, userFirstName, userLastName) => {
         const quest = new Question({
@@ -34,6 +37,7 @@ module.exports = async function (context, req) {
             time: new Date(),
             eventId: eventId,
             examName: createNamePathRsp,
+            examId: path.basename(createNamePathRsp, '_score.json'),
             question: question,
             answers: answers
         });
