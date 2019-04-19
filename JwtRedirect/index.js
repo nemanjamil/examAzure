@@ -34,13 +34,11 @@ module.exports = async function (context, req) {
         const testIfExamBlobAlreadyExist = await isExamInBlobExist(blobNameJsonPath, containerNameExam);
 
         // ako exam blob ne postoji
-        if (!testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
+        if (testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
             // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
             copyExamVersionResponse = await copyExamFileToContainerJson(containerNameExam, blobNameJsonPath, JSON.stringify(examData));
 
             await saveExamInDB(examData, blobNameJson);
-            // napraviti novu schemu koja se zove Exam
-            // userime, userpresime, examId 444_222_333, current Date time
 
             redirect = verifyTokenResponse.fe_endpoint +
                 '?token=' + req.query.token +
@@ -48,13 +46,8 @@ module.exports = async function (context, req) {
         } else {
           copyExamVersionResponse = testIfExamBlobAlreadyExist;
 
-          console.log(verifyTokenResponse.fe_endpoint);
-
           redirect = verifyTokenResponse.fe_endpoint + '/finish?status=false';
         }
-
-        console.log("--------Body response------------");
-        console.log(copyExamVersionResponse);
 
         context.res = {
             status: 302,
