@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const questionSchema = new Schema({
+    questionId:{
+        type: String,
+        required: true
+    },
     userName: {
         type: String,
         required: true
@@ -24,10 +28,6 @@ const questionSchema = new Schema({
         required: true
     },
     examId:{
-        type: String,
-        required: true
-    },
-    question:{
         type: String,
         required: true
     },

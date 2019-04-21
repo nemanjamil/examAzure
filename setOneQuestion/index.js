@@ -38,7 +38,7 @@ module.exports = async function (context, req) {
             eventId: eventId,
             examName: createNamePathRsp,
             examId: path.basename(createNamePathRsp, '_score.json'),
-            question: question,
+            questionId: question,
             answers: answers
         });
         quest

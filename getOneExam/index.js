@@ -1,36 +1,39 @@
-var mongoose = require('mongoose');
+
 const Question = require('../models/question');
+const { connectionToDB } = require('../utils/database');
+const { responseErrorJson } = require('../utils/common');
 
 
 module.exports = async function (context, req) {
 
-    await mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true&replicaSet=globaldb", {
-        useNewUrlParser: true,
-        auth: {
-            user: process.env.COSMODDB_USER,
-            password: process.env.COSMOSDB_PASSWORD
-        }
-    })
-        .then(() => {
-            console.log('Connection to CosmosDB successful');
-        })
-        .catch((err) => console.error(err));
-
-    await Question.find({
-        examName: '222/123/444/222_123_444_score.json'
-    })
-        .then(result => {
-            context.res = {
-                status: 200,
-                body: result
-                // headers: {
-                //     // 'Location': redirect
-                // },
-            };
-            context.done();
-        })
-        .catch(err => {
-            console.log(err);
-        });
+    try {
+        examId = "222_123_444";
+        await connectionToDB();
+        await getDataFromDB(context, examId);
+    } catch (error) {
+        context.res = await responseErrorJson(error);
+        context.done();
+    }
 
 }
+
+const getDataFromDB = async (context, examId) => {
+    try{
+        const result = await Question.find({examId: examId});
+        context.res = {
+            status: 200,
+            body: result
+            // headers: {
+            //     // 'Location': redirect
+            // },
+        };
+        context.done();
+    }catch(error){
+        let messageBody = {
+            message: "Error fetching data"
+        }
+        return Promise.reject(messageBody)
+    }
+}
+
+    
