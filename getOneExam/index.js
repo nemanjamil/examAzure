@@ -6,8 +6,10 @@ const { responseErrorJson } = require('../utils/common');
 
 module.exports = async function (context, req) {
 
+    const examId = req.body.examId;
+
     try {
-        examId = "222_123_444";
+        // examId = "222_123_444";
         await connectionToDB();
         await getDataFromDB(context, examId);
     } catch (error) {
