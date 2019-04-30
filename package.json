@@ -23,7 +23,5 @@
     "querystring": "^0.2.0",
     "uuid": "^3.3.2"
   },
-  "devDependencies": {
-    "azure-functions-core-tools": "^2.5.553"
-  }
+  "devDependencies": {}
 }

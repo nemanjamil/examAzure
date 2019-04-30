@@ -34,7 +34,7 @@ module.exports = async function (context, req) {
         const testIfExamBlobAlreadyExist = await isExamInBlobExist(blobNameJsonPath, containerNameExam);
 
         // ako exam blob ne postoji
-        if (!testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
+        if (testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
             // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
             copyExamVersionResponse = await copyExamFileToContainerJson(containerNameExam, blobNameJsonPath, JSON.stringify(examData));
 

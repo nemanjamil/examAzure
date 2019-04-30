@@ -33,7 +33,11 @@ module.exports = async function (context, req) {
     try {
 
         let verifyTokenResponse = await verifyToken(token, secret_key);
+
+        // ovo izgleda nista ne radi kad console.log ne dobijem nista???????
         let blobName = await createNamePath(verifyTokenResponse, eventId, uid, extensionImage);
+        
+
 
         var data = await Utils.uploadImageToContainder(containerName, blobName, buffer, type)  // upload picture to container
         //await delay(5000)
