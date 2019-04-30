@@ -1,1 +1,22 @@
 https://github.com/burkeholland/react-cosmosdb
+
+-------------- starting HTTPS --------------
+host start --port 7112 --useHttps --cors * --cert certificate.pfx --password password
+using PowerShell
+$cert = New-SelfSignedCertificate -Subject localhost -DnsName localhost -Frie
+ndlyName "Functions Development" -KeyUsage DigitalSignature -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.1")
+Export-PfxCertificate -Cert $cert -FilePath certificate.pfx -Password (Conver
+tTo-SecureString -String 12345 -Force -AsPlainText)
+
+
+--------- index.html -----------------
+ <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+
+-------- local.settings.json -------------
+  
+   "Host": {
+    "LocalHttpPort": 7071,
+    "CORS": "*"
+  },
+  "CORS": "*",
