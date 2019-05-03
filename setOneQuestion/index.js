@@ -27,19 +27,25 @@ module.exports = async function (context, req) {
     })
         .then(() => console.log('Connection to CosmosDB successful'))
         .catch((err) => console.error(err));
-    
-       
+
+
 
     const saveQuestAndAnsw = async (createNamePathRsp, userFirstName, userLastName) => {
+
+        const examId = path.basename(createNamePathRsp, '_score.json');
+        // 999_123_345 => 999123345
+        const questionssk = parseInt(examId.replace(/_/g, ""), 10);
+
         const quest = new Question({
             userName: userFirstName,
             userLastName: userLastName,
             time: new Date(),
             eventId: eventId,
             examName: createNamePathRsp,
-            examId: path.basename(createNamePathRsp, '_score.json'),
+            examId: examId,
             questionId: question,
-            answers: answers
+            answers: answers,
+            questionssk: questionssk
         });
         quest
             .save()
@@ -54,7 +60,7 @@ module.exports = async function (context, req) {
     try {
         if (!isArray(answers)) await Promise.reject({ message: "Answers is not array" });
         if (!parses.hasOwnProperty('question')) await Promise.reject({ message: "question value does not exist" });
-        
+
         let verifyTokenResponse = await verifyToken(token, secret_key);
         const userFirstName = verifyTokenResponse.Participant_Firstname;
         const userLastName = verifyTokenResponse.Participant_Lastname;

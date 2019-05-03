@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const examSchema = new Schema({
+    examssk: { 
+        type: Number, 
+        required: true, 
+        unique: true 
+    },
     userName: {
         type: String,
         required: true
@@ -19,7 +24,9 @@ const examSchema = new Schema({
         type: String,
         required: true
     }
-});
+}, 
+{ shardKey: { tag: 1, examssk: 1 }}
+);
 
 module.exports = mongoose.model('Exam', examSchema);
 

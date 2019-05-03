@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const questionSchema = new Schema({
+    questionssk: { 
+        type: Number, 
+       // required: true, 
+        unique: true 
+    },
     questionId:{
         type: String,
         required: true
@@ -32,6 +37,8 @@ const questionSchema = new Schema({
         required: true
     },
     answers: [{type: String}]
-});
+}, 
+{ shardKey: { tag: 1, questionssk: 1 }}
+);
 
 module.exports = mongoose.model('Question', questionSchema);

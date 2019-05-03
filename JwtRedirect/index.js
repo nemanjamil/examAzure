@@ -86,11 +86,16 @@ const saveExamInDB = async (examData, blobNameJson) => {
         })
         .catch((err) => console.error(err));
 
+    const examId = path.basename(blobNameJson, '_score.json');
+     // ovde treba da dobijemo 999_123_345 => 999123345
+    const examssk = parseInt(examId.replace(/_/g, ""), 10);
+
     const exam = new Exam({
         userName: examData.Participant_Firstname,
         userLastName: examData.Participant_Lastname,
         time: new Date(),
-        examId: path.basename(blobNameJson, '_score.json')
+        examId: examId,
+        examssk: examssk
     });
 
     await exam.save()

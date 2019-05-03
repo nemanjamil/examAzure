@@ -76,6 +76,9 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
     const examId = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
         verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
         verifyTokenResponse.ExamEvent_EXTERNAL_ID;
+    
+    // ovde treba da dobijemo 999_123_345 => 999123345
+    const picturessk = parseInt(examId.replace(/_/g, ""), 10);
 
     const picture = new Picture({
         pictureId: path.basename(blobName, '.jpeg'),
@@ -83,18 +86,25 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
         time: new Date(),
         examId: examId,
         questionId: questionId,
+        picturessk: picturessk
     });
 
     try {
-        // await picture.save({picturess}, picture, (error, response) => {
-        //     console.log("err", err);
-        //     console.log("response ", response);
+        
+        // await picture.create({ picturessk}, (err, response) => {
+        //        console.log("err 111", err);
+        //        console.log("response 111", response);
         // });
-        await picture.save();
+
+        // await picture.save({ picturessk }, picture, (err, response) => {
+        //     console.log("err 111", err);
+        //     console.log("response 111", response);
+        // });
+        await picture.save()
+
         console.log('Picture data saved');
         return Promise.resolve('Picture data saved');
     } catch (error) {
-        console.log("-----------------------------------");
         console.log(error);
         return Promise.reject("Error saving picture data");
     }
