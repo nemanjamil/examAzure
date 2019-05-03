@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const pictureSchema = new Schema({
+    picturessk: { 
+        type: Number, // Schema.Types.ObjectId, // Number,  // type:
+        required: true, 
+        unique: true 
+    },
     pictureId: {
        type: String,
        required: true 
@@ -23,6 +28,8 @@ const pictureSchema = new Schema({
         type: Date,
         required: true
     }
-});
+}, 
+{ shardKey: { tag: 1, picturessk: 1 }}
+);
 
 module.exports = mongoose.model('Picture', pictureSchema);

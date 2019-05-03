@@ -83,13 +83,27 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
         time: new Date(),
         examId: examId,
         questionId: questionId,
+        picturessk: parseInt(examId, 10)  //123//Math.floor(Math.random()*10000) 
+        // ovde treba da dobijemo 999_123_345 => 999123345
     });
 
     try {
-        await picture.save();
+        
+        // await picture.create({ picturessk}, (err, response) => {
+        //        console.log("err 111", err);
+        //        console.log("response 111", response);
+        // });
+
+        // await picture.save({ picturessk }, picture, (err, response) => {
+        //     console.log("err 111", err);
+        //     console.log("response 111", response);
+        // });
+        await picture.save()
+
         console.log('Picture data saved');
         return Promise.resolve('Picture data saved');
     } catch (error) {
+        console.log(error);
         return Promise.reject("Error saving picture data");
     }
 
