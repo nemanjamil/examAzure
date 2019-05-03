@@ -22,3 +22,4 @@ const examSchema = new Schema({
 });
 
 module.exports = mongoose.model('Exam', examSchema);
+

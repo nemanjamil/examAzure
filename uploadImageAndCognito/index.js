@@ -86,10 +86,16 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
     });
 
     try {
+        // await picture.save({picturess}, picture, (error, response) => {
+        //     console.log("err", err);
+        //     console.log("response ", response);
+        // });
         await picture.save();
         console.log('Picture data saved');
         return Promise.resolve('Picture data saved');
     } catch (error) {
+        console.log("-----------------------------------");
+        console.log(error);
         return Promise.reject("Error saving picture data");
     }
 
