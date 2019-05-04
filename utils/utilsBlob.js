@@ -58,32 +58,19 @@ let uploadImageToContainder = async (containerName, blobName, data, type) => {
 
 }
 
-//getBlobToLocalFile(container, blob, localFileName [, options], callback)
-// let getImageFromBlob = async (containerName, blobName) => {
 
-//     // return new Promise((resolve, reject) => {
-//     //     blobService.getBlobToText(containerName, blobName, (err, data) => {
-//     //         if (err) {
-//     //             reject(err);
-//     //         } else {
-//     //             resolve(data);
-//     //         }
-//     //     });
-//     // })
-
-//     // return new Promise((resolve, reject) => {
-//     //     const name = path.basename(blobName);
-//     // //    const blobService = azureStorage.createBlobService(azureStorageConfig.accountName, azureStorageConfig.accountKey); 
-//     //     blobService.getBlobToLocalFile(containerName, blobName, `${downloadFilePath}${name}`, function(error, serverBlob) {
-//     //         if (error) {
-//     //             reject(error);
-//     //         } else {
-//     //             resolve(downloadFilePath);
-//     //         }
-//     //     });
-//     // });
-
+// const getPictureJsonFromBlob = async (containerName, blobName) => {
+//     return new Promise((resolve, reject) => {
+//         blobService.getBlobToText(containerName, blobName, (err, data) => {
+//             if (err) {
+//                 reject(err);
+//             } else {
+//                 resolve(data);
+//             }
+//         });
+//     })
 // }
+
 
 module.exports = {
     getJsonExamBlob,

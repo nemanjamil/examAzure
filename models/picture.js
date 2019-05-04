@@ -27,6 +27,9 @@ const pictureSchema = new Schema({
     time: {
         type: Date,
         required: true
+    },
+    pictureJSON: {
+        type: Object
     }
 }, 
 { shardKey: { tag: 1, picturessk: 1 }}

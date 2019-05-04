@@ -49,7 +49,7 @@ module.exports = async function (context, req) {
 
         // Saving picture data to Database
         await connectionToDB();
-        await savePictureInDB(context, eventId, questionId, blobName, verifyTokenResponse);
+        await savePictureInDB(context, eventId, questionId, blobName, verifyTokenResponse, responseFromCognitive);
 
         context.res = {
             status: 200,
@@ -71,7 +71,7 @@ module.exports = async function (context, req) {
 };
 
 
-const savePictureInDB = async (context, eventId, questionId, blobName, verifyTokenResponse) => {
+const savePictureInDB = async (context, eventId, questionId, blobName, verifyTokenResponse, pictureJSON) => {
 
     const examId = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
         verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
@@ -86,6 +86,7 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
         time: new Date(),
         examId: examId,
         questionId: questionId,
+        pictureJSON: pictureJSON,
         picturessk: picturessk
     });
 
