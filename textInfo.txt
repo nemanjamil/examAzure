@@ -20,3 +20,9 @@ tTo-SecureString -String 12345 -Force -AsPlainText)
     "CORS": "*"
   },
   "CORS": "*",
+
+  -----------------------------
+        // db.getCollection('pictures').find({})
+        // db.getCollection('pictures').remove({ 'picturessk' : 123 });
+        // db.getCollection('pictures').deleteMany({ 'picturessk' : 123 });
+        // db.getCollection('pictures').findOne({ '_id' : ObjectId("5ccc04f28ee1f95018b5b662")})
