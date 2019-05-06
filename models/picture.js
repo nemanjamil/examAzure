@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 const pictureSchema = new Schema({
     picturessk: { 
         type: Number, 
-        required: true, 
-        unique: true 
+       // required: true, 
+      //  unique: true 
     },
     pictureId: {
        type: String,

@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 const questionSchema = new Schema({
     questionssk: { 
         type: Number, 
-       // required: true, 
-        unique: true 
+      //  required: true, 
+      //  unique: true 
     },
     questionId:{
         type: String,
