@@ -36,7 +36,7 @@ module.exports = async function (context, req) {
 
         // ovo izgleda nista ne radi kad console.log ne dobijem nista???????
         let blobName = await createNamePath(verifyTokenResponse, eventId, uid, extensionImage);
-        
+
 
 
         var data = await Utils.uploadImageToContainder(containerName, blobName, buffer, type)  // upload picture to container
@@ -76,9 +76,12 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
     const examId = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
         verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
         verifyTokenResponse.ExamEvent_EXTERNAL_ID;
-    
+
     // ovde treba da dobijemo 999_123_345 => 999123345
-    const picturessk = parseInt(examId.replace(/_/g, ""), 10);
+    let examIdFormated = examId.replace(/_/g, "");
+    examIdFormated = examIdFormated.substr(0, 10);
+    const picturessk = parseInt(examIdFormated);
+    console.log(examIdFormated);
 
     const picture = new Picture({
         pictureId: path.basename(blobName, '.jpeg'),
@@ -91,7 +94,7 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
     });
 
     try {
-        
+
         // await picture.create({ picturessk}, (err, response) => {
         //        console.log("err 111", err);
         //        console.log("response 111", response);

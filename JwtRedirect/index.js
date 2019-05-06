@@ -34,7 +34,7 @@ module.exports = async function (context, req) {
         const testIfExamBlobAlreadyExist = await isExamInBlobExist(blobNameJsonPath, containerNameExam);
 
         // ako exam blob ne postoji
-        if (testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
+        if (!testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
             // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
             copyExamVersionResponse = await copyExamFileToContainerJson(containerNameExam, blobNameJsonPath, JSON.stringify(examData));
 
@@ -88,7 +88,10 @@ const saveExamInDB = async (examData, blobNameJson) => {
 
     const examId = path.basename(blobNameJson, '_score.json');
      // ovde treba da dobijemo 999_123_345 => 999123345
-    const examssk = parseInt(examId.replace(/_/g, ""), 10);
+    let examIdFormated = examId.replace(/_/g, "");
+    examIdFormated = examIdFormated.substr(0, 10);
+    const examssk = parseInt(examIdFormated);
+    console.log(examIdFormated);
 
     const exam = new Exam({
         userName: examData.Participant_Firstname,
@@ -106,7 +109,7 @@ const saveExamInDB = async (examData, blobNameJson) => {
         console.log('Error Exam Saved');
         console.log(err);
     });
-}
+ }
 
 async function tokenExist(reqquery) {
     if (reqquery.token) {

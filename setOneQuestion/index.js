@@ -33,8 +33,11 @@ module.exports = async function (context, req) {
     const saveQuestAndAnsw = async (createNamePathRsp, userFirstName, userLastName) => {
 
         const examId = path.basename(createNamePathRsp, '_score.json');
-        // 999_123_345 => 999123345
-        const questionssk = parseInt(examId.replace(/_/g, ""), 10);
+        // ovde treba da dobijemo 999_123_345 => 999123345
+        let examIdFormated = examId.replace(/_/g, "");
+        examIdFormated = examIdFormated.substr(0, 10);
+        const questionssk = parseInt(examIdFormated);
+        console.log(examIdFormated);
 
         const quest = new Question({
             userName: userFirstName,

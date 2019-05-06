@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 const examSchema = new Schema({
     examssk: { 
         type: Number, 
-        required: true, 
-        unique: true 
+       // required: true, 
+       // unique: true 
     },
     userName: {
         type: String,
