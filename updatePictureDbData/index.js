@@ -21,37 +21,33 @@ module.exports = async function (context, req) {
 const updatePictureInDB = async (context, pictureId) => {
 
     try {
-        Picture.findOne({ pictureId: pictureId })
-        .then(picture => {
-            
-            // if manuelno validira sliku else manuelno vraca u nevalidnu sliku
-            // nevalidirajne je moguce samo za sliku koja je manuelno bila validirana
-            if(picture.pictureJSON === "[]"){
-                picture.pictureJSON = `[{"info": "Manually validated picture"}]`;
-            }else if(picture.pictureJSON.substring(3,7) === "info"){
-                picture.pictureJSON = `[]`;
-            }
-            
-            return picture.save();
-        })
-        .then(res => {
-            console.log("Updated successfully");
-        })
-        .catch(error => {
-            console.log(error);
-        });
+        const picture = await Picture.findOne({ pictureId: pictureId });
+
+        let pictureJSON = JSON.parse(picture.pictureJSON);
+
+        // if manuelno validira sliku else manuelno vraca u nevalidnu sliku
+        // nevalidirajne je moguce samo za sliku koja je manuelno bila validirana
+        if (pictureJSON.length === 0) {
+            picture.pictureJSON = `[{"info": "Manually validated picture"}]`;
+        } else if (pictureJSON[0].hasOwnProperty('info')) {
+            picture.pictureJSON = `[]`;
+        }
+
+        await picture.save();
+
 
         context.res = {
             status: 200,
         };
+
         context.done();
 
     } catch (error) {
-        console.log(error)
+        console.log(error);
         let messageBody = {
             message: "Error updating picture data"
         }
-        return Promise.reject(messageBody)
+        return Promise.reject(messageBody);
     }
 }
 
