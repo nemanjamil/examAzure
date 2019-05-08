@@ -4,8 +4,10 @@ var mongoose = require('mongoose');
 const connectionToDB = async () => {
 
     try {
+        //mongoose.set('useCreateIndex', true) // or we can use in connect
         await mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true&replicaSet=globaldb", {
             useNewUrlParser: true,
+            useCreateIndex: true,
             auth: {
                 user: process.env.COSMODDB_USER,
                 password: process.env.COSMOSDB_PASSWORD
