@@ -1,6 +1,7 @@
 const Exam = require('../models/exam');
 const Picture = require('../models/picture');
 const Question = require('../models/question');
+const { PROPERTIES } = require('../utils/common');
 const { connectionToDB } = require('../utils/database');
 const { responseErrorJson } = require('../utils/common');
 

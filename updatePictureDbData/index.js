@@ -8,6 +8,9 @@ module.exports = async function (context, req) {
 
     const pictureId = req.body.pictureId;
 
+    console.log("------ Development -------------");
+    console.log(req.body);
+
     try {
         await connectionToDB();
         await updatePictureInDB(context, pictureId);

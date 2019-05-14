@@ -20,7 +20,6 @@ module.exports = async function (context, req) {
 const getDataFromDB = async (context, examId) => {
     try {
         const result = await Picture.find({examId: examId});
-        console.log(result);
         context.res = {
             status: 200,
             body: result

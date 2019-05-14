@@ -20,7 +20,6 @@ module.exports = async function (context, req) {
 
         await connectionToDB();
         const examId = examIdCalculate(verifyTokenResponse);
-        //console.log("EXAM ID: " + examId);
         await updateExamInDB(context, examId);
 
 
