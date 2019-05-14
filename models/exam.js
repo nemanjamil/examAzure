@@ -16,13 +16,19 @@ const examSchema = new Schema({
         type: String,
         required: true
     },
-    time: {
-        type: Date,
-        required: true
+    startTime: { // is not required because before startExam on login page value is null
+        type: Date
     },
     examId:{
         type: String,
         required: true
+    },
+    started:{
+        type: Boolean,
+        required: true
+    },
+    isCheated:{
+        type: Boolean
     }
 }, 
 { shardKey: { tag: 1, examssk: 1 }}

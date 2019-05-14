@@ -1,6 +1,7 @@
 const accessKey = process.env.accessKey;
 const storageAccount = process.env.storageAccount;
 const azureStorage = require('azure-storage');
+const UtilsBlob = require('../utils/utilsBlob');
 const blobService = azureStorage.createBlobService(storageAccount, accessKey)
 const jwt = require('jsonwebtoken');
 const path = require('path');
@@ -33,6 +34,12 @@ module.exports = async function (context, req) {
         // proverava da li postoji vec ovaj Exem na toj putanji, ako postoji link je vec bio jednom pokrenut i test ne sme a se nastavi
         const testIfExamBlobAlreadyExist = await isExamInBlobExist(blobNameJsonPath, containerNameExam);
 
+        // if exam blob exist but exam didn't started
+        let didExamStartedBefore = null;
+        if (testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
+            didExamStartedBefore = await didExamBegin(blobNameJsonPath, containerNameExam);
+        }
+
         // ako exam blob ne postoji
         if (!testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
             // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
@@ -43,18 +50,27 @@ module.exports = async function (context, req) {
             redirect = verifyTokenResponse.fe_endpoint +
                 '?token=' + req.query.token +
                 "&status=" + copyExamVersionResponse.message
-        } else {
-          copyExamVersionResponse = testIfExamBlobAlreadyExist;
 
-          redirect = verifyTokenResponse.fe_endpoint + '/finish?status=false';
+        // if exam blob exist but Json exam started value is false
+        // exam can start but it not necessary saveExamInDB and copyExamFileToContainer
+        } else if (!didExamStartedBefore && didExamStartedBefore !== null) {
+
+            redirect = verifyTokenResponse.fe_endpoint +
+                '?token=' + req.query.token +
+                "&status=" + copyExamVersionResponse.message
+
+        } else {
+            copyExamVersionResponse = testIfExamBlobAlreadyExist;
+
+            redirect = verifyTokenResponse.fe_endpoint + '/finish?status=false';
         }
 
         context.res = {
             status: 302,
             body: copyExamVersionResponse,
             headers: {
-                 'Location': redirect,
-                 'BlobExist': copyExamVersionResponse.doesBlobExist
+                'Location': redirect,
+                'BlobExist': copyExamVersionResponse.doesBlobExist
             },
         };
 
@@ -87,7 +103,7 @@ const saveExamInDB = async (examData, blobNameJson) => {
         .catch((err) => console.error(err));
 
     const examId = path.basename(blobNameJson, '_score.json');
-     // ovde treba da dobijemo 999_123_345 => 999123345
+    // ovde treba da dobijemo 999_123_345 => 999123345
     let examIdFormated = examId.replace(/_/g, "");
     examIdFormated = examIdFormated.substr(0, 10);
     const examssk = parseInt(examIdFormated);
@@ -96,20 +112,22 @@ const saveExamInDB = async (examData, blobNameJson) => {
     const exam = new Exam({
         userName: examData.Participant_Firstname,
         userLastName: examData.Participant_Lastname,
-        time: new Date(),
+        startTime: null,
         examId: examId,
+        started: false,
+        isCheated: null,
         examssk: examssk
     });
 
     await exam.save()
-    .then(result => {
-        console.log('Exam Saved');
-    })
-    .catch(err => {
-        console.log('Error Exam Saved');
-        console.log(err);
-    });
- }
+        .then(result => {
+            console.log('Exam Saved');
+        })
+        .catch(err => {
+            console.log('Error Exam Saved');
+            console.log(err);
+        });
+}
 
 async function tokenExist(reqquery) {
     if (reqquery.token) {
@@ -177,12 +195,19 @@ async function isExamInBlobExist(blobNameJsonPath, containerNameExam) {
                     console.log('Blob does not exist...');
                     resolve({ doesBlobExist: false, message: 'Blob does not exist...' })
                 }
-            }else{
+            } else {
                 console.log('Testing if blob exist error...');
                 reject({ doesBlobExist: null, message: 'Something went wrong' });
             }
         });
     });
+}
+
+async function didExamBegin(blobNameJsonPath, containerNameExam) {
+    const examJsonString = await UtilsBlob.getJsonExamBlob(blobNameJsonPath, containerNameExam);
+    const examJson = JSON.parse(examJsonString);
+
+    return examJson.Exam_Started;
 }
 
 
