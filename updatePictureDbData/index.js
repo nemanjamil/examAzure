@@ -8,9 +8,6 @@ module.exports = async function (context, req) {
 
     const pictureId = req.body.pictureId;
 
-    console.log("------ Development -------------");
-    console.log(req.body);
-
     try {
         await connectionToDB();
         await updatePictureInDB(context, pictureId);
@@ -54,6 +51,19 @@ const updatePictureInDB = async (context, pictureId) => {
     }
 }
 
+// console.log("------ Development -------------");
+// console.log(req.body);
 
+// const getKeys = (data) => {
+//     let keys = [];
+//     for(let key in data){
+//         keys.push(key);
+//     }
+//     return keys;
+// }
+
+// const keys = getKeys(req.body);
+
+// console.log(keys);
 
 
