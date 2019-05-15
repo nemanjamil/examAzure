@@ -61,7 +61,12 @@ module.exports = async function (context, req) {
 
         } else {
             copyExamVersionResponse = testIfExamBlobAlreadyExist;
+
+            if(verifyTokenResponse.fe_endpoint.endsWith("/")){
+                redirect = verifyTokenResponse.fe_endpoint + 'finish?status=false';
+            }else{
                 redirect = verifyTokenResponse.fe_endpoint + '/finish?status=false';
+            }
         }
 
         context.res = {
