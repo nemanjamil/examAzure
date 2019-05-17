@@ -107,11 +107,13 @@ const saveExamInDB = async (examData, blobNameJson) => {
         .catch((err) => console.error(err));
 
     const examId = path.basename(blobNameJson, '_score.json');
+   
     // here we need to transform, 999_123_345 => 999123345
-    let examIdFormated = examId.replace(/_/g, "");
-    examIdFormated = examIdFormated.substr(0, 10);
-    const examssk = parseInt(examIdFormated);
-    console.log(examIdFormated);
+    // let examIdFormated = examId.replace(/_/g, "");
+    // examIdFormated = examIdFormated.substr(0, 10);
+    // const examssk = parseInt(examIdFormated);
+    
+    const examssk = examId;
 
     const exam = new Exam({
         userName: examData.Participant_Firstname,

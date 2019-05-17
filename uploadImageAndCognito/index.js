@@ -78,10 +78,12 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
         verifyTokenResponse.ExamEvent_EXTERNAL_ID;
 
     // ovde treba da dobijemo 999_123_345 => 999123345
-    let examIdFormated = examId.replace(/_/g, "");
-    examIdFormated = examIdFormated.substr(0, 10);
-    const picturessk = parseInt(examIdFormated);
-    console.log(examIdFormated);
+    // let examIdFormated = examId.replace(/_/g, "");
+    // examIdFormated = examIdFormated.substr(0, 10);
+    // const picturessk = parseInt(examIdFormated);
+    // console.log(examIdFormated);
+
+    const picturessk = examId;
 
     const picture = new Picture({
         pictureId: path.basename(blobName, '.jpeg'),

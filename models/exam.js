@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const examSchema = new Schema({
     examssk: { 
-        type: Number, 
+        type: String, 
        // required: true, 
        // unique: true 
     },

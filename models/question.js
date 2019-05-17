@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const questionSchema = new Schema({
     questionssk: { 
-        type: Number, 
+        type: String, 
       //  required: true, 
       //  unique: true 
     },
