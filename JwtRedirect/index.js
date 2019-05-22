@@ -121,6 +121,7 @@ const saveExamInDB = async (examData, blobNameJson) => {
         startTime: null,
         examId: examId,
         started: false,
+        finished: false,
         isCheated: null,
         examssk: examssk
     });

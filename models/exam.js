@@ -27,6 +27,10 @@ const examSchema = new Schema({
         type: Boolean,
         required: true
     },
+    finished:{
+        type: Boolean,
+        required: true
+    },
     isCheated:{
         type: Boolean
     }

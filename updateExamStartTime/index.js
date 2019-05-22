@@ -61,7 +61,6 @@ async function updateJson(getJsonExamBlobResponse, blobNameJsonPath) {
      //   jsonObject.ExamEvent_StartTime_London = toTimestamp(LondonTime);
         jsonObject.Exam_Started = true;
         let putModifiedJsonToCont = await UtilsBlob.putFileToContainerJson(examsuserContainer, blobNameJsonPath, JSON.stringify(jsonObject));
-        putModifiedJsonToCont.LondonTime = jsonObject.ExamEvent_StartTime_London;
         return putModifiedJsonToCont;
 
     } catch (error) {
