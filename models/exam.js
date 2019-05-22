@@ -19,6 +19,9 @@ const examSchema = new Schema({
     startTime: { // is not required because before startExam on login page value is null
         type: Date
     },
+    finishTime: { 
+        type: Date
+    },
     examId:{
         type: String,
         required: true

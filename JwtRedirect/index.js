@@ -119,6 +119,7 @@ const saveExamInDB = async (examData, blobNameJson) => {
         userName: examData.Participant_Firstname,
         userLastName: examData.Participant_Lastname,
         startTime: null,
+        finishTime: null,
         examId: examId,
         started: false,
         finished: false,
