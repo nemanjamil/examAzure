@@ -1,8 +1,9 @@
 const UtilsBlob = require('../utils/utilsBlob');
+const { connectionToDB, testIfExamIsInProgress } = require('../utils/database');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
-const { isArray, verifyToken } = require('../utils/common');
+const { isArray, verifyToken, getExamIdFromToken } = require('../utils/common');
 const path = require('path');
 
 var mongoose = require('mongoose');
@@ -18,50 +19,14 @@ module.exports = async function (context, req) {
     const eventId = parses.eventId;
     const token = req.headers.authorization;
 
-    mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true&replicaSet=globaldb", {
-        useNewUrlParser: true,
-        auth: {
-            user: process.env.COSMODDB_USER,
-            password: process.env.COSMOSDB_PASSWORD
-        }
-    })
-        .then(() => console.log('Connection to CosmosDB successful'))
-        .catch((err) => console.error(err));
-
-
-
-    const saveQuestAndAnsw = async (createNamePathRsp, userFirstName, userLastName) => {
-
-        const examId = path.basename(createNamePathRsp, '_score.json');
-        // ovde treba da dobijemo 999_123_345 => 999123345
-        // let examIdFormated = examId.replace(/_/g, "");
-        // examIdFormated = examIdFormated.substr(0, 10);
-
-        const questionssk = examId;
-       
-
-        const quest = new Question({
-            userName: userFirstName,
-            userLastName: userLastName,
-            time: new Date(),
-            eventId: eventId,
-            examName: createNamePathRsp,
-            examId: examId,
-            questionId: question,
-            answers: answers,
-            questionssk: questionssk
-        });
-        quest
-            .save()
-            .then(result => {
-                console.log('Created Question');
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    }
 
     try {
+
+        await connectionToDB();
+        const examId = await getExamIdFromToken(token, secret_key);
+        let response = await testIfExamIsInProgress(examId);
+
+    
         if (!isArray(answers)) await Promise.reject({ message: "Answers is not array" });
         if (!parses.hasOwnProperty('question')) await Promise.reject({ message: "question value does not exist" });
 
@@ -72,16 +37,18 @@ module.exports = async function (context, req) {
         // 111/99293945/333/111_99293945_333_score.json
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
 
-        await saveQuestAndAnsw(createNamePathRsp, userFirstName, userLastName);
+     //   await connectionToDB();
+        if(!eventId) Promise.reject({message: "No event Id"});
+        await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId);
 
         // dobija sve informacije vezane za exam, sva pitanja i sve odgovore, koji su tacni koji ne, sta je odgovoreno i sta je tacno a sta pogresno odgovoreno
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(createNamePathRsp, examsuser);
-        let updateQuestionReq = await updateQuestion(getJsonExamBlobResponse, createNamePathRsp, question, answers);
+        response = await updateQuestion(getJsonExamBlobResponse, createNamePathRsp, question, answers);
 
         context.res = {
             status: 200,
             body: {
-                message: updateQuestionReq,
+                message: response.message,
                 status: true
             },
             headers: {
@@ -134,5 +101,37 @@ function modifyAswers(jsonObject, question, answers) {
         return Promise.resolve(jsonObject);
     } else {
         return Promise.reject("Allready answered question : " + question)
+    }
+}
+
+const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastName, question, answers, eventId) => {
+
+    const examId = path.basename(createNamePathRsp, '_score.json');
+
+    const questionssk = examId;
+
+    const quest = new Question({
+        userName: userFirstName,
+        userLastName: userLastName,
+        time: new Date(),
+        eventId: eventId,
+        examName: createNamePathRsp,
+        examId: examId,
+        questionId: question,
+        answers: answers,
+        questionssk: questionssk
+    });
+
+    try {
+
+        await quest.save();
+
+    } catch (error) {
+
+        console.log(error);
+        let messageBody = {
+            message: "Error saving question to database"
+        }
+        return Promise.reject(messageBody)
     }
 }

@@ -6,6 +6,12 @@ const { responseErrorJson } = require('../utils/common');
 
 module.exports = async function (context, req) {
 
+    // this endpoint is calling and from exam app and exam admin app
+    // exam admin app don't have token property
+    // exam have token but is not used here (because admin app don't have token)
+
+    // IMPORTANT: need secure this endpoint FOR USE IN EXAM APP WITHOUT TOKEN
+
     const examId = req.body.examId;
 
     try {

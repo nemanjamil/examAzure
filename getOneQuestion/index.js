@@ -1,9 +1,10 @@
 const Utils = require('../utils/utilsBlob');
+const { connectionToDB, testIfExamIsInProgress } = require('../utils/database');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 //const { parse } = require('querystring');
-const { verifyToken, responseOkJson, responseErrorJson } = require('../utils/common');
+const { verifyToken, responseOkJson, responseErrorJson, getExamIdFromToken } = require('../utils/common');
 const shuffle = require('lodash.shuffle');
 const sample = require('lodash.sample');
 const {
@@ -21,29 +22,49 @@ module.exports = async function (context, req) {
     // let folder = parses.folder;
     // let blobname = parses.blobname;
     // let blobLocation = folder + '/' + blobname;
-   
+
     try {
+        await connectionToDB();
+        const examId = await getExamIdFromToken(token, secret_key);
+        let response = await testIfExamIsInProgress(examId);
+
         let verifyTokenResponse = await verifyToken(token, secret_key);
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
         let getJsonExamBlobResponse = await Utils.getJsonExamBlob(createNamePathRsp, examsuser);
         let getOneQuestionResponse = await getOneQuestion(getJsonExamBlobResponse);
-        // getOneQuestionResponse.state==false && { hasQuestions : false }
-        context.res = await responseOkJson(getOneQuestionResponse.msg, { hasQuestions : getOneQuestionResponse.state });
-        
+
+        // if exam is in progress
+        if (response.value) {
+            // getOneQuestionResponse.state==false && { hasQuestions : false }
+            context.res = await responseOkJson(getOneQuestionResponse.message, { hasQuestions: getOneQuestionResponse.state });
+        } else {
+            context.res = {
+                status: 200,
+                body: {
+                    message: response.message,
+                    status: true
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+        }
+
+
 
     } catch (error) {
-        context.res = await responseErrorJson(error);
+          context.res = await responseErrorJson(error);
     }
 };
 
-function createNamePath(verifyTokenResponse){
-    let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" + 
-                       verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" + 
-                       verifyTokenResponse.ExamEvent_EXTERNAL_ID + "_score.json";
+function createNamePath(verifyTokenResponse) {
+    let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
+        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
+        verifyTokenResponse.ExamEvent_EXTERNAL_ID + "_score.json";
 
-    return verifyTokenResponse.Participant_EXTERNAL_ID + "/" + 
-           verifyTokenResponse.ExamVersion_EXTERNAL_ID + "/" + 
-           verifyTokenResponse.ExamEvent_EXTERNAL_ID + "/" + blobNameJson;
+    return verifyTokenResponse.Participant_EXTERNAL_ID + "/" +
+        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "/" +
+        verifyTokenResponse.ExamEvent_EXTERNAL_ID + "/" + blobNameJson;
 }
 
 
@@ -65,28 +86,28 @@ async function getOneQuestion(jsonTextObject) {
         // shuffle the answers!!! modify
         let shuffleAnswers = await shuffle(getOneQuestion.answers);
         getOneQuestion.answers = shuffleAnswers;
-        
-       
+
+
 
         getOneQuestion.answers.forEach(element => {
-            delete element['correct']; 
+            delete element['correct'];
         })
-        
-        delete getOneQuestion['answersSelected']; 
-        delete getOneQuestion['answersHashORG']; 
-        delete getOneQuestion['answersHash']; 
-        
-        return  { 
-            msg : getOneQuestion,
-            state : true
+
+        delete getOneQuestion['answersSelected'];
+        delete getOneQuestion['answersHashORG'];
+        delete getOneQuestion['answersHash'];
+
+        return {
+            message: getOneQuestion,
+            state: true
         }
-      
+
 
     } else {
-        
-        return  { 
-                  msg : SENTENCES.questionsAnswered,
-                  state : false
+
+        return {
+            message: SENTENCES.questionsAnswered,
+            state: false
         }
     }
 }

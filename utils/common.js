@@ -9,7 +9,7 @@ const isArray = (array) => {
 }
 
 const responseOkJson = (response, addedElements) => {
-  
+
     return {
         status: 200,
         body: {
@@ -25,11 +25,11 @@ const responseOkJson = (response, addedElements) => {
 
 const responseErrorJson = (error) => {
     return {
-        status: 400, 
-        body: { 
-            message : error,
-            status : false
-         },
+        status: 400,
+        body: {
+            message: error,
+            status: false
+        },
         headers: {
             'Content-Type': 'application/json'
         }
@@ -52,10 +52,25 @@ const verifyToken = (token, secret_key) => {
     });
 }
 
+const getExamIdFromToken = (token, secret_key) => {
+    return jwt.verify(token, secret_key, function (err, decoded) {
+        if (err) {
+            return Promise.reject(err);
+        } else {
+            examId = decoded.Participant_EXTERNAL_ID + "_" +
+            decoded.ExamVersion_EXTERNAL_ID + "_" +
+            decoded.ExamEvent_EXTERNAL_ID;
+            return Promise.resolve(examId);
+        }
+    });
+}
+
+
 module.exports = {
     isArray,
     SENTENCES,
     verifyToken,
     responseOkJson,
-    responseErrorJson
+    responseErrorJson,
+    getExamIdFromToken
 }

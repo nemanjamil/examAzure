@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-
+const Exam = require('../models/exam');
 
 const connectionToDB = async () => {
 
@@ -26,6 +26,39 @@ const connectionToDB = async () => {
     }
 }
 
+const testIfExamIsInProgress = async (examId) => {
+    try {
+        const exam = await Exam.findOne({ examId: examId });
+        if(exam.started && !exam.finished){
+            let messageBody = {
+                message: "Exam in progress",
+                value: true
+            }
+            return Promise.resolve(messageBody);
+        }else if(exam.finished){
+            let messageBody = {
+                message: "Exam is finished",
+                value: false
+            }
+            return Promise.reject(messageBody);
+        }else if(!exam.started){
+            let messageBody = {
+                message: "Exam is not started",
+                value: false
+            }
+            return Promise.reject(messageBody);
+        }
+    } catch (error) {
+        console.log(error);
+        let messageBody = {
+            message: "Error fetching exam data",
+            value: false
+        }
+        return Promise.reject(messageBody)
+    }
+}
+
 module.exports = {
-    connectionToDB
+    connectionToDB,
+    testIfExamIsInProgress
 }

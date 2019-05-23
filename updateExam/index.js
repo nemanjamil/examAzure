@@ -5,6 +5,11 @@ const { responseErrorJson } = require('../utils/common');
 
 module.exports = async function (context, req) {
 
+    /// Uraditi listu polja koja mogu da se update
+
+
+
+
     // request input data example
     // examId is required
     // other properties are optional, it's logical to have one property which is updating
