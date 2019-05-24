@@ -1,23 +1,15 @@
 
-const Exam = require('../models/exam');
+const Question = require('../models/question');
 const { connectionToDB } = require('../utils/database');
-const { verifyToken, responseErrorJson } = require('../utils/common');
-const secret_key = process.env.secret_key;
+const { responseErrorJson } = require('../utils/common');
 
 
 module.exports = async function (context, req) {
 
-    // this endpoint is calling and from exam app and exam admin app
-    // exam admin app don't have token property
-    // exam have token but is not used here (because admin app don't have token)
-
-    // IMPORTANT: need secure this endpoint FOR USE IN EXAM APP WITHOUT TOKEN
-
     const examId = req.body.examId;
-    const token = req.headers.authorization;
 
     try {
-        await verifyToken(token, secret_key);
+        // examId = "222_123_444";
         await connectionToDB();
         await getDataFromDB(context, examId);
     } catch (error) {
@@ -29,8 +21,7 @@ module.exports = async function (context, req) {
 
 const getDataFromDB = async (context, examId) => {
     try{
-        const result = await Exam.find({examId: examId});
-        console.log(result);
+        const result = await Question.find({examId: examId});
         context.res = {
             status: 200,
             body: result

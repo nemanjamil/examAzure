@@ -5,7 +5,11 @@ const { responseErrorJson } = require('../utils/common');
 
 module.exports = async function (context, req) {
 
-    /// Uraditi listu polja koja mogu da se update
+    // this endpoint is calling and from exam app and exam admin app
+    // exam admin app don't have token property
+    // exam have token but is not used here (because admin app don't have token)
+
+    // IMPORTANT: need secure this endpoint FOR USE IN EXAM APP WITHOUT TOKEN
 
 
 
@@ -50,7 +54,7 @@ const updateExam = async (examId, updateProperties) => {
 
     try {
         const exam = await Exam.findOne({ examId: examId });
-        
+
         for (let key in updateProperties) {
             exam[updateProperties[key].name] = updateProperties[key].value;
         }
