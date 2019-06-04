@@ -20,6 +20,8 @@ module.exports = async function (context, req) {
         console.log("jwtRedirect");
         let tokenExistResponse = await tokenExist(req.query);
 
+        console.log(tokenExistResponse);
+
         // decoudje token 
         let verifyTokenResponse = await verifyToken(tokenExistResponse, secret_key);
 

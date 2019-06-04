@@ -89,6 +89,9 @@ const updateExamInDB = async (context, examId) => {
     try {
         const exam = await Exam.findOne({ examId: examId });
 
+        console.log("--- ovde ----");
+        console.log(exam);
+
         exam.startTime = new Date();
         exam.started = true;
 
