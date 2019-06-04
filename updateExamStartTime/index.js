@@ -5,8 +5,6 @@ const examsuserContainer = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { verifyToken, responseOkJson, responseErrorJson } = require('../utils/common');
 
-
-
 module.exports = async function (context, req) {
 
     const token = req.headers.authorization;
@@ -22,43 +20,18 @@ module.exports = async function (context, req) {
         const examId = examIdCalculate(verifyTokenResponse);
         await updateExamInDB(context, examId);
 
-
         context.res = await responseOkJson(updateQuestionReq);
 
     } catch (error) {
         context.res = await responseErrorJson(error);
     }
-
 };
-
-
-
 
 async function updateJson(getJsonExamBlobResponse, blobNameJsonPath) {
     let jsonObject = JSON.parse(getJsonExamBlobResponse);
-
-    // racunanje vremena u Londonu
-    // ovo nam ne treba, london nije pocetna vremenska zona
-    // new Date daje podatak pocetne nulte UTC zone
-    // ovaj kod je izgleda suvisan ali da sacuvamo za svaki slucaj
-
-    // function calcTime(offset) {
-    //     d = new Date();
-    //     utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-    //     nd = new Date(utc + (3600000 * offset));
-    //     return nd;
-    // }
-    // function toTimestamp(strDate) {
-    //     var datum = Date.parse(strDate);
-    //     return datum / 1000;
-    // }
-
-
-    // let LondonTime = calcTime('+1')
+    
     try {
-
         jsonObject.ExamEvent_StartTime = Math.floor(new Date() / 1000);
-     //   jsonObject.ExamEvent_StartTime_London = toTimestamp(LondonTime);
         jsonObject.Exam_Started = true;
         let putModifiedJsonToCont = await UtilsBlob.putFileToContainerJson(examsuserContainer, blobNameJsonPath, JSON.stringify(jsonObject));
         return putModifiedJsonToCont;
@@ -89,20 +62,10 @@ const updateExamInDB = async (context, examId) => {
     try {
         const exam = await Exam.findOne({ examId: examId });
 
-        console.log("--- ovde ----");
-        console.log(exam);
-
         exam.startTime = new Date();
         exam.started = true;
 
         await exam.save();
-
-
-        // context.res = {
-        //     status: 200,
-        // };
-
-        // context.done();
 
     } catch (error) {
         console.log(error);
