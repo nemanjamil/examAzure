@@ -45,11 +45,15 @@ module.exports = async function (context, req) {
 
         let extensionJson = "json"; // upload json that is received from cognito
         let blobNameJson = await createNamePath(verifyTokenResponse, eventId, uid, extensionJson);
-        var data = await Utils.putFileToContainerJson(containerName, blobNameJson, responseFromCognitive)
+        var data = await Utils.putFileToContainerJson(containerName, blobNameJson, responseFromCognitive);
 
         // Saving picture data to Database
         await connectionToDB();
         await savePictureInDB(context, eventId, questionId, blobName, verifyTokenResponse, responseFromCognitive);
+
+        // Remove sensible information from uploadImage response data
+        delete data.container;
+        delete data.name;
 
         context.res = {
             status: 200,

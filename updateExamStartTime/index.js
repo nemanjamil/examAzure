@@ -22,7 +22,7 @@ module.exports = async function (context, req) {
 
         context.res = await responseOkJson(updateQuestionReq);
 
-    } catch (error) {
+    } catch (error) {z
         context.res = await responseErrorJson(error);
     }
 };

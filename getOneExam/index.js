@@ -28,8 +28,14 @@ module.exports = async function (context, req) {
 }
 
 const getDataFromDB = async (context, examId) => {
-    try{
-        const result = await Exam.find({examId: examId});
+    try {
+        let result = await Exam.findOne({ examId: examId });
+
+        // Remove sensible information from Exam response data
+        result=result.toObject()
+        delete result['_id'];
+        delete result['examssk'];
+
         context.res = {
             status: 200,
             body: result
@@ -38,7 +44,7 @@ const getDataFromDB = async (context, examId) => {
             // },
         };
         context.done();
-    }catch(error){
+    } catch (error) {
         let messageBody = {
             message: "Error fetching data"
         }
@@ -46,4 +52,3 @@ const getDataFromDB = async (context, examId) => {
     }
 }
 
-    
