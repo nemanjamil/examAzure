@@ -1,6 +1,9 @@
 const Exam = require('../models/exam');
 const { connectionToDB } = require('../utils/database');
 const { responseErrorJson } = require('../utils/common');
+const UtilsBlob = require('../utils/utilsBlob');
+const examsuserContainer = process.env.examsuser;
+
 
 
 module.exports = async function (context, req) {
@@ -39,6 +42,7 @@ module.exports = async function (context, req) {
     try {
         await connectionToDB();
         await updateExam(examId, updateProperties);
+        await isCheatedPropertyChanged(examId, updateProperties);
         context.res = {
             status: 200,
         };
@@ -62,7 +66,6 @@ const updateExam = async (examId, updateProperties) => {
         await exam.save();
 
     } catch (error) {
-        console.log(error);
         let messageBody = {
             message: "Error updating exam"
         }
@@ -71,6 +74,40 @@ const updateExam = async (examId, updateProperties) => {
 }
 
 
+// If updating exam DB property is cheated (true or false)
+// then update same information in blob JSON
+const isCheatedPropertyChanged = async (examId, updateProperties) => {
+
+    let cheatedProperty = null;
+    cheatedProperty = updateProperties.find(el => el.name === 'isCheated');
+
+    if (cheatedProperty) {
+        // create blob path from examId: tom_123_sd3-34sd => tom/123/sd3-34sd/tom_123_sd3-34sd_score.json
+        const blobName = `${examId}_score.json`;
+        const blobPath = `${examId.split('_').join('/')}/${blobName}`;
+        try {
+            let examJsonFromBlob = await UtilsBlob.getJsonExamBlob(blobPath, examsuserContainer);
+            await updateJson(examJsonFromBlob, blobPath, cheatedProperty);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+}
+
+// if isCheated property did changed
+async function updateJson(examJsonFromBlob, blobPath, cheatedProperty) {
+    
+    let jsonObject = JSON.parse(examJsonFromBlob);
+    try {
+        jsonObject.Exam_FMR = cheatedProperty.value
+        await UtilsBlob.putFileToContainerJson(examsuserContainer, blobPath, JSON.stringify(jsonObject));
+    } catch (error) {
+        let messageBody = {
+            message: "Error updating cheated property in blob JSON file"
+        }
+        return Promise.reject(messageBody);
+    }
+}
 
 
 
