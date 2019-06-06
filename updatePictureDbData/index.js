@@ -25,11 +25,20 @@ const updatePictureInDB = async (context, pictureId) => {
 
         let pictureJSON = JSON.parse(picture.pictureJSON);
 
-        // if manuelno validira sliku else manuelno vraca u nevalidnu sliku
-        // nevalidirajne je moguce samo za sliku koja je manuelno bila validirana
+        console.log(pictureJSON.length);
+        console.log(pictureJSON);
+
+ 
+        // if picture was invalid, set tu manually valid picture
         if (pictureJSON.length === 0) {
             picture.pictureJSON = `[{"info": "Manually validated picture"}]`;
-        } else if (pictureJSON[0].hasOwnProperty('info')) {
+        }
+        // if picture was manually validated, set to invalid again 
+        else if (pictureJSON[0].hasOwnProperty('info')) {
+            picture.pictureJSON = `[]`;
+        }
+        // if picture was valid from start, set manually to invalid
+        else if(pictureJSON.length > 0){
             picture.pictureJSON = `[]`;
         }
 
