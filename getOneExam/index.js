@@ -19,7 +19,14 @@ module.exports = async function (context, req) {
     try {
         await verifyToken(token, secret_key);
         await connectionToDB();
-        await getDataFromDB(context, examId);
+        let getDataResponse = await getDataFromDB(context, examId);
+
+        // ovde isto treba staviti
+        // // proveriti kako ce da se odrazi na trenutno funkcionisanje examClient
+        context.res = await responseOkJson(getDataResponse);
+        
+
+
     } catch (error) {
         context.res = await responseErrorJson(error);
         context.done();
@@ -36,15 +43,21 @@ const getDataFromDB = async (context, examId) => {
         delete result['_id'];
         delete result['examssk'];
 
-        context.res = {
-            status: 200,
-            body: result
-            // headers: {
-            //     // 'Location': redirect
-            // },
-        };
-        context.done();
+
+        // a sve ovo izbrisati i staviti
+        return result;
+        // context.res = {
+        //     status: 200,
+        //     body: result
+        //     // headers: {
+        //     //     // 'Location': redirect
+        //     // },
+        // };
+        // context.done();
+        // dovde
+
     } catch (error) {
+
         let messageBody = {
             message: "Error fetching data"
         }

@@ -4,8 +4,6 @@ const { responseErrorJson } = require('../utils/common');
 const UtilsBlob = require('../utils/utilsBlob');
 const examsuserContainer = process.env.examsuser;
 
-
-
 module.exports = async function (context, req) {
 
     // this endpoint is calling and from exam app and exam admin app
@@ -13,9 +11,6 @@ module.exports = async function (context, req) {
     // exam have token but is not used here (because admin app don't have token)
 
     // IMPORTANT: need secure this endpoint FOR USE IN EXAM APP WITHOUT TOKEN
-
-
-
 
     // request input data example
     // examId is required
@@ -43,6 +38,7 @@ module.exports = async function (context, req) {
         await connectionToDB();
         await updateExam(examId, updateProperties);
         await isCheatedPropertyChanged(examId, updateProperties);
+        // response OK dodati [TODO] Mirko
         context.res = {
             status: 200,
         };
@@ -108,6 +104,3 @@ async function updateJson(examJsonFromBlob, blobPath, cheatedProperty) {
         return Promise.reject(messageBody);
     }
 }
-
-
-

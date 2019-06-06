@@ -23,9 +23,9 @@ const responseOkJson = (response, addedElements) => {
     }
 }
 
-const responseErrorJson = (error) => {
+const responseErrorJson = (error,statusNumber = 400) => {
     return {
-        status: 400,
+        status: statusNumber,
         body: {
             message: error,
             status: false

@@ -53,6 +53,7 @@ module.exports = async function (context, req) {
         delete data.container;
         delete data.name;
 
+        // staviti response OK [TODO] mirko
         context.res = {
             status: 200,
             body: data,
@@ -61,6 +62,7 @@ module.exports = async function (context, req) {
             }
         };
     } catch (err) {
+        // staviti responseError [TODO] mirko
         console.log(err);
         context.res = {
             status: 400,
@@ -94,7 +96,13 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
         });
 
         await picture.save()
-        return Promise.resolve('Picture data saved');
+        // zasto ovde koristimo Promise kada smo vec u Async/Await
+        // treba samo da koristimo samo return pa neki data
+        // primer
+        //let pictureSave = await picture.save()
+        //return pictureSave;
+
+        return Promise.resolve('Picture data saved'); 
 
     } catch (error) {
         return Promise.reject("Error saving picture data");
@@ -102,9 +110,7 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
 
 }
 
-
 const delay = ms => new Promise(res => setTimeout(res, ms));
-
 
 function createNamePath(verifyTokenResponse, eventId, uid, extensionImage) {
     return verifyTokenResponse.Participant_EXTERNAL_ID + "/" +
