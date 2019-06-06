@@ -58,6 +58,18 @@ let uploadImageToContainder = async (containerName, blobName, data, type) => {
 
 }
 
+const getContainerFilesDetails = async(containerName) => {
+    return new Promise((resolve, reject) => {
+        blobService.listBlobsSegmented(containerName, null, (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+}
+
 
 // const getPictureJsonFromBlob = async (containerName, blobName) => {
 //     return new Promise((resolve, reject) => {
@@ -76,5 +88,6 @@ module.exports = {
     getJsonExamBlob,
     log,
     putFileToContainerJson,
-    uploadImageToContainder
+    uploadImageToContainder,
+    getContainerFilesDetails
 }
