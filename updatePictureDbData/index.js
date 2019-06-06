@@ -24,10 +24,6 @@ const updatePictureInDB = async (context, pictureId) => {
         const picture = await Picture.findOne({ pictureId: pictureId });
 
         let pictureJSON = JSON.parse(picture.pictureJSON);
-
-        console.log(pictureJSON.length);
-        console.log(pictureJSON);
-
  
         // if picture was invalid, set tu manually valid picture
         if (pictureJSON.length === 0) {

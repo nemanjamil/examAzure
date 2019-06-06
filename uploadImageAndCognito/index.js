@@ -37,8 +37,6 @@ module.exports = async function (context, req) {
         // ovo izgleda nista ne radi kad console.log ne dobijem nista???????
         let blobName = await createNamePath(verifyTokenResponse, eventId, uid, extensionImage);
 
-
-
         var data = await Utils.uploadImageToContainder(containerName, blobName, buffer, type)  // upload picture to container
         //await delay(5000)
         let responseFromCognitive = await requestQuery(containerName, blobName); // call Cognito on uploaded image
@@ -81,41 +79,24 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
         verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
         verifyTokenResponse.ExamEvent_EXTERNAL_ID;
 
-    // ovde treba da dobijemo 999_123_345 => 999123345
-    // let examIdFormated = examId.replace(/_/g, "");
-    // examIdFormated = examIdFormated.substr(0, 10);
-    // const picturessk = parseInt(examIdFormated);
-    // console.log(examIdFormated);
-
-    const picturessk = examId;
-
-    const picture = new Picture({
-        pictureId: path.basename(blobName, '.jpeg'),
-        eventId: eventId,
-        time: new Date(),
-        examId: examId,
-        questionId: questionId,
-        pictureJSON: pictureJSON,
-        picturessk: picturessk
-    });
-
     try {
 
-        // await picture.create({ picturessk}, (err, response) => {
-        //        console.log("err 111", err);
-        //        console.log("response 111", response);
-        // });
+        const picturessk = examId;
 
-        // await picture.save({ picturessk }, picture, (err, response) => {
-        //     console.log("err 111", err);
-        //     console.log("response 111", response);
-        // });
+        const picture = new Picture({
+            pictureId: path.basename(blobName, '.jpeg'),
+            eventId: eventId,
+            time: new Date(),
+            examId: examId,
+            questionId: questionId,
+            pictureJSON: pictureJSON,
+            picturessk: picturessk
+        });
+
         await picture.save()
-
-        console.log('Picture data saved');
         return Promise.resolve('Picture data saved');
+
     } catch (error) {
-        console.log(error);
         return Promise.reject("Error saving picture data");
     }
 
