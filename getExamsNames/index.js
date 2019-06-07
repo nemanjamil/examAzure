@@ -1,12 +1,12 @@
 const { responseErrorJson, responseOkJson } = require('../utils/common');
-const examsTemplateContainer = process.env.examsTemplateContainer;
+const examtemplatecontainer = process.env.examtemplatecontainer;
 const UtilsBlob = require('../utils/utilsBlob');
 
 
 module.exports = async function (context, req) {
 
     try {
-        const response = await UtilsBlob.getContainerFilesDetails(examsTemplateContainer);
+        const response = await UtilsBlob.getContainerFilesDetails(examtemplatecontainer);
         const data = response.entries;
         const examsNames = [];
         for(let key in data){
