@@ -58,7 +58,7 @@ let uploadImageToContainder = async (containerName, blobName, data, type) => {
 
 }
 
-const getContainerFilesDetails = async(containerName) => {
+const getContainerFilesDetails = async (containerName) => {
     return new Promise((resolve, reject) => {
         blobService.listBlobsSegmented(containerName, null, (err, data) => {
             if (err) {
