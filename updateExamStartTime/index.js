@@ -18,9 +18,14 @@ module.exports = async function (context, req) {
 
         await connectionToDB();
         const examId = examIdCalculate(verifyTokenResponse);
-        await updateExamInDB(context, examId);
+        const updateResult = await updateExamInDB(context, examId);
 
-        context.res = await responseOkJson(updateQuestionReq);
+        response ={
+            updateQuestion: updateQuestionReq,
+            updateExamDb: updateResult
+        }
+
+        context.res = await responseOkJson(response);
 
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -65,7 +70,12 @@ const updateExamInDB = async (context, examId) => {
         exam.startTime = new Date();
         exam.started = true;
 
-        await exam.save();
+        let saveResult = await exam.save();
+        saveResult = saveResult.toObject();
+        delete saveResult['_id'];
+        delete saveResult['examssk'];
+
+        return saveResult;
 
     } catch (error) {
         console.log(error);
