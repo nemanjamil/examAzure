@@ -45,22 +45,21 @@ module.exports = async function (context, req) {
         let blobNameJson = await createNamePath(verifyTokenResponse, eventId, uid, extensionJson);
         var data = await Utils.putFileToContainerJson(containerName, blobNameJson, responseFromCognitive);
 
-        // Saving picture data to Database
-        await connectionToDB();
-        await savePictureInDB(context, eventId, questionId, blobName, verifyTokenResponse, responseFromCognitive);
-
         // Remove sensible information from uploadImage response data
         delete data.container;
         delete data.name;
 
-        // staviti response OK [TODO] mirko
-        context.res = {
-            status: 200,
-            body: data,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
+        // Saving picture data to Database
+        await connectionToDB();
+        const pictureSaveResult = await savePictureInDB(context, eventId, questionId, blobName, verifyTokenResponse, responseFromCognitive);
+
+        response = {
+            putFileToContainerJSON: data,
+            pictureSaveResult: pictureSaveResult
+        }
+
+        context.res = await responseOkJson(response);
+
     } catch (err) {
         // staviti responseError [TODO] mirko
         console.log(err);
@@ -95,14 +94,12 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
             picturessk: picturessk
         });
 
-        await picture.save()
-        // zasto ovde koristimo Promise kada smo vec u Async/Await
-        // treba samo da koristimo samo return pa neki data
-        // primer
-        //let pictureSave = await picture.save()
-        //return pictureSave;
+        let pictureSave = await picture.save();
+        pictureSave = pictureSave.toObject();
+        delete pictureSave['_id'];
+        delete pictureSave['picturessk'];
 
-        return Promise.resolve('Picture data saved'); 
+        return pictureSave;
 
     } catch (error) {
         return Promise.reject("Error saving picture data");

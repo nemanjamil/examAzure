@@ -1,7 +1,7 @@
 
 const Exam = require('../models/exam');
 const { connectionToDB } = require('../utils/database');
-const { verifyToken, responseErrorJson } = require('../utils/common');
+const { verifyToken, responseErrorJson, responseOkJson} = require('../utils/common');
 const secret_key = process.env.secret_key;
 
 
@@ -21,11 +21,7 @@ module.exports = async function (context, req) {
         await connectionToDB();
         let getDataResponse = await getDataFromDB(context, examId);
 
-        // ovde isto treba staviti
-        // // proveriti kako ce da se odrazi na trenutno funkcionisanje examClient
         context.res = await responseOkJson(getDataResponse);
-        
-
 
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -39,22 +35,11 @@ const getDataFromDB = async (context, examId) => {
         let result = await Exam.findOne({ examId: examId });
 
         // Remove sensible information from Exam response data
-        result=result.toObject()
+        result = result.toObject();
         delete result['_id'];
         delete result['examssk'];
 
-
-        // a sve ovo izbrisati i staviti
         return result;
-        // context.res = {
-        //     status: 200,
-        //     body: result
-        //     // headers: {
-        //     //     // 'Location': redirect
-        //     // },
-        // };
-        // context.done();
-        // dovde
 
     } catch (error) {
 

@@ -1,6 +1,6 @@
 const Exam = require('../models/exam');
 const { connectionToDB } = require('../utils/database');
-const { responseErrorJson } = require('../utils/common');
+const { responseErrorJson, responseOkJson } = require('../utils/common');
 const UtilsBlob = require('../utils/utilsBlob');
 const examsuserContainer = process.env.examsuser;
 
@@ -36,13 +36,16 @@ module.exports = async function (context, req) {
 
     try {
         await connectionToDB();
-        await updateExam(examId, updateProperties);
-        await isCheatedPropertyChanged(examId, updateProperties);
-        // response OK dodati [TODO] Mirko
-        context.res = {
-            status: 200,
-        };
-        context.done();
+        const updateDBResult = await updateExam(examId, updateProperties);
+        const updateCheatedJSONResult = await isCheatedPropertyUpdating(examId, updateProperties);
+
+        const response = {
+            updateExamDB: updateDBResult,
+            isCheatedPropertyUpdating: updateCheatedJSONResult
+        }
+
+        context.res = responseOkJson(response);
+
     } catch (error) {
         context.res = await responseErrorJson(error);
         context.done();
@@ -59,8 +62,13 @@ const updateExam = async (examId, updateProperties) => {
             exam[updateProperties[key].name] = updateProperties[key].value;
         }
 
-        await exam.save();
+        let result = await exam.save();
+        result = result.toObject();
+        delete result['_id'];
+        delete result['examssk'];
 
+        return result;
+        
     } catch (error) {
         let messageBody = {
             message: "Error updating exam"
@@ -72,7 +80,7 @@ const updateExam = async (examId, updateProperties) => {
 
 // If updating exam DB property is cheated (true or false)
 // then update same information in blob JSON
-const isCheatedPropertyChanged = async (examId, updateProperties) => {
+const isCheatedPropertyUpdating = async (examId, updateProperties) => {
 
     let cheatedProperty = null;
     cheatedProperty = updateProperties.find(el => el.name === 'isCheated');
@@ -84,10 +92,13 @@ const isCheatedPropertyChanged = async (examId, updateProperties) => {
         try {
             let examJsonFromBlob = await UtilsBlob.getJsonExamBlob(blobPath, examsuserContainer);
             await updateJson(examJsonFromBlob, blobPath, cheatedProperty);
+            return Promise.resolve({message: "Cheated property in JSON was updated"});
         } catch (error) {
             return Promise.reject(error);
         }
     }
+
+    return Promise.resolve({message:'Not updating'});
 }
 
 // if isCheated property did changed

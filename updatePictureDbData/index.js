@@ -1,7 +1,7 @@
 
 const Picture = require('../models/picture');
 const { connectionToDB } = require('../utils/database');
-const { responseErrorJson } = require('../utils/common');
+const { responseErrorJson, responseOkJson } = require('../utils/common');
 
 /**
  * This fuction is used for Gallery to validate pictures
@@ -12,8 +12,10 @@ module.exports = async function (context, req) {
 
     try {
         await connectionToDB();
-        await updatePictureInDB(context, pictureId);
-        // responseOK
+        const updatePictureResult = await updatePictureInDB(context, pictureId);
+
+        context.res = await responseOkJson(updatePictureResult);
+
     } catch (error) {
         context.res = await responseErrorJson(error);
         context.done();
@@ -26,7 +28,7 @@ const updatePictureInDB = async (context, pictureId) => {
     try {
         const picture = await Picture.findOne({ pictureId: pictureId });
 
-        let pictureJSON = await JSON.parse(picture.pictureJSON); // proveri za ovaj await da li treba [TODO] mirko
+        let pictureJSON = await JSON.parse(picture.pictureJSON); 
  
         let pictureJsonLgn = pictureJSON.length;
         // if picture was invalid, set tu manually valid picture
@@ -42,19 +44,15 @@ const updatePictureInDB = async (context, pictureId) => {
             picture.pictureJSON = `[]`;
         }
 
-        // verovatno cemo dobiti neki odgovor od picure save
         let pictureSave = await picture.save();
 
+        pictureSave = pictureSave.toObject();
+        delete pictureSave['_id'];
+        delete pictureSave['picturessk'];
         return pictureSave;
-        // ovde ne treba da bude odgovor
-        context.res = {
-            status: 200,
-        };
-
-        context.done();
 
     } catch (error) {
-        console.log(error);
+
         let messageBody = {
             message: "Error updating picture data"
         }
