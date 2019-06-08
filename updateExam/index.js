@@ -44,7 +44,7 @@ module.exports = async function (context, req) {
             isCheatedPropertyUpdating: updateCheatedJSONResult
         }
 
-        context.res = responseOkJson(response);
+        context.res = await responseOkJson(response);
 
     } catch (error) {
         context.res = await responseErrorJson(error);
