@@ -11,10 +11,6 @@ module.exports = async function (context, req) {
     const pictureId = req.body.pictureId;
     const validationType = req.body.validationType;
 
-    console.log("------------------");
-    console.log(validationType);
-    console.log(req);
-
     try {
         await connectionToDB();
         const updatePictureResult = await updatePictureInDB(context, pictureId, validationType);
