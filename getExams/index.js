@@ -1,14 +1,20 @@
 
 const Exam = require('../models/exam');
 const { connectionToDB } = require('../utils/database');
-const { responseErrorJson } = require('../utils/common');
+const { responseErrorJson, responseOkJson } = require('../utils/common');
 
 
 module.exports = async function (context, req) {
 
+    const tablePage = req.body.page;
+    const rowsPerTablePage = req.body.rowsPerPage;
+
     try {
         await connectionToDB();
-        await getDataFromDB(context);
+        const data = await getDataFromDB(tablePage, rowsPerTablePage);
+
+        context.res = await responseOkJson(data);
+
     } catch (error) {
         context.res = await responseErrorJson(error);
         context.done();
@@ -16,21 +22,34 @@ module.exports = async function (context, req) {
 
 }
 
-const getDataFromDB = async (context) => {
+const getDataFromDB = async (tablePage, rowsPerTablePage) => {
     try {
-        const result = await Exam.find();
-        context.res = {
-            status: 200,
-            body: result
-            // headers: {
-            //     // 'Location': redirect
-            // },
-        };
-        context.done();
-        // let messageBody = {
-        //     message: "Data fetch successfully"
-        // }
-        // return Promise.resolve(messageBody);
+
+        const numberOfExams = await Exam.count();
+        
+        const result = await Exam.find({}, null, {sort: {_id: 'descending'}})
+        .skip(tablePage*rowsPerTablePage)
+        .limit(rowsPerTablePage);
+
+        const data = {
+            numberOfExams: numberOfExams,
+            examsList: result
+        }
+
+        return data;
+
+        // context.res = {
+        //     status: 200,
+        //     body: result
+        //     // headers: {
+        //     //     // 'Location': redirect
+        //     // },
+        // };
+        // context.done();
+        // // let messageBody = {
+        // //     message: "Data fetch successfully"
+        // // }
+        // // return Promise.resolve(messageBody);
     } catch (error) {
         let messageBody = {
             message: "Error fetching data"
