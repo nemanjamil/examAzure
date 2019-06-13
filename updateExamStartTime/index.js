@@ -18,9 +18,9 @@ module.exports = async function (context, req) {
 
         await connectionToDB();
         const examId = examIdCalculate(verifyTokenResponse);
-        const updateResult = await updateExamInDB(context, examId);
+        const updateResult = await updateExamInDB(examId);
 
-        response ={
+        response = {
             updateQuestion: updateQuestionReq,
             updateExamDb: updateResult
         }
@@ -34,7 +34,7 @@ module.exports = async function (context, req) {
 
 async function updateJson(getJsonExamBlobResponse, blobNameJsonPath) {
     let jsonObject = JSON.parse(getJsonExamBlobResponse);
-    
+
     try {
         jsonObject.ExamEvent_StartTime = Math.floor(new Date() / 1000);
         jsonObject.Exam_Started = true;
@@ -62,20 +62,27 @@ const examIdCalculate = (verifyTokenResponse) => {
         verifyTokenResponse.ExamEvent_EXTERNAL_ID;
 }
 
-const updateExamInDB = async (context, examId) => {
+const updateExamInDB = async (examId) => {
 
     try {
-        const exam = await Exam.findOne({ examId: examId });
 
-        exam.startTime = new Date();
-        exam.started = true;
+        data = { 
+            startTime: new Date(),
+            started : true,
+            status: 'In Progress' 
+        }
 
-        let saveResult = await exam.save();
-        saveResult = saveResult.toObject();
-        delete saveResult['_id'];
-        delete saveResult['examssk'];
+        let examUpdate = await Exam.findOneAndUpdate(
+            { examId: examId, examssk: examId},
+            { $set: data },
+            { new: true }
+        );
 
-        return saveResult;
+        examUpdate = examUpdate.toObject();
+        delete examUpdate['_id'];
+        delete examUpdate['examssk'];
+
+        return examUpdate;
 
     } catch (error) {
         console.log(error);

@@ -2,34 +2,32 @@ const accessKey = process.env.accessKey;
 const storageAccount = process.env.storageAccount;
 const azureStorage = require('azure-storage');
 const UtilsBlob = require('../utils/utilsBlob');
+const { createExamNamePath, verifyToken } = require('../utils/common');
 const blobService = azureStorage.createBlobService(storageAccount, accessKey)
-const jwt = require('jsonwebtoken');
-const path = require('path');
+// const jwt = require('jsonwebtoken');
 const secret_key = process.env.secret_key;
-
-var mongoose = require('mongoose');
 const Exam = require('../models/exam');
+const path = require('path');
 
 
 module.exports = async function (context, req) {
 
     //let secret_key = 'bmp_space_165423106546545';
     let container = "examstemplate";
+    let examUpdateResult = null;
 
     try {
         console.log("jwtRedirect");
         let tokenExistResponse = await tokenExist(req.query);
 
-        console.log(tokenExistResponse);
-
-        // decoudje token 
+        // dekoduje token 
         let verifyTokenResponse = await verifyToken(tokenExistResponse, secret_key);
 
         // iz token informacija nalazi Exam koji vraca u tekstualnom obliku sa pridodatim informacijama
         // i vraca putanju gde bi za polaganje ovog User-a taj exem trebao da se iskopira
-        const { examData, blobNameJsonPath, blobNameJson } = await fetchExamVersion(verifyTokenResponse, container);
+        const { examData, blobNameJsonPath } = await fetchExamVersion(verifyTokenResponse, container);
 
-        let containerNameExam = "exams";
+        const containerNameExam = process.env.examsuser;
         let redirect = null;
         let copyExamVersionResponse = "";
 
@@ -47,7 +45,11 @@ module.exports = async function (context, req) {
             // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
             copyExamVersionResponse = await copyExamFileToContainerJson(containerNameExam, blobNameJsonPath, JSON.stringify(examData));
 
-            await saveExamInDB(examData, blobNameJson);
+       //    let blobNameJson = createExamNamePath(verifyTokenResponse);
+           const examId = path.basename(blobNameJsonPath, '_score.json');
+           examUpdateResult = await updateExam(examId);
+
+           console.log("zavrsio update");
 
             redirect = verifyTokenResponse.fe_endpoint +
                 '?token=' + req.query.token +
@@ -71,9 +73,14 @@ module.exports = async function (context, req) {
             }
         }
 
+        const data = {
+            copyExamVersionResponse: copyExamVersionResponse,
+            examUpdateResult: examUpdateResult
+        }
+
         context.res = {
             status: 302,
-            body: copyExamVersionResponse,
+            body: data,
             headers: {
                 'Location': redirect,
                 'BlobExist': copyExamVersionResponse.doesBlobExist
@@ -94,51 +101,6 @@ module.exports = async function (context, req) {
     }
 };
 
-const saveExamInDB = async (examData, blobNameJson) => {
-
-    await mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true&replicaSet=globaldb", {
-        useNewUrlParser: true,
-        auth: {
-            user: process.env.COSMODDB_USER,
-            password: process.env.COSMOSDB_PASSWORD
-        }
-    })
-        .then(() => {
-            console.log('Connection to CosmosDB successful');
-        })
-        .catch((err) => console.error(err));
-
-    const examId = path.basename(blobNameJson, '_score.json');
-   
-    // here we need to transform, 999_123_345 => 999123345
-    // let examIdFormated = examId.replace(/_/g, "");
-    // examIdFormated = examIdFormated.substr(0, 10);
-    // const examssk = parseInt(examIdFormated);
-    
-    const examssk = examId;
-
-    const exam = new Exam({
-        userName: examData.Participant_Firstname,
-        userLastName: examData.Participant_Lastname,
-        startTime: null,
-        finishTime: null,
-        examId: examId,
-        started: false,
-        finished: false,
-        isCheated: null,
-        examssk: examssk
-    });
-
-    await exam.save()
-        .then(result => {
-            console.log('Exam Saved');
-        })
-        .catch(err => {
-            console.log('Error Exam Saved');
-            console.log(err);
-        });
-}
-
 async function tokenExist(reqquery) {
     if (reqquery.token) {
         return reqquery.token;
@@ -150,15 +112,6 @@ async function tokenExist(reqquery) {
     }
 }
 
-async function verifyToken(token, secret_key) {
-    return jwt.verify(token, secret_key, function (err, decoded) {
-        if (err) {
-            return Promise.reject(err);
-        } else {
-            return Promise.resolve(decoded);
-        }
-    });
-}
 
 async function fetchExamVersion(verifyTokenResponse, containerName) {
     try {
@@ -178,15 +131,17 @@ async function fetchExamVersion(verifyTokenResponse, containerName) {
         clone.ExamEvent_ReadyTime = Math.floor(new Date() / 1000);
         clone.ExamEvent_EXTERNAL_ID = verifyTokenResponse.ExamEvent_EXTERNAL_ID;
 
-        let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
-            verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
-            verifyTokenResponse.ExamEvent_EXTERNAL_ID + "_score.json";
+        // let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
+        //     verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
+        //     verifyTokenResponse.ExamEvent_EXTERNAL_ID + "_score.json";
 
-        let blobNameJsonPath = verifyTokenResponse.Participant_EXTERNAL_ID + "/" +
-            verifyTokenResponse.ExamVersion_EXTERNAL_ID + "/" +
-            verifyTokenResponse.ExamEvent_EXTERNAL_ID + "/" + blobNameJson;
+        // let blobNameJsonPath = verifyTokenResponse.Participant_EXTERNAL_ID + "/" +
+        //     verifyTokenResponse.ExamVersion_EXTERNAL_ID + "/" +
+        //     verifyTokenResponse.ExamEvent_EXTERNAL_ID + "/" + blobNameJson;
 
-        return { examData: clone, blobNameJsonPath: blobNameJsonPath, blobNameJson: blobNameJson };
+        let blobNameJsonPath = createExamNamePath(verifyTokenResponse);
+
+        return { examData: clone, blobNameJsonPath: blobNameJsonPath };
 
     } catch (error) {
         return Promise.reject(error)
@@ -266,4 +221,26 @@ async function getJsonExam(ExamVersion_EXTERNAL_ID, containerName) {
             }
         });
     });
+}
+
+
+const updateExam = async (examId) => {
+
+    try {
+
+        let examUpdate = await Exam.findOneAndUpdate({examId: examId, examssk: examId}, {$set:{status:"Start"}}, {new: true});
+ 
+        examUpdate = examUpdate.toObject();
+        delete examUpdate['_id'];
+        delete examUpdate['examssk'];
+
+        return examUpdate;
+        
+    } catch (error) {
+        console.log(error);
+        let messageBody = {
+            message: "Error updating exam"
+        }
+        return Promise.reject(messageBody)
+    }
 }

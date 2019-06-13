@@ -65,6 +65,16 @@ const getExamIdFromToken = (token, secret_key) => {
     });
 }
 
+const createExamNamePath = (verifyTokenResponse) => {
+    let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
+        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
+        verifyTokenResponse.ExamEvent_EXTERNAL_ID + "_score.json";
+
+    return verifyTokenResponse.Participant_EXTERNAL_ID + "/" +
+        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "/" +
+        verifyTokenResponse.ExamEvent_EXTERNAL_ID + "/" + blobNameJson;
+}
+
 
 module.exports = {
     isArray,
@@ -72,5 +82,6 @@ module.exports = {
     verifyToken,
     responseOkJson,
     responseErrorJson,
-    getExamIdFromToken
+    getExamIdFromToken,
+    createExamNamePath
 }
