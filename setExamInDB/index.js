@@ -34,6 +34,9 @@ const saveExamInDB = async (verifyTokenResponse, examId) => {
         const exam = new Exam({
             userName: verifyTokenResponse.Participant_Firstname,
             userLastName: verifyTokenResponse.Participant_Lastname,
+            participantExternalId: verifyTokenResponse.Participant_EXTERNAL_ID,
+            examVersionExternalId: verifyTokenResponse.ExamVersion_EXTERNAL_ID,
+            examEventExternalId: verifyTokenResponse.ExamEvent_EXTERNAL_ID,
             startTime: null,
             finishTime: null,
             examId: examId,

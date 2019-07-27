@@ -89,5 +89,6 @@ module.exports = {
     log,
     putFileToContainerJson,
     uploadImageToContainder,
-    getContainerFilesDetails
+    getContainerFilesDetails,
+    path
 }

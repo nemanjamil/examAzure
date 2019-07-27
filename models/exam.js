@@ -26,6 +26,18 @@ const examSchema = new Schema({
         type: String,
         required: true
     },
+    participantExternalId:{
+        type: String,
+        required: true
+    },
+    examVersionExternalId:{
+        type: String,
+        required: true
+    },
+    examEventExternalId:{
+        type: String,
+        required: true
+    },
     started:{
         type: Boolean,
         required: true
