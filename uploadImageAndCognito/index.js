@@ -13,7 +13,7 @@ const {
 } = require('querystring');
 const uuidv1 = require('uuid/v1');
 const request = require('request');
-
+const REACT_APP_SHARED_ACCESS_SIGNATURES = "?sv=2018-03-28&ss=bfqt&srt=sco&sp=rwdlacup&se=2019-11-21T18:23:39Z&st=2019-07-11T09:23:39Z&spr=https&sig=S6DE7CFlseFAEHB95FdzsS7RSZiwpvjKPvSyanhUzIE%3D";
 module.exports = async function (context, req) {
 
     const token = req.headers.authorization;
@@ -61,15 +61,7 @@ module.exports = async function (context, req) {
         context.res = await responseOkJson(response);
 
     } catch (err) {
-        // staviti responseError [TODO] mirko
-        console.log(err);
-        context.res = {
-            status: 400,
-            body: err,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
+        context.res = await responseErrorJson(err);
     }
 };
 
@@ -127,13 +119,12 @@ function requestQuery(containerName, blobName) {
         'returnFaceAttributes': 'age,gender,headPose,smile,facialHair,glasses,' +
             'emotion,hair,makeup,occlusion,accessories,blur,exposure,noise'
     };
-    let locationUri = "https://bpmstoragespace.blob.core.windows.net/" + containerName + "/" + blobName;
-    //let locationUri  = "https://firstazurefunctstorage.blob.core.windows.net/images/1.jpg";
-    console.log("locationUri", locationUri);
-
+    let locationUri = "https://bpmstoragespace.blob.core.windows.net/" + containerName + "/" + blobName+REACT_APP_SHARED_ACCESS_SIGNATURES;
+    
     const options = {
         uri: uriBase,
         qs: params,
+        // json: true
         body: '{"url": ' + '"' + locationUri + '"}',
         headers: {
             'Content-Type': 'application/json',
@@ -146,6 +137,10 @@ function requestQuery(containerName, blobName) {
             if (error) {
                 reject(error);
             } else {
+                // let bodyParse = JSON.parse(body);
+                // if (bodyParse.error) {
+                //     reject(bodyParse.error.message)
+                // }
                 resolve(body)
             }
         });

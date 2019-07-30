@@ -36,6 +36,10 @@ const questionSchema = new Schema({
         type: String,
         required: true
     },
+    answersHash:{
+        type: String,
+        required: true
+    },
     answers: [{type: String}]
 }, 
 { shardKey: { tag: 1, questionssk: 1 }}

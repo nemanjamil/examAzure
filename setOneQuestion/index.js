@@ -17,6 +17,7 @@ module.exports = async function (context, req) {
     const question = parses.question;
     const answers = parses.answers;
     const eventId = parses.eventId;
+    const answersHash = parses.answersHash;
     const token = req.headers.authorization;
 
 
@@ -39,7 +40,7 @@ module.exports = async function (context, req) {
 
      //   await connectionToDB();
         if(!eventId) Promise.reject({message: "No event Id"});
-        await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId);
+        await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
 
         // dobija sve informacije vezane za exam, sva pitanja i sve odgovore, koji su tacni koji ne, sta je odgovoreno i sta je tacno a sta pogresno odgovoreno
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(createNamePathRsp, examsuser);
@@ -104,7 +105,7 @@ function modifyAswers(jsonObject, question, answers) {
     }
 }
 
-const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastName, question, answers, eventId) => {
+const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash) => {
 
     const examId = path.basename(createNamePathRsp, '_score.json');
 
@@ -119,7 +120,8 @@ const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastNam
         examId: examId,
         questionId: question,
         answers: answers,
-        questionssk: questionssk
+        questionssk: questionssk,
+        answersHash: answersHash
     });
 
     try {
