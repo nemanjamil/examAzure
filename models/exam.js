@@ -38,6 +38,18 @@ const examSchema = new Schema({
         type: String,
         required: true
     },
+    examVersionMaxPoints:{
+        type: Number,
+        required: true
+    },
+    examVersionPassingPoints:{
+        type: Number,
+        required: true
+    },
+    examSuccessPercent:{
+        type: Number,
+        required: true
+    },
     started:{
         type: Boolean,
         required: true
