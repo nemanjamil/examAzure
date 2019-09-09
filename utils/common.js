@@ -75,6 +75,9 @@ const createExamNamePath = (verifyTokenResponse) => {
         verifyTokenResponse.ExamEvent_EXTERNAL_ID + "/" + blobNameJson;
 }
 
+const nameVariables = {
+    basicsk : "tems"
+}
 
 module.exports = {
     isArray,
@@ -83,5 +86,6 @@ module.exports = {
     responseOkJson,
     responseErrorJson,
     getExamIdFromToken,
-    createExamNamePath
+    createExamNamePath,
+    nameVariables
 }

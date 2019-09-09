@@ -8,11 +8,11 @@ const basicSchema = new Schema({
         required: true, 
         //unique: true 
     },
-    keyroot: {
+    name: {
         type: String,
         required: true
     },
-    keyvalue: {
+    value: {
         type: String,
         required: true
     },
