@@ -11,6 +11,7 @@ const {
     isArray,
     SENTENCES
 } = require('../utils/common');
+const Question = require('../models/question');
 
 module.exports = async function (context, req) {
 
@@ -26,10 +27,16 @@ module.exports = async function (context, req) {
         let getJsonExamBlobResponse = await Utils.getJsonExamBlob(createNamePathRsp, examsuser);
         let getOneQuestionResponse = await getOneQuestion(getJsonExamBlobResponse);
 
+        let getNumberOfAnsweredQuestionsResonse = await getNumberOfAnsweredQuestions(examId)
+
+     
         // if exam is in progress
         if (response.value) {
             // getOneQuestionResponse.state==false && { hasQuestions : false }
-            context.res = await responseOkJson(getOneQuestionResponse.message, { hasQuestions: getOneQuestionResponse.state });
+            context.res = await responseOkJson(getOneQuestionResponse.message, { 
+                hasQuestions: getOneQuestionResponse.state,
+                getNumberOfAnsweredQuestions: getNumberOfAnsweredQuestionsResonse
+             });
         } else {
             context.res = {
                 status: 200,
@@ -49,6 +56,18 @@ module.exports = async function (context, req) {
           context.res = await responseErrorJson(error);
     }
 };
+
+const getNumberOfAnsweredQuestions = async (examId) => {
+     try {
+        let countAnsweredExams = await Question.count({ examId: examId, questionssk : examId })
+        return countAnsweredExams;
+    } catch (error) {
+        let messageBody = {
+            message: "Error counting questions"
+        }
+        return Promise.reject(messageBody)
+    }
+}
 
 function createNamePath(verifyTokenResponse) {
     let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +

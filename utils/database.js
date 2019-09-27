@@ -8,6 +8,7 @@ const connectionToDB = async () => {
         await mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true&replicaSet=globaldb", {
             useNewUrlParser: true,
             useCreateIndex: true,
+            useUnifiedTopology: true,
             auth: {
                 user: process.env.COSMODDB_USER,
                 password: process.env.COSMOSDB_PASSWORD
