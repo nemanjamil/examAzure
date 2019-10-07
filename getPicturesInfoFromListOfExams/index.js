@@ -1,16 +1,49 @@
-module.exports = async function (context, req) {
-    context.log('JavaScript HTTP trigger function processed a request.');
+const Exam = require('../models/exam');
+const { connectionToDB } = require('../utils/database');
+const { responseErrorJson, responseOkJson } = require('../utils/common');
 
-    if (req.query.name || (req.body && req.body.name)) {
-        context.res = {
-            // status: 200, /* Defaults to 200 */
-            body: "Hello " + (req.query.name || req.body.name)
-        };
-    }
-    else {
-        context.res = {
-            status: 400,
-            body: "Please pass a name on the query string or in the request body"
-        };
+module.exports = async function (context, req) {
+    context.log('Get PICTURES INFO FROM LIST OF EXAMS - context');
+
+    const tablePage = req.body.page;
+    const rowsPerTablePage = req.body.rowsPerPage;
+
+    try {
+        await connectionToDB();
+        const data = await getDataFromDB(tablePage, rowsPerTablePage);
+
+        // According to data get all json from tables
+        
+
+        context.res = await responseOkJson(data);
+
+    } catch (error) {
+        context.res = await responseErrorJson(error);
+        context.done();
     }
 };
+
+
+
+const getDataFromDB = async (tablePage, rowsPerTablePage) => {
+    try {
+
+        const numberOfExams = await Exam.estimatedDocumentCount();
+        
+        const result = await Exam.find({}, null, {sort: {_id: 'descending'}})
+        .skip(tablePage*rowsPerTablePage)
+        .limit(rowsPerTablePage);
+
+        const data = {
+            numberOfExams: numberOfExams,
+            examsList: result
+        }
+        return data;
+
+    } catch (error) {
+        let messageBody = {
+            message: "Error fetching data dddd"
+        }
+        return Promise.reject(messageBody)
+    }
+}
