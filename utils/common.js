@@ -8,7 +8,7 @@ const isArray = (array) => {
     }
 }
 
-const responseOkJson = (response, addedElements) => {
+const responseOkJson = async (response, addedElements) => {
 
     return {
         status: 200,
@@ -23,7 +23,7 @@ const responseOkJson = (response, addedElements) => {
     }
 }
 
-const responseErrorJson = (error,statusNumber = 400) => {
+const responseErrorJson = async (error,statusNumber = 400) => {
     return {
         status: statusNumber,
         body: {
