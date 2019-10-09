@@ -33,7 +33,11 @@ const getJsonOfPictures = async (data,getPictureInfo) => {
              newObj.pictures = response[i]
              newArray.push(newObj)
         });
-        return newArray;
+        
+        finalObject = {};
+        finalObject.numberOfExams = data.numberOfExams;
+        finalObject.examsList = newArray;
+        return finalObject; 
    })
 }
 const onelistOfPictures = async item => {
