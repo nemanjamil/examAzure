@@ -64,6 +64,12 @@ const examSchema = new Schema({
     },
     isCheated:{
         type: Boolean
+    },
+    correctAnswers: {
+        type: Number
+    },
+    wrongAnswers: {
+        type: Number
     }
 }, 
 { shardKey: { tag: 1, examssk: 1 }}
