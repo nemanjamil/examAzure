@@ -65,6 +65,9 @@ const examSchema = new Schema({
     isCheated:{
         type: Boolean
     },
+    resultProctorState:{
+        type: Boolean
+    },
     correctAnswers: {
         type: Number
     },
