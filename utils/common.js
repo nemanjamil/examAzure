@@ -42,7 +42,7 @@ const SENTENCES = {
     somethingWentWrong: "Something went wrong"
 }
 
-const verifyToken = (token, secret_key) => {
+const verifyToken = async (token, secret_key) => {
     return jwt.verify(token, secret_key, function (err, decoded) {
         if (err) {
             return Promise.reject(err);

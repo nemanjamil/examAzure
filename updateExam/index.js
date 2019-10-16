@@ -1,27 +1,19 @@
+const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
 const { connectionToDB } = require('../utils/database');
-const { responseErrorJson, responseOkJson } = require('../utils/common');
+const { verifyToken, responseErrorJson, responseOkJson } = require('../utils/common');
 const UtilsBlob = require('../utils/utilsBlob');
 const examsuserContainer = process.env.examsuser;
+const examtemplatecontainer = process.env.examtemplatecontainer;
+const secret_key = process.env.secret_key;
+const Question = require('../models/question');
+const crypto = require('crypto');
+
 
 module.exports = async function (context, req) {
 
-    // this endpoint is calling and from exam app and exam admin app
-    // exam admin app don't have token property
-    // exam have token but is not used here (because admin app don't have token)
-
-    // IMPORTANT: need secure this endpoint FOR USE IN EXAM APP WITHOUT TOKEN
-
-    // request input data example
-    // examId is required
-    // other properties are optional, it's logical to have one property which is updating
-    // {
-    //     "examId" : "169_123_684",
-    //     "isCheated" : false,
-    //     "other exam property" : "value" 
-    // } 
-
     const { examId } = req.body;
+    const token = req.headers.authorization;
 
     let updateProperties = [];
 
@@ -36,8 +28,15 @@ module.exports = async function (context, req) {
 
     try {
         await connectionToDB();
-        const updateDBResult = await updateExam(examId, updateProperties);
-        const updateCheatedJSONResult = await isCheatedPropertyUpdating(examId, updateProperties);
+        let verifyTokenResponse = await verifyToken(token, secret_key); 
+        let createNamePathRsp = await createNamePath(verifyTokenResponse);
+        let getHashResponse = await Utils.getJsonExamBlob(createNamePathRsp, examtemplatecontainer);
+        let getQuestionsFromDBResponse = await getQuestionsFromDB(examId);
+        let countAnswersResponse = await countAnswers(getHashResponse, getQuestionsFromDBResponse);
+        let updateDbParamsResult = await updateDbParams(countAnswersResponse,updateProperties);
+        
+        const updateDBResult = await updateExam(examId, updateDbParamsResult);
+        const updateCheatedJSONResult = await isCheatedPropertyUpdating(examId, updateDbParamsResult);
 
         const response = {
             updateExamDB: updateDBResult,
@@ -51,6 +50,27 @@ module.exports = async function (context, req) {
         context.done();
     }
 
+}
+
+
+const countAnswers = async (getHashResponse, getQuestionsFromDBResponse) => {
+        let correctAnswers = 0;
+        let wrongAnswers = 0
+        getQuestionsFromDBResponse.map(el => {
+           let sortAnswers = el.answers.sort()
+           let answerString = sortAnswers.join("")+getHashResponse;
+           let cryptoHash = crypto.createHash('sha512').update(answerString).digest('hex');
+           el['cryptoHash'] = cryptoHash;
+           el['questionAnswer'] = cryptoHash===el.answersHash ? "correct" : "wrong";
+           if  (cryptoHash===el.answersHash) {
+                correctAnswers++;
+           } else {
+                wrongAnswers++;
+           }
+           return el;
+        })
+
+        return {correctAnswers,wrongAnswers}
 }
 
 const updateExam = async (examId, updateProperties) => {
@@ -114,4 +134,37 @@ async function updateJson(examJsonFromBlob, blobPath, cheatedProperty) {
         }
         return Promise.reject(messageBody);
     }
+}
+
+async function createNamePath(verifyTokenResponse) {
+    let blobNameJson = verifyTokenResponse.ExamVersion_EXTERNAL_ID + ".salt";
+    return "salt/" + blobNameJson;
+}
+
+const getQuestionsFromDB = async (examId) => {
+    try{
+        return await Question.find({examId: examId});
+    }catch(error){
+        let messageBody = {
+            message: "Error fetching data questions"
+        }
+        return Promise.reject(messageBody)
+    }
+}
+
+const updateDbParams = async (countAnswersResponse,updateProperties) => {
+
+        updatePropertiesNew = [...updateProperties]
+        updatePropertiesNew.push(
+            {
+                name: "correctAnswers",
+                value: countAnswersResponse.correctAnswers
+            }, 
+            {
+                name: "wrongAnswers",
+                value: countAnswersResponse.wrongAnswers
+            }, 
+        );
+        return updatePropertiesNew;
+        
 }
