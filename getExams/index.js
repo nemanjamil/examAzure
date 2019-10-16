@@ -8,10 +8,11 @@ module.exports = async function (context, req) {
 
     const tablePage = req.body.page;
     const rowsPerTablePage = req.body.rowsPerPage;
+    const searchText = req.body.searchText;
 
     try {
         await connectionToDB();
-        const data = await getDataFromDB(tablePage, rowsPerTablePage);
+        const data = await getDataFromDB(tablePage, rowsPerTablePage, searchText);
         let getPictureInfo = await getData(data); 
         let jsonOfPicture = await getJsonOfPictures(data,getPictureInfo);
         context.res = await responseOkJson(jsonOfPicture);
@@ -81,12 +82,23 @@ const oneJsonPicture = async element => {
     return Promise.resolve({numberOfFaces});
 }
 
-const getDataFromDB = async (tablePage, rowsPerTablePage) => {
+const getDataFromDB = async (tablePage, rowsPerTablePage, searchText) => {
     try {
 
-        const numberOfExams = await Exam.estimatedDocumentCount();
-        
-        const result = await Exam.find({}, null, {sort: {_id: 'descending'}})
+     let numberOfExams;
+
+     if(!searchText){
+        numberOfExams = await Exam.estimatedDocumentCount();
+     }else{
+        const examsContainingSearchText = await Exam.find({$or:[{ "userName": { "$regex": searchText, "$options": "i" } },{ "userLastName": { "$regex": searchText, "$options": "i" }}]});
+        numberOfExams = examsContainingSearchText.length;
+     }
+     
+
+     const result = await Exam.find(
+         searchText ? {$or:[{ "userName": { "$regex": searchText, "$options": "i" } },{ "userLastName": { "$regex": searchText, "$options": "i" }}]} : {}, 
+         null, 
+         {sort: {_id: 'descending'}})
         .skip(tablePage*rowsPerTablePage)
         .limit(rowsPerTablePage);
 
