@@ -26,7 +26,8 @@ module.exports = async function (context, req) {
             verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
             verifyTokenResponse.ExamEvent_EXTERNAL_ID;
 
-        const data = await saveExamInDB(verifyTokenResponse, examId, ExamVersion_maxPoints, ExamVersion_passingPoints, Exam_SuccessPercent);
+        const data = await saveExamInDB(verifyTokenResponse, examId, ExamVersion_maxPoints, 
+                                        ExamVersion_passingPoints, Exam_SuccessPercent, token);
         context.res = await responseOkJson(data);
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -35,7 +36,8 @@ module.exports = async function (context, req) {
 
 }
 
-const saveExamInDB = async (verifyTokenResponse, examId, ExamVersion_maxPoints, ExamVersion_passingPoints, Exam_SuccessPercent) => {
+const saveExamInDB = async (verifyTokenResponse, examId, ExamVersion_maxPoints, 
+                            ExamVersion_passingPoints, Exam_SuccessPercent, token) => {
 
     try {
 
@@ -50,6 +52,8 @@ const saveExamInDB = async (verifyTokenResponse, examId, ExamVersion_maxPoints, 
             examVersionMaxPoints : ExamVersion_maxPoints,
             examVersionPassingPoints : ExamVersion_passingPoints,
             examSuccessPercent : Exam_SuccessPercent,
+            examDurationTime: verifyTokenResponse.ExamVersion_plannedDuration,
+            token: token,
             startTime: null,
             finishTime: null,
             examId: examId,

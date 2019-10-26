@@ -17,8 +17,7 @@ module.exports = async function (context, req) {
 
 const updateExam = async (exam, rowsToUpdate) => {
 
-    console.log("1", exam.examId);
-    try {
+     try {
 
         let examUpdate = await Exam.findOneAndUpdate(
             {examId: exam.examId, examssk: exam.examId}, 

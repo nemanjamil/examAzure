@@ -73,6 +73,12 @@ const examSchema = new Schema({
     },
     wrongAnswers: {
         type: Number
+    },
+    examDurationTime: {
+        type: Number
+    },
+    token: {
+        type: String
     }
 }, 
 { shardKey: { tag: 1, examssk: 1 }}
