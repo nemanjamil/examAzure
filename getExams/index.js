@@ -158,13 +158,23 @@ const getDataFromDB = async (tablePage, rowsPerTablePage, searchText) => {
      if(!searchText){
         numberOfExams = await Exam.estimatedDocumentCount();
      }else{
-        const examsContainingSearchText = await Exam.find({$or:[{ "userName": { "$regex": searchText, "$options": "i" } },{ "userLastName": { "$regex": searchText, "$options": "i" }}]});
+        const examsContainingSearchText = await Exam.find({
+            $or:[{ "userName": { "$regex": searchText, "$options": "i" } },
+            { "userLastName": { "$regex": searchText, "$options": "i" } },
+            { "examId": { "$regex": searchText, "$options": "i" }}
+        ]});
         numberOfExams = examsContainingSearchText.length;
      }
      
 
      const result = await Exam.find(
-         searchText ? {$or:[{ "userName": { "$regex": searchText, "$options": "i" } },{ "userLastName": { "$regex": searchText, "$options": "i" }}]} : {}, 
+         searchText ? {
+             $or:[
+                 { "userName": { "$regex": searchText, "$options": "i" } },
+                 { "userLastName": { "$regex": searchText, "$options": "i" }},
+                 { "examId": { "$regex": searchText, "$options": "i" }}
+                ]
+            } : {}, 
          null, 
          {sort: {_id: 'descending'}})
         .skip(tablePage*rowsPerTablePage)
