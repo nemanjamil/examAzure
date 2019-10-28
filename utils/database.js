@@ -9,6 +9,7 @@ const connectionToDB = async () => {
             useNewUrlParser: true,
             useCreateIndex: true,
             useUnifiedTopology: true,
+            useFindAndModify: false,
             auth: {
                 user: process.env.COSMODDB_USER,
                 password: process.env.COSMOSDB_PASSWORD

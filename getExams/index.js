@@ -26,7 +26,7 @@ module.exports = async function (context, req) {
 }
 
 const countStatusOfExam = async (el) => {
-    if (el.finishTime===null) {
+    if (el.finishTime===null && el.finished===false) {
 
         let ts = Date.now();
         let currentDT = new Date(ts);
@@ -35,19 +35,12 @@ const countStatusOfExam = async (el) => {
         let startTime = (el.startTime) ? el.startTime : currentDT; 
        
         var inputDate = new Date(+startTime + 1000 * 60 * examDurationTime);
-        console.log("inputDate : ", inputDate);
-        console.log("DURATION : ", examDurationTime);
-        console.log("el.startTime : ", startTime);
-        console.log("currentDT : ",currentDT);
         
         let difference = (currentDT - inputDate)/1000; // difference in milliseconds/1000 =  seconds
-        console.log("dif: ", difference);
-      
-        console.log(' 1 -------------');
+       
         if (difference>0) {
             try {
-                await updateDBforStatusOfExam(el.examId);
-                console.log(' 2  -------------');
+                await updateDBforStatusOfExam(el.examId,currentDT);
             } catch (error) {
                 let messageBody = {
                     message: "Something has broken "+el.examVersionExternalId
@@ -56,12 +49,10 @@ const countStatusOfExam = async (el) => {
             }
             
         }
-        console.log(' 2 -------------');
         el.status = difference;
 
     } else {
-        console.log("opa");
-        el.status = "ok"  
+        //el.status = "ok"  
     }
    
     return el
@@ -72,11 +63,13 @@ const setStatusOfExam = async (examDataObject) => {
 const getData = async (seVar) => {
     return await Promise.all(seVar.examsList.map(item => anAsyncFunction(item)));
 }
-const updateDBforStatusOfExam = async (examId) => {
+const updateDBforStatusOfExam = async (examId,currentDT) => {
 
     try {
         data = { 
-            status: 'Aborted by user' 
+            status: 'Aborted by user', 
+            finishTime: currentDT,
+            finished : true 
         }
 
         let examUpdate = await Exam.findOneAndUpdate(
