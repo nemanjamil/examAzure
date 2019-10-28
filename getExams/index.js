@@ -47,9 +47,9 @@ const countStatusOfExam = async (el) => {
                 }
                 return Promise.reject(messageBody)
             }
-            
+            el.status = difference; 
         }
-        el.status = difference;
+        
 
     } else {
         //el.status = "ok"  
