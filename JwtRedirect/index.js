@@ -29,53 +29,67 @@ module.exports = async function (context, req) {
 
         const containerNameExam = process.env.examsuser;
         let redirect = null;
+        let data = null;
         let copyExamVersionResponse = "";
 
-        // proverava da li postoji vec ovaj Exem na toj putanji, ako postoji link je vec bio jednom pokrenut i test ne sme a se nastavi
-        const testIfExamBlobAlreadyExist = await isExamInBlobExist(blobNameJsonPath, containerNameExam);
+        // test if exam token duration expired
+        const now = Math.round(Date.now()/1000);
+        let hasTokenExpire = now > (examData.ExamEvent_GenerationTime + examData.tokenvalidfor);
 
-        // if exam blob exist but exam didn't started
-        let didExamStartedBefore = null;
-        if (testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
-            didExamStartedBefore = await didExamBegin(blobNameJsonPath, containerNameExam);
-        }
+        if(hasTokenExpire){
 
-        // ako exam blob ne postoji
-        if (!testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
-            // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
-            copyExamVersionResponse = await copyExamFileToContainerJson(containerNameExam, blobNameJsonPath, JSON.stringify(examData));
+            redirect = verifyTokenResponse.fe_endpoint + '/error?status=expired';
 
-       //    let blobNameJson = createExamNamePath(verifyTokenResponse);
-           const examId = path.basename(blobNameJsonPath, '_score.json');
-           examUpdateResult = await updateExam(examId);
+        }else{
+                // proverava da li postoji vec ovaj Exem na toj putanji, ako postoji link je vec bio jednom pokrenut i test ne sme a se nastavi      
+                const testIfExamBlobAlreadyExist = await isExamInBlobExist(blobNameJsonPath, containerNameExam);
 
-           console.log("zavrsio update");
+                // if exam blob exist but exam didn't started
+                let didExamStartedBefore = null;
+                if (testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
+                    didExamStartedBefore = await didExamBegin(blobNameJsonPath, containerNameExam);
+                }
 
-            redirect = verifyTokenResponse.fe_endpoint +
-                '?token=' + req.query.token +
-                "&status=" + copyExamVersionResponse.message
+                // ako exam blob ne postoji
+                if (!testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
+                    // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
+                    copyExamVersionResponse = await copyExamFileToContainerJson(containerNameExam, blobNameJsonPath, JSON.stringify(examData));
 
-        // if exam blob exist but Json exam started value is false
-        // exam can start but it not necessary saveExamInDB and copyExamFileToContainer
-        } else if (!didExamStartedBefore && didExamStartedBefore !== null) {
+                //  let blobNameJson = createExamNamePath(verifyTokenResponse);
+                const examId = path.basename(blobNameJsonPath, '_score.json');
+                examUpdateResult = await updateExam(examId);
 
-            redirect = verifyTokenResponse.fe_endpoint +
-                '?token=' + req.query.token +
-                "&status=" + copyExamVersionResponse.message
+                console.log("zavrsio update");
 
-        } else {
-            copyExamVersionResponse = testIfExamBlobAlreadyExist;
+                    redirect = verifyTokenResponse.fe_endpoint +
+                        '?token=' + req.query.token +
+                        "&status=" + copyExamVersionResponse.message
 
-            if(verifyTokenResponse.fe_endpoint.endsWith("/")){
-                redirect = verifyTokenResponse.fe_endpoint + 'finish?status=used';
-            }else{
-                redirect = verifyTokenResponse.fe_endpoint + '/finish?status=used';
-            }
-        }
+                // if exam blob exist but Json exam started value is false
+                // exam can start but it not necessary saveExamInDB and copyExamFileToContainer
+                } else if (!didExamStartedBefore && didExamStartedBefore !== null) {
 
-        const data = {
-            copyExamVersionResponse: copyExamVersionResponse,
-            examUpdateResult: examUpdateResult
+                    redirect = verifyTokenResponse.fe_endpoint +
+                        '?token=' + req.query.token +
+                        "&status=" + copyExamVersionResponse.message
+
+                } else {
+                    copyExamVersionResponse = testIfExamBlobAlreadyExist;
+
+                    if(verifyTokenResponse.fe_endpoint.endsWith("/")){
+                        redirect = verifyTokenResponse.fe_endpoint + 'finish?status=used';
+                    }else{
+                        redirect = verifyTokenResponse.fe_endpoint + '/finish?status=used';
+                    }
+                }
+
+                console.log("----------+-----------");
+
+                data = {
+                    copyExamVersionResponse: copyExamVersionResponse,
+                    examUpdateResult: examUpdateResult
+                }
+
         }
 
         context.res = {
@@ -130,6 +144,7 @@ async function fetchExamVersion(verifyTokenResponse, containerName) {
         clone.ExamEvent_GenerationTime = verifyTokenResponse.ExamEvent_GenerationTime;
         clone.ExamEvent_ReadyTime = Math.floor(new Date() / 1000);
         clone.ExamEvent_EXTERNAL_ID = verifyTokenResponse.ExamEvent_EXTERNAL_ID;
+        clone.tokenvalidfor = verifyTokenResponse.tokenvalidfor;
 
         // let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
         //     verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
