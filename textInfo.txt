@@ -43,3 +43,13 @@ db.getCollection('exams').update(
          }
    }
 );
+
+------------------------------------------
+INSERT FIELD
+db.getCollection('exams').insert(
+    {
+    "value" : "{ \"en\" : \"Accept Conditions ENGLISH new\", \"de\" : \"Accept Conditions DE neu\"}",
+    "name" : "fe_accept_cond",
+    "basicsk" : "tems"
+    }   
+);
