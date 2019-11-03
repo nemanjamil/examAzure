@@ -15,6 +15,7 @@ module.exports = async function (context, req) {
         const data = await getDataFromDB(tablePage, rowsPerTablePage, searchText);
         let getPictureInfo = await getData(data); 
         let jsonOfPicture = await getJsonOfPictures(data,getPictureInfo);
+        let setStatusOfExamResult = await setStatusOfExam(jsonOfPicture);
         context.res = await responseOkJson(jsonOfPicture);
 
     } catch (error) {
@@ -24,9 +25,69 @@ module.exports = async function (context, req) {
 
 }
 
+const countStatusOfExam = async (el) => {
+    if (el.finishTime===null && el.finished===false) {
+
+        let ts = Date.now();
+        let currentDT = new Date(ts);
+
+        let examDurationTime = (el.examDurationTime) ? el.examDurationTime : 1; 
+        let startTime = (el.startTime) ? el.startTime : currentDT; 
+       
+        var inputDate = new Date(+startTime + 1000 * 60 * examDurationTime);
+        
+        let difference = (currentDT - inputDate)/1000; // difference in milliseconds/1000 =  seconds
+       
+        if (difference>0) {
+            try {
+                await updateDBforStatusOfExam(el.examId,currentDT);
+            } catch (error) {
+                let messageBody = {
+                    message: "Something has broken "+el.examVersionExternalId
+                }
+                return Promise.reject(messageBody)
+            }
+            el.status = difference; 
+        }
+        
+
+    } else {
+        //el.status = "ok"  
+    }
+   
+    return el
+}
+const setStatusOfExam = async (examDataObject) => {
+    return await Promise.all(examDataObject.examsList.map(item => countStatusOfExam(item)));
+}
 const getData = async (seVar) => {
     return await Promise.all(seVar.examsList.map(item => anAsyncFunction(item)));
 }
+const updateDBforStatusOfExam = async (examId,currentDT) => {
+
+    try {
+        data = { 
+            status: 'Aborted by user', 
+            finishTime: currentDT,
+            finished : true 
+        }
+
+        let examUpdate = await Exam.findOneAndUpdate(
+            { examId: examId, examssk: examId},
+            { $set: data },
+            { new: true }
+        );
+
+        return examUpdate;
+
+    } catch (error) {
+          let messageBody = {
+            message: "Error updating exam start time"
+        }
+        return Promise.reject(messageBody);
+    }
+}
+
 
 const anAsyncFunction = async item => {
      try {

@@ -26,3 +26,30 @@ tTo-SecureString -String 12345 -Force -AsPlainText)
         // db.getCollection('pictures').remove({ 'picturessk' : 123 });
         // db.getCollection('pictures').deleteMany({ 'picturessk' : 123 });
         // db.getCollection('pictures').findOne({ '_id' : ObjectId("5ccc04f28ee1f95018b5b662")})
+
+-------------------
+UPDATE FIELD
+db.getCollection('exams').update(
+    {
+        "_id" : ObjectId("5db7374ce46c1046441078f6"),
+        "examssk" : "123_ITSec-fnd-de-sample-set-1-v1_0b741550-f9b3-11e9-8436-ef599246e05c",
+    },
+    
+     { $set: 
+         { 
+            "status" : "Trenutno je u progresuu",
+            "finished" : false,
+            "finishTime" : null
+         }
+   }
+);
+
+------------------------------------------
+INSERT FIELD
+db.getCollection('exams').insert(
+    {
+    "value" : "{ \"en\" : \"Accept Conditions ENGLISH new\", \"de\" : \"Accept Conditions DE neu\"}",
+    "name" : "fe_accept_cond",
+    "basicsk" : "tems"
+    }   
+);

@@ -1,19 +1,19 @@
 const accessKey = process.env.accessKey;
 const storageAccount = process.env.storageAccount;
+const examtemplatecontainer = process.env.examtemplatecontainer;
 const azureStorage = require('azure-storage');
 const UtilsBlob = require('../utils/utilsBlob');
 const { createExamNamePath, verifyToken } = require('../utils/common');
 const blobService = azureStorage.createBlobService(storageAccount, accessKey)
 // const jwt = require('jsonwebtoken');
 const secret_key = process.env.secret_key;
+const { connectionToDB } = require('../utils/database');
 const Exam = require('../models/exam');
 const path = require('path');
 
 
 module.exports = async function (context, req) {
 
-    //let secret_key = 'bmp_space_165423106546545';
-    let container = "examstemplate";
     let examUpdateResult = null;
 
     try {
@@ -25,7 +25,7 @@ module.exports = async function (context, req) {
 
         // iz token informacija nalazi Exam koji vraca u tekstualnom obliku sa pridodatim informacijama
         // i vraca putanju gde bi za polaganje ovog User-a taj exem trebao da se iskopira
-        const { examData, blobNameJsonPath } = await fetchExamVersion(verifyTokenResponse, container);
+        const { examData, blobNameJsonPath } = await fetchExamVersion(verifyTokenResponse, examtemplatecontainer);
 
         const containerNameExam = process.env.examsuser;
         let redirect = null;
@@ -242,9 +242,20 @@ async function getJsonExam(ExamVersion_EXTERNAL_ID, containerName) {
 const updateExam = async (examId) => {
 
     try {
-
-        let examUpdate = await Exam.findOneAndUpdate({examId: examId, examssk: examId}, {$set:{status:"Start"}}, {new: true});
- 
+        await connectionToDB();
+        let examUpdate = await Exam.findOneAndUpdate(
+            {
+                examId: examId, 
+                examssk: examId
+            }, 
+            { $set:{
+                status:"Start"
+                }
+            }, 
+            {
+                new: true
+            });
+       
         examUpdate = examUpdate.toObject();
         delete examUpdate['_id'];
         delete examUpdate['examssk'];
