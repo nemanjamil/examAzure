@@ -9,6 +9,7 @@
   "author": "Nemanja",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^6.4.0",
     "azure-function-express": "^2.0.0",
     "azure-storage": "^2.10.2",
     "body-parser": "^1.18.3",
