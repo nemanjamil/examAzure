@@ -13,7 +13,7 @@ module.exports = async function (context, req) {
             name: 'TEMS',
             email: process.env.SENDGRID_FROM_MAIL
         },
-        templateId: 'd-ffaa5661b51743fe8594c2bf5f6ed0cb',
+        templateId: process.env.TEMPLATE_ID_SENDGRID,
         dynamic_template_data: {
             subject: req.body.title,
             name: req.body.firstname,
