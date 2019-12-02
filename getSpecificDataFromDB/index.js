@@ -6,12 +6,12 @@ const { responseErrorJson, responseOkJson } = require('../utils/common');
 
 module.exports = async function (context, req) {
 
-    const field = req.body.field;
+    const fields = req.body.fields;
    
     try {
-        if (!field) await Promise.reject("Missing data field");
+        if (!fields) await Promise.reject("Missing data field");
         await connectionToDB();
-        const getDbData = await getSpecificDataFromDB(field);
+        const getDbData = await getSpecificDataFromDB(fields);
         context.res = await responseOkJson(getDbData, { hasRespond : true });
         
     } catch (error) {
@@ -21,10 +21,10 @@ module.exports = async function (context, req) {
 
 };
 
-const getSpecificDataFromDB = async (field) => {
+const getSpecificDataFromDB = async (fields) => {
     try {
-       const getData = await Basics.find({ name: field });
-       return getData[0].value;
+       const getData = await Basics.find({ name: fields });
+       return getData;
     } catch (error) {
         let messageBody = {
             message: "Error fetching data"
