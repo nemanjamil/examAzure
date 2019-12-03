@@ -37,7 +37,7 @@ const uploadImageToContainder = async (containerName, blobName, data, length) =>
     let opt = {
         contentSettings: {
             contentType: "image/jpeg",
-            //    contentEncoding: 'base64'
+            // contentEncoding: 'base64'
         },
         metadata: {
             contentType: "image/jpeg"
@@ -48,7 +48,6 @@ const uploadImageToContainder = async (containerName, blobName, data, length) =>
 
         if (error) {
             //console.error(`ERROR in storage.writeFileWithStream\nFile Spec was: ${JSON.stringify(fileSpec)}\nError:\n${err}`);
-
         }
 
         //callback(null, 'File uploaded successfully');

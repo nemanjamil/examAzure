@@ -55,6 +55,10 @@ db.getCollection('exams').insert(
 );
 
 -------------------------
+DELETE FIELD
+
+
+------------------------------
 
 "FUNCTIONS_WORKER_RUNTIME": "node",
 "FUNCTIONS_EXTENSION_VERSION": "~2",
