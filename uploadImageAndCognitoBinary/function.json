@@ -4,8 +4,8 @@
       "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
-      "name": "req",
       "datatype": "binary",
+      "name": "req",
       "methods": [
         "get",
         "post"
@@ -15,7 +15,6 @@
       "type": "http",
       "direction": "out",
       "name": "res"
-     
     }
   ]
 }

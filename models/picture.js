@@ -24,6 +24,10 @@ const pictureSchema = new Schema({
         type: String,
         required: true
     },
+    stateOfPicture:{
+        type: Number,
+        required: true
+    },
     time: {
         type: Date,
         required: true

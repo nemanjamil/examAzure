@@ -32,7 +32,7 @@ let putFileToContainerJson = async (containerName, blobName, data) => {
             if (err) {
                 reject(err);
             } else {
-                resolve(data);
+                resolve("Inserted Data");
             }
         });
     });
