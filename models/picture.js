@@ -28,6 +28,18 @@ const pictureSchema = new Schema({
         type: Number,
         required: true
     },
+    numberOfObjects:{
+        type: Number
+    },
+    numberOfFaces:{
+        type: Number
+    },
+    numberOfPersons:{
+        type: Number
+    },
+    numberOfTags:{
+        type: Object
+    },
     time: {
         type: Date,
         required: true

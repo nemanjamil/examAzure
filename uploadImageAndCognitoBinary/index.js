@@ -51,16 +51,20 @@ module.exports = async function (context, req) {
         let uploadImageToContainderRes = await uploadImageToContainder(containerName, blobName, data, length);
         let requestComputerVisionResponse = await requestComputerVision(parts, uriBase, subscriptionKey);
 
+        let calculateCognitoResponse  = await calculateCongnito(requestComputerVisionResponse)
+
         let extensionJson = "json";
         let blobNameJson = createNamePath(verifyTokenResponse, eventId, uid, extensionJson);
-        var putFileToContainerJsonResponse = await Utils.putFileToContainerJson(containerName, blobNameJson, requestComputerVisionResponse);
+        var putFileToContainerJsonResponse = await Utils.putFileToContainerJson(containerName, blobNameJson, requestComputerVisionResponse.body);
 
         await connectionToDB();
-        const pictureSaveResult = await savePictureInDB(eventId, questionId, blobName, verifyTokenResponse, requestComputerVisionResponse, uid);
+        const pictureSaveResult = await savePictureInDB(eventId, questionId, blobName, 
+            verifyTokenResponse, requestComputerVisionResponse.body, uid,
+            calculateCognitoResponse);
 
         response = {
             "uploadImageToContainderRes": uploadImageToContainderRes,
-            "requestComputerVisionResponse": requestComputerVisionResponse,
+            "requestComputerVisionResponse": requestComputerVisionResponse.message,
             "putFileToContainerJsonResponse": putFileToContainerJsonResponse,
             "pictureSaveResult": pictureSaveResult
         }
@@ -72,6 +76,30 @@ module.exports = async function (context, req) {
         context.res = await responseErrorJson(err);
     }
 };
+
+const  calculateCongnito = async (requestComputerVisionResponse) => {
+
+    let cognitoRes = await JSON.parse(requestComputerVisionResponse.body)
+    
+    let numberOfObjects = cognitoRes.objects.length
+    let numberOfFaces = cognitoRes.faces.length
+    var numberOfPersons = cognitoRes.objects.reduce((acc, cur) => cur.object === "person" ? ++acc : acc, 0);
+
+    let stateOfPicture = 0;
+    if (numberOfPersons==1) {
+        stateOfPicture = 1;
+    } else if (numberOfPersons>1) {
+        stateOfPicture = 2 
+    } 
+
+    return {
+        "stateOfPicture" : stateOfPicture,
+        "numberOfObjects" : numberOfObjects,
+        "numberOfFaces" : numberOfFaces,
+        "numberOfPersons" : numberOfPersons,
+        "tags" : cognitoRes.tags
+    }
+}
 
 function createNamePath(verifyTokenResponse, eventId, uid, extensionImage) {
     return verifyTokenResponse.Participant_EXTERNAL_ID + "/" +
@@ -126,12 +154,12 @@ const requestComputerVision = async (parts, uriBase, subscriptionKey) => {
                 console.log('Error: ', error);
                 reject(error)
             }
-            resolve("Congnito resolved")
+            resolve({ "body" : body, "message" : "Cognito Resolved"})
         });
     });
 }
 
-const savePictureInDB = async (eventId, questionId, blobName, verifyTokenResponse, pictureJSON, uid) => {
+const savePictureInDB = async (eventId, questionId, blobName, verifyTokenResponse, pictureJSON, uid, calculateCognitoResponse) => {
 
 
     let examId = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
@@ -145,7 +173,11 @@ const savePictureInDB = async (eventId, questionId, blobName, verifyTokenRespons
         eventId: eventId,
         time: new Date(),
         examId: examId,
-        stateOfPicture: 1,
+        stateOfPicture: calculateCognitoResponse.stateOfPicture,
+        numberOfObjects: calculateCognitoResponse.numberOfObjects,
+        numberOfFaces: calculateCognitoResponse.numberOfFaces,
+        numberOfPersons: calculateCognitoResponse.numberOfPersons,
+        numberOfTags: calculateCognitoResponse.tags,
         questionId: questionId,
         pictureJSON: pictureJSON,
         picturessk: "picturesk" //picturessk
