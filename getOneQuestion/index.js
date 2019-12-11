@@ -1,6 +1,7 @@
 const Utils = require('../utils/utilsBlob');
 const { connectionToDB, testIfExamIsInProgress } = require('../utils/database');
 const examtemplatecontainer = process.env.examtemplatecontainer;
+const questionssk = process.env.QUESTIONSSK;
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 //const { parse } = require('querystring');
@@ -59,7 +60,7 @@ module.exports = async function (context, req) {
 
 const getNumberOfAnsweredQuestions = async (examId) => {
      try {
-        let countAnsweredExams = await Question.count({ examId: examId, questionssk : examId })
+        let countAnsweredExams = await Question.count({ examId: examId, questionssk : questionssk })
         return countAnsweredExams;
     } catch (error) {
         let messageBody = {

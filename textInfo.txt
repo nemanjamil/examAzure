@@ -60,6 +60,18 @@ DELETE FIELD
 
 ------------------------------
 
+db.test.deleteOne( { "_id" : ObjectId("5df0add6be572c21280ad083"), "testsk" : "testsk" } );
+db.test.deleteMany( { "testsk" : "testsk" } );
+
+db.test.createIndex( { "ime": 1, "testsk" : 1 }, { unique: true } )
+db.test.dropIndex( { "ime": 1, "testsk" : 1 } )
+
+db.test.insert({ "ime" : "Nemanja", "testsk" : "testsk" });
+
+ 
+
+----------------------
+
 "FUNCTIONS_WORKER_RUNTIME": "node",
 "FUNCTIONS_EXTENSION_VERSION": "~2",
 "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=storageico;AccountKey=rYfcmvXCcBns6c9TTfbz+C9GCU3Bgc6xTNMyM/u/dpUhRoTtZmcX0ZPiZlH9SVPdoACWvD+CV0RP++E+A5P9mw==;EndpointSuffix=core.windows.net",

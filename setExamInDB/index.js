@@ -4,6 +4,7 @@ const { connectionToDB } = require('../utils/database');
 const { responseErrorJson, responseOkJson, verifyToken } = require('../utils/common');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const UtilsBlob = require('../utils/utilsBlob');
+const examssk = process.env.EXAMSSK;
 
 module.exports = async function (context, req) {
 
@@ -41,7 +42,7 @@ const saveExamInDB = async (verifyTokenResponse, examId, ExamVersion_maxPoints,
 
     try {
 
-        const examssk = examId;
+        //const examssk = examId;
 
         const exam = new Exam({
             userName: verifyTokenResponse.Participant_Firstname,

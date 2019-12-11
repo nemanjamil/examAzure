@@ -5,6 +5,7 @@ const subscriptionKeyCognito = process.env.subscriptionKeyCognito;
 const secret_key = process.env.secret_key;
 const { verifyToken, responseOkJson, responseErrorJson } = require('../utils/common');
 const Picture = require('../models/picture');
+const picturessk = process.env.PICTURESSK;
 const path = require('path');
 const { connectionToDB } = require('../utils/database');
 
@@ -76,7 +77,7 @@ const savePictureInDB = async (context, eventId, questionId, blobName, verifyTok
 
     try {
 
-        const picturessk = examId;
+        //const picturessk = examId;
 
         const picture = new Picture({
             pictureId: path.basename(blobName, '.jpeg'),

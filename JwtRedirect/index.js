@@ -10,6 +10,7 @@ const secret_key = process.env.secret_key;
 const { connectionToDB } = require('../utils/database');
 const Exam = require('../models/exam');
 const path = require('path');
+const examssk = process.env.EXAMSSK;
 
 
 module.exports = async function (context, req) {
@@ -246,7 +247,7 @@ const updateExam = async (examId) => {
         let examUpdate = await Exam.findOneAndUpdate(
             {
                 examId: examId, 
-                examssk: examId
+                examssk: examssk
             }, 
             { $set:{
                 status:"Start"

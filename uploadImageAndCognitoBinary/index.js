@@ -9,6 +9,7 @@ const getStream = require('into-stream');
 const multipartFormdata = require('multipart-formdata')
 const request = require('request');
 const Picture = require('../models/picture');
+const picturessk = process.env.PICTURESSK;
 const {
     connectionToDB
 } = require('../utils/database');
@@ -180,7 +181,7 @@ const savePictureInDB = async (eventId, questionId, blobName, verifyTokenRespons
         numberOfTags: calculateCognitoResponse.tags,
         questionId: questionId,
         pictureJSON: pictureJSON,
-        picturessk: "picturesk" //picturessk
+        picturessk: picturessk
     }
 
     const picture = new Picture(insertObj);

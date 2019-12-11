@@ -4,6 +4,7 @@ const Exam = require('../models/exam');
 const examsuserContainer = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { verifyToken, responseOkJson, responseErrorJson } = require('../utils/common');
+const examssk = process.env.EXAMSSK;
 
 module.exports = async function (context, req) {
 
@@ -73,7 +74,7 @@ const updateExamInDB = async (examId) => {
         }
 
         let examUpdate = await Exam.findOneAndUpdate(
-            { examId: examId, examssk: examId},
+            { examId: examId, examssk: examssk},
             { $set: data },
             { new: true }
         );

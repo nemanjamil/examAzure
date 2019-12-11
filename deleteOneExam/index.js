@@ -4,6 +4,10 @@ const Question = require('../models/question');
 const { connectionToDB } = require('../utils/database');
 const { responseErrorJson } = require('../utils/common');
 
+const questionssk = process.env.QUESTIONSSK;
+const picturessk = process.env.PICTURESSK;
+const examssk = process.env.EXAMSSK;
+
 
 module.exports = async function (context, req) {
 
@@ -11,10 +15,10 @@ module.exports = async function (context, req) {
 
     try {
         await connectionToDB();
-        const sharedKey = await findExamAndTakeSharedKey(examId);
-        await deleteExamQuestions(examId, sharedKey);
-        await deleteExamPictures(examId, sharedKey);
-        await deleteExam(examId, sharedKey);
+        //const sharedKey = await findExamAndTakeSharedKey(examId);
+        await deleteExamQuestions(examId, questionssk);
+        await deleteExamPictures(examId, picturessk);
+        await deleteExam(examId, examssk);
         context.res = {
             status: 200,
         };
