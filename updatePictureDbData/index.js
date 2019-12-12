@@ -10,6 +10,7 @@ module.exports = async function (context, req) {
 
     const pictureId = req.body.pictureId;
     const validationType = req.body.validationType;
+    const examId = req.body.examId;
 
     try {
         await connectionToDB();
@@ -46,10 +47,10 @@ const updatePictureInDB = async (context, pictureId, validationType) => {
         // }
 
         switch(validationType){
-            case 'validPicture': picture.pictureJSON = `[{"info": "Manually validated picture"}]`; break;
-            case 'noFacePicture': picture.pictureJSON = `[]`; break;
-            case 'moreThenOnePersons': picture.pictureJSON = `[{},{}]`; break;
-            default: picture.pictureJSON = `[]`;
+            case 'validPicture': picture.stateOfPicture = 1; break;
+            case 'noFacePicture': picture.stateOfPicture = 0; break;
+            case 'moreThenOnePersons': picture.stateOfPicture = 2; break;
+            default: picture.stateOfPicture = 1;
         }
 
         let pictureSave = await picture.save();

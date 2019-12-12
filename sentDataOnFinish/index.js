@@ -3,7 +3,7 @@ const Exam = require('../models/exam');
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { verifyToken, responseOkJson, responseErrorJson, createExamNamePath } = require('../utils/common');
-
+const examssk = process.env.EXAMSSK;
 
 module.exports = async function (context, req) {
 
@@ -66,7 +66,7 @@ const updateExamInDB = async (examId) => {
 
     try {
 
-        let examUpdate = await Exam.findOneAndUpdate({examId: examId, examssk: examId}, {$set:{status: "Finished"}}, {new: true});
+        let examUpdate = await Exam.findOneAndUpdate({examId: examId, examssk: examssk}, {$set:{status: "Finished"}}, {new: true});
 
         examUpdate = examUpdate.toObject();
         delete examUpdate['_id'];
