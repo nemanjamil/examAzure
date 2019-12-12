@@ -13,6 +13,11 @@ module.exports = async function (context, req) {
 
     const examId = req.body.examId;
 
+    if (!examId) {
+        context.res = await responseErrorJson("ExamID not exist");
+        context.done();
+    }
+
     try {
         await connectionToDB();
         //const sharedKey = await findExamAndTakeSharedKey(examId);
