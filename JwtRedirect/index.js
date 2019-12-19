@@ -250,7 +250,7 @@ const updateExam = async (examId) => {
                 examssk: examssk
             }, 
             { $set:{
-                status:"Start"
+                status:"Ready"
                 }
             }, 
             {
