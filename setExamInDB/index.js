@@ -62,6 +62,7 @@ const saveExamInDB = async (verifyTokenResponse, examId, ExamVersion_maxPoints,
             finished: false,
             isCheated: null,
             status: 'Prepared',
+            nameOfExam: verifyTokenResponse.Name_Of_Exam,
             examssk: examssk
         });
 
