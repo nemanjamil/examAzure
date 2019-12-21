@@ -8,19 +8,20 @@ module.exports = async function (context, req) {
     try {
         const response = await UtilsBlob.getContainerFilesDetails(examtemplatecontainer);
         const data = response.entries;
-
+    
         let arrayOfBlobNames = data.map(el => {
             let fname = UtilsBlob.path.parse(el.name);
             if (fname.dir !== 'salt') {
-                return fname.name;
+               return el;
             }
         }).filter(el => {
              if (el) {
                  return el;
              }
         });
-        
-        context.res = await responseOkJson(arrayOfBlobNames);
+
+        let getDatafromBlobRes = await getDatafromBlob(arrayOfBlobNames)
+        context.res = await responseOkJson(getDatafromBlobRes);
         
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -29,5 +30,15 @@ module.exports = async function (context, req) {
 
 }
 
+const getDatafromBlob = (arrayOfBlobNames) => {
+    return Promise.all(arrayOfBlobNames.map(item => getOneBlobJson(item.name)))
+}
 
+
+const getOneBlobJson = async (name) =>  {
+    let blobLocation = name
+    let responseFromBlob = await UtilsBlob.getJsonExamBlob(blobLocation, examtemplatecontainer);
+    var obj = await JSON.parse(responseFromBlob); 
+    return { name : obj.ExamVersion_Name, customName :  obj.ExamVersion_CustomName };
+}
 
