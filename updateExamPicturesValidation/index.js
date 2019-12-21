@@ -11,12 +11,13 @@ module.exports = async function (context, req) {
 
     const examId = req.body.examId;
     const validationType = req.body.validationType;
+    const picturesIds = req.body.picturesIds;
 
     try {
 
         await connectionToDB();
 
-        const updateAllExamPicturesColor = await updateAllExamPictures(context, examId, validationType);
+        const updateAllExamPicturesColor = await updateAllExamPictures(context, examId, picturesIds, validationType);
 
         context.res = await responseOkJson(updateAllExamPicturesColor);
 
@@ -27,7 +28,7 @@ module.exports = async function (context, req) {
 
 }
 
-const updateAllExamPictures = async (context, examId, validationType) => {
+const updateAllExamPictures = async (context, examId, picturesIds, validationType) => {
 
     try {
 
@@ -41,7 +42,7 @@ const updateAllExamPictures = async (context, examId, validationType) => {
         }
 
         const result = await Picture.updateMany(
-                {'picturessk' : picturessk, "examId" : examId},
+                {'picturessk' : picturessk, "examId" : examId, "pictureId": { $in: picturesIds }},
                 {"$set":{"stateOfPicture" : stateOfPicture}}, 
                 {"multi": true}, 
                 (err, writeResult) => {
