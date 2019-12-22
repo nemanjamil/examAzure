@@ -13,22 +13,23 @@ module.exports = async function (context, req) {
     const validationType = req.body.validationType;
     const picturesIds = req.body.picturesIds;
 
+    console.log(picturesIds);
+
     try {
 
         let updateAllExamPicturesColor = null;
 
-        if(examId && picturesIds){
+        if(examId && picturesIds.length > 0){
 
             await connectionToDB();
 
             updateAllExamPicturesColor = await updateAllExamPictures(context, examId, picturesIds, validationType);
 
         }else{
-            updateAllExamPicturesColor = {
-                message: `Error updating pictures data. 
-                        ${examId ? "" : "ExamId has null value. "} 
-                        ${picturesIds.length === 0 ? "" : "Pictures Ids are not defined."}`
+            messageBody = {
+                message: `Error updating pictures data. ${examId ? "" : "ExamId has null value. "} ${picturesIds.length === 0 ? "Pictures Ids are not defined." : ""}`
             }
+            throw(messageBody);
         }
 
         context.res = await responseOkJson(updateAllExamPicturesColor);
