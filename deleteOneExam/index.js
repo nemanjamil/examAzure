@@ -51,7 +51,7 @@ const findExamAndTakeSharedKey = async (examId) => {
 const deleteExamQuestions = async (examId, sharedKey) => {
     try {
 
-        await Question.deleteMany({'questionssk' : sharedKey } , {'examId': examId});
+        await Question.deleteMany({'questionssk' : sharedKey, 'examId': examId});
 
     } catch (error) {
         
@@ -66,7 +66,7 @@ const deleteExamQuestions = async (examId, sharedKey) => {
 const deleteExamPictures = async (examId, sharedKey) => {
     try {
 
-        await Picture.deleteMany({'picturessk' : sharedKey } , {'examId': examId});
+        await Picture.deleteMany({'picturessk' : sharedKey, 'examId': examId});
 
     } catch (error) {
 
@@ -81,7 +81,7 @@ const deleteExamPictures = async (examId, sharedKey) => {
 const deleteExam = async (examId, sharedKey) => {
     try {
 
-        await Exam.deleteMany({'examssk' : sharedKey } , {'examId': examId});
+        await Exam.deleteOne({'examssk' : sharedKey, 'examId': examId});
 
     } catch (error) {
 
