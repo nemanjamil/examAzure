@@ -1,13 +1,14 @@
 const { responseErrorJson, responseOkJson } = require('../utils/common');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const UtilsBlob = require('../utils/utilsBlob');
-const path = require('path');
+//const path = require('path');
 
 module.exports = async function (context, req) {
 
     
     //let functionKey = req.headers['x-functions-key'];
-    let examVersionExternalId = path.basename(req.body.examVersionExternalId,".json");
+    let examVersionExternalId = req.body.examVersionExternalId;
+    //let examVersionExternalId = path.basename(req.body.examVersionExternalId,".json");
  
     let blobLocation = "salt/"+examVersionExternalId+".salt";
 

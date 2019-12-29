@@ -229,7 +229,7 @@ function parseJson(getJsonExamResolve) {
 async function getJsonExam(ExamVersion_EXTERNAL_ID, containerName) {
     // blobService.doesBlobExist
     return new Promise((resolve, reject) => {
-        blobService.getBlobToText(containerName, ExamVersion_EXTERNAL_ID, (err, data) => {
+        blobService.getBlobToText(containerName, ExamVersion_EXTERNAL_ID + '.json', (err, data) => {
             if (err) {
                 reject(err);
             } else {
