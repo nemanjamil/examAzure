@@ -14,7 +14,7 @@ module.exports = async function (context, req) {
         await connectionToDB();
         let verifyTokenResponse = await verifyToken(token, secret_key);
 
-        let blobLocation = verifyTokenResponse.ExamVersion_EXTERNAL_ID;
+        let blobLocation = verifyTokenResponse.ExamVersion_EXTERNAL_ID+".json";
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(blobLocation, examtemplatecontainer);
 
         let getJsonExamBlobResponseParsed = JSON.parse(getJsonExamBlobResponse);
