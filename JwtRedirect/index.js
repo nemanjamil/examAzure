@@ -2,7 +2,9 @@ const accessKey = process.env.accessKey;
 const storageAccount = process.env.storageAccount;
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const azureStorage = require('azure-storage');
+const { sendMailUtils } = require('../utils/sendMailUtils')
 const UtilsBlob = require('../utils/utilsBlob');
+const { getSpecificDataFromDB } = require('../utils/database');
 const { createExamNamePath, verifyToken } = require('../utils/common');
 const blobService = azureStorage.createBlobService(storageAccount, accessKey)
 // const jwt = require('jsonwebtoken');
@@ -41,7 +43,7 @@ module.exports = async function (context, req) {
 
             redirect = verifyTokenResponse.fe_endpoint + '/error?status=expired';
 
-        }else{
+        } else {
                 // proverava da li postoji vec ovaj Exem na toj putanji, ako postoji link je vec bio jednom pokrenut i test ne sme a se nastavi      
                 const testIfExamBlobAlreadyExist = await isExamInBlobExist(blobNameJsonPath, containerNameExam);
 
@@ -56,11 +58,15 @@ module.exports = async function (context, req) {
                     // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
                     copyExamVersionResponse = await copyExamFileToContainerJson(containerNameExam, blobNameJsonPath, JSON.stringify(examData));
 
-                //  let blobNameJson = createExamNamePath(verifyTokenResponse);
-                const examId = path.basename(blobNameJsonPath, '_score.json');
-                examUpdateResult = await updateExam(examId);
+                    //  let blobNameJson = createExamNamePath(verifyTokenResponse);
+                    const examId = path.basename(blobNameJsonPath, '_score.json');
+                    examUpdateResult = await updateExam(examId);
 
-                console.log("zavrsio update");
+                    let fieldsDB = ['STATUS_EMAIL_HI', 'STATUS_EMAIL_SENTENCE', 'STATUS_EMAIL_TITLE']
+                    const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
+                    let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, getDbDataForEmailTemplate);
+                    
+                    console.log("zavrsio update");
 
                     redirect = verifyTokenResponse.fe_endpoint +
                         '?token=' + req.query.token +

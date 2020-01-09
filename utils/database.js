@@ -60,7 +60,22 @@ const testIfExamIsInProgress = async (examId) => {
     }
 }
 
+const getSpecificDataFromDB = async (fields) => {
+    const Basics = require('../models/basic');
+    try {
+       const getData = await Basics.find({ name: fields });
+       return getData;
+    } catch (error) {
+        let messageBody = {
+            message: "Error fetching data"
+        }
+        return Promise.reject(messageBody)
+    }
+}
+
+
 module.exports = {
     connectionToDB,
-    testIfExamIsInProgress
+    testIfExamIsInProgress,
+    getSpecificDataFromDB
 }

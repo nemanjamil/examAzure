@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 const Basics = require('../models/basic');
+const { getSpecificDataFromDB } = require('../utils/database');
 
 const { connectionToDB } = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
@@ -21,14 +22,4 @@ module.exports = async function (context, req) {
 
 };
 
-const getSpecificDataFromDB = async (fields) => {
-    try {
-       const getData = await Basics.find({ name: fields });
-       return getData;
-    } catch (error) {
-        let messageBody = {
-            message: "Error fetching data"
-        }
-        return Promise.reject(messageBody)
-    }
-}
+
