@@ -79,6 +79,14 @@ const nameVariables = {
     basicsk : "tems"
 }
 
+const parseJsonArrayToKeyValue = async (data) => {
+     let newObj = []
+    data.forEach((el, i) => {
+        newObj[el.name] = JSON.parse(el.value)
+    })
+    return newObj;
+}
+
 module.exports = {
     isArray,
     SENTENCES,
@@ -87,5 +95,6 @@ module.exports = {
     responseErrorJson,
     getExamIdFromToken,
     createExamNamePath,
-    nameVariables
+    nameVariables,
+    parseJsonArrayToKeyValue
 }

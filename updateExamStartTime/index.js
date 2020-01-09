@@ -1,9 +1,11 @@
 const UtilsBlob = require('../utils/utilsBlob');
 const { connectionToDB } = require('../utils/database');
 const Exam = require('../models/exam');
+const { getSpecificDataFromDB } = require('../utils/database');
+const { sendMailUtils } = require('../utils/sendMailUtils')
 const examsuserContainer = process.env.examsuser;
 const secret_key = process.env.secret_key;
-const { verifyToken, responseOkJson, responseErrorJson } = require('../utils/common');
+const { verifyToken, responseOkJson, responseErrorJson, parseJsonArrayToKeyValue } = require('../utils/common');
 const examssk = process.env.EXAMSSK;
 
 module.exports = async function (context, req) {
@@ -20,6 +22,12 @@ module.exports = async function (context, req) {
         await connectionToDB();
         const examId = examIdCalculate(verifyTokenResponse);
         const updateResult = await updateExamInDB(examId);
+
+        // send email to proctor
+        let fieldsDB = ['STATUS_EMAIL_HI', 'STATUS_EMAIL_SENTENCE_STARTED_EXAM', 'STATUS_EMAIL_TITLE']
+        const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
+        let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
+        let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB);
 
         response = {
             updateQuestion: updateQuestionReq,

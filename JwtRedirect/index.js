@@ -5,7 +5,7 @@ const azureStorage = require('azure-storage');
 const { sendMailUtils } = require('../utils/sendMailUtils')
 const UtilsBlob = require('../utils/utilsBlob');
 const { getSpecificDataFromDB } = require('../utils/database');
-const { createExamNamePath, verifyToken } = require('../utils/common');
+const { createExamNamePath, verifyToken, parseJsonArrayToKeyValue } = require('../utils/common');
 const blobService = azureStorage.createBlobService(storageAccount, accessKey)
 // const jwt = require('jsonwebtoken');
 const secret_key = process.env.secret_key;
@@ -64,8 +64,9 @@ module.exports = async function (context, req) {
 
                     let fieldsDB = ['STATUS_EMAIL_HI', 'STATUS_EMAIL_SENTENCE', 'STATUS_EMAIL_TITLE']
                     const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
-                    let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, getDbDataForEmailTemplate);
-                    
+                    let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
+                    let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB);
+                  
                     console.log("zavrsio update");
 
                     redirect = verifyTokenResponse.fe_endpoint +
