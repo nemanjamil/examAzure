@@ -24,7 +24,7 @@ module.exports = async function (context, req) {
         const updateResult = await updateExamInDB(examId);
 
         // send email to proctor
-        let fieldsDB = ['STATUS_EMAIL_HI', 'STATUS_EMAIL_SENTENCE_STARTED_EXAM', 'STATUS_EMAIL_TITLE']
+        let fieldsDB = ['STATUS_EMAIL_HI', 'STATUS_EMAIL_SENTENCE_STARTED_EXAM', 'STATUS_EMAIL_TITLE', 'GEN_Sender_Email_Name']
         const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
         let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
         let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB);

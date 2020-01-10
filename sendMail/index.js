@@ -8,8 +8,8 @@ module.exports = async function (context, req) {
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
-        to: req.body.participantemail,
-        bcc: [req.body.proctor_email_receiver],
+        to: req.body.proctor_email_receiver,
+        replyTo: req.body.participantemail,
         from: {
             name: req.body.nameofsender,
             email: process.env.SENDGRID_FROM_MAIL
