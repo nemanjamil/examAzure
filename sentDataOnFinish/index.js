@@ -1,5 +1,7 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
+const { getSpecificDataFromDB } = require('../utils/database');
+const { sendMailUtils } = require('../utils/sendMailUtils')
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { verifyToken, responseOkJson, responseErrorJson, createExamNamePath } = require('../utils/common');
@@ -24,6 +26,13 @@ module.exports = async function (context, req) {
                        verifyTokenResponse.ExamEvent_EXTERNAL_ID
 
         let updateExamResult = await updateExamInDB(examId);
+
+        // send email to proctor
+        let fieldsDB = ['STATUS_EMAIL_HI', 'STATUS_EMAIL_SENTENCE_FINISHED_EXAM', 'STATUS_EMAIL_TITLE', 'GEN_Sender_Email_Name']
+        const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
+        let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
+        let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB);
+
 
         const responseData = {
             getJsonExamBlobResponse,
