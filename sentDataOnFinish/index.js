@@ -1,10 +1,11 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
-const { getSpecificDataFromDB } = require('../utils/database');
+const { getSpecificDataFromDB, connectionToDB } = require('../utils/database');
+
 const { sendMailUtils } = require('../utils/sendMailUtils')
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
-const { verifyToken, responseOkJson, responseErrorJson, createExamNamePath } = require('../utils/common');
+const { verifyToken, responseOkJson, responseErrorJson, createExamNamePath, parseJsonArrayToKeyValue } = require('../utils/common');
 const examssk = process.env.EXAMSSK;
 
 module.exports = async function (context, req) {
@@ -20,11 +21,13 @@ module.exports = async function (context, req) {
         let examJsonBlobPath = await createExamNamePath(verifyTokenResponse);
         let getJsonExamFromBlob = await Utils.getJsonExamBlob(examJsonBlobPath, examsuser);
         await updateBlobOnExamFinish(getJsonExamFromBlob, examJsonBlobPath);
+       
 
         const examId = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
                        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
                        verifyTokenResponse.ExamEvent_EXTERNAL_ID
 
+        await connectionToDB();
         let updateExamResult = await updateExamInDB(examId);
 
         // send email to proctor
