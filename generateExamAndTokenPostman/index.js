@@ -158,7 +158,7 @@ const sendMail = async (token, participantFirstName, participantEmail, proctorEm
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
         to: sendData.proctor_email_receiver,
-        replayTo: sendData.participantemail,
+        replyTo: sendData.participantemail,
         from: {
             name: sendData.nameofsender,
             email: process.env.SENDGRID_FROM_MAIL
