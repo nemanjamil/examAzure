@@ -146,10 +146,7 @@ const sendMail = async (token, participantFirstName, participantEmail, proctorEm
     const EMAIL_MESSAGE = parseJsonArrayToKeyValueRes[fieldsDB[1]][language]; 
     const STATUS_EMAIL_HI = parseJsonArrayToKeyValueRes[fieldsDB[2]][language]; 
 
-  //  console.log(EMAIL_MESSAGE);
-  //  console.log(STATUS_EMAIL_HI);
-
-    const sendData = {};
+    let sendData = {};
     sendData.title = EMAIL_TITLE;
     sendData.message = EMAIL_MESSAGE;
     sendData.firstname = participantFirstName;
