@@ -100,7 +100,7 @@ const getDataFromDB = async (tablePage, rowsPerTablePage) => {
 
     } catch (error) {
         let messageBody = {
-            message: "Error fetching data"
+            message: error
         }
         return Promise.reject(messageBody)
     }

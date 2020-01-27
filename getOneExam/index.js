@@ -7,12 +7,6 @@ const secret_key = process.env.secret_key;
 
 module.exports = async function (context, req) {
 
-    // this endpoint is calling and from exam app and exam admin app
-    // exam admin app don't have token property
-    // exam have token but is not used here (because admin app don't have token)
-
-    // IMPORTANT: need secure this endpoint FOR USE IN EXAM APP WITHOUT TOKEN
-
     const examId = req.body.examId;
     const token = req.headers.authorization;
 
@@ -20,7 +14,6 @@ module.exports = async function (context, req) {
         await verifyToken(token, secret_key);
         await connectionToDB();
         let getDataResponse = await getDataFromDB(context, examId);
-
         context.res = await responseOkJson(getDataResponse);
 
     } catch (error) {
@@ -34,17 +27,20 @@ const getDataFromDB = async (context, examId) => {
     try {
         let result = await Exam.findOne({ examId: examId });
 
-        // Remove sensible information from Exam response data
-        result = result.toObject();
-        delete result['_id'];
-        delete result['examssk'];
-
+         // Remove sensible information from Exam response data
+        if (result) {
+            result = result.toObject();
+            delete result['_id'];
+            delete result['examssk'];
+        } else {
+            result = "No Exam in DB "+examId
+            return Promise.reject(result)
+        }
         return result;
 
     } catch (error) {
-
         let messageBody = {
-            message: "Error fetching data"
+            message: error
         }
         return Promise.reject(messageBody)
     }

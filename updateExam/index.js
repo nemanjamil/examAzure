@@ -146,7 +146,7 @@ const getQuestionsFromDB = async (examId) => {
         return await Question.find({examId: examId});
     }catch(error){
         let messageBody = {
-            message: "Error fetching data questions"
+            message: error
         }
         return Promise.reject(messageBody)
     }

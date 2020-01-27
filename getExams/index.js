@@ -287,21 +287,9 @@ const getDataFromDB = async (tablePage, rowsPerTablePage, searchText) => {
 
         return data;
 
-        // context.res = {
-        //     status: 200,
-        //     body: result
-        //     // headers: {
-        //     //     // 'Location': redirect
-        //     // },
-        // };
-        // context.done();
-        // // let messageBody = {
-        // //     message: "Data fetch successfully"
-        // // }
-        // // return Promise.resolve(messageBody);
-    } catch (error) {
+     } catch (error) {
         let messageBody = {
-            message: "Error fetching data"
+            message: error
         }
         return Promise.reject(messageBody)
     }

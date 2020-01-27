@@ -25,7 +25,7 @@ const getDataFromDB = async () => {
        return getData;
     } catch (error) {
         let messageBody = {
-            message: "Error fetching data"
+            message: error
         }
         return Promise.reject(messageBody)
     }

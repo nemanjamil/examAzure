@@ -31,7 +31,7 @@ const getSpecificDataFromDB = async (field) => {
        return getData[0].value;
     } catch (error) {
         let messageBody = {
-            message: "Error fetching data"
+            message: error
         }
         return Promise.reject(messageBody)
     }

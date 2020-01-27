@@ -11,7 +11,10 @@ const request = require('request');
 const Picture = require('../models/picture');
 const picturessk = process.env.PICTURESSK;
 const {
-    connectionToDB
+    disconectFromDB,
+    connectionToDB,
+    readyStateMongoose,
+    closeMongoDbConnection 
 } = require('../utils/database');
 
 const {
@@ -63,19 +66,28 @@ module.exports = async function (context, req) {
             verifyTokenResponse, requestComputerVisionResponse.body, uid,
             calculateCognitoResponse);
 
+     
+        let disconectFromDBRsp =  await disconectFromDB();
+        let closeMongoDbConnectionResp = await closeMongoDbConnection();
+        let stateOfMongoDb = await readyStateMongoose();
+
         response = {
             "uploadImageToContainderRes": uploadImageToContainderRes,
             "requestComputerVisionResponse": requestComputerVisionResponse.message,
             "putFileToContainerJsonResponse": putFileToContainerJsonResponse,
+            "closeMongoDbConnectionResp" : closeMongoDbConnectionResp,
+            "disconectFromDBRsp" : disconectFromDBRsp,
+            "stateOfMongoDb" : stateOfMongoDb,
             "pictureSaveResult": pictureSaveResult
         }
 
         context.res = await responseOkJson(response);
-
+        context.done();
 
     } catch (err) {
         context.res = await responseErrorJson(err);
     }
+    context.done();
 };
 
 const  calculateCongnito = async (requestComputerVisionResponse) => {
@@ -185,13 +197,14 @@ const savePictureInDB = async (eventId, questionId, blobName, verifyTokenRespons
     }
 
     const picture = new Picture(insertObj);
-    return new Promise((resolve, reject) => {
-        picture.save(function (err, data) {
-            if (err) {
-                reject(err)
-            } else {
-                resolve("Inserted")
-            }
-        });
-    })
+
+    try {
+        let picSave = await picture.save();
+        let picCost = await picture.db.db.command({getLastRequestStatistics:1});
+        return {picSave,picCost}
+
+    } catch (error) {
+        Promise.reject(error);
+    }
+  
 }

@@ -32,7 +32,7 @@ const getDataFromDB = async (context, examId) => {
         context.done();
     }catch(error){
         let messageBody = {
-            message: "Error fetching data"
+            message: error
         }
         return Promise.reject(messageBody)
     }

@@ -52,7 +52,7 @@ const verifyToken = async (token, secret_key) => {
     });
 }
 
-const getExamIdFromToken = (token, secret_key) => {
+const getExamIdFromToken = async (token, secret_key) => {
     return jwt.verify(token, secret_key, function (err, decoded) {
         if (err) {
             return Promise.reject(err);

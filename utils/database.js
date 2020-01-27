@@ -1,11 +1,26 @@
 var mongoose = require('mongoose');
 const Exam = require('../models/exam');
+mongoose.Promise = global.Promise;
+let client = null;
 
+const readyStateMongoose = async () => {
+    return mongoose.connection.readyState
+}
+const closeMongoDbConnection = async () => {
+    return await mongoose.connection.close();
+}
+const disconectFromDB =  async () => {
+   return await mongoose.disconnect()
+}
 const connectionToDB = async () => {
 
+    mongoose.Promise = global.Promise;
+   
     try {
         //mongoose.set('useCreateIndex', true) // or we can use in connect
-        await mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true&replicaSet=globaldb", {
+        // &replicaSet=globaldb
+
+        await mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true", {
             useNewUrlParser: true,
             useCreateIndex: true,
             useUnifiedTopology: true,
@@ -17,12 +32,13 @@ const connectionToDB = async () => {
         });
         console.log('Connection to CosmosDB successful');
         let messageBody = {
-            message: "Connection to CosmosDB successful"
+            message: "Connection to CosmosDB successful",
+            status: mongoose.connection.readyState
         }
         return Promise.resolve(messageBody);
     } catch (error) {
         let messageBody = {
-            message: "Error Connecting to CosmosDB"
+            message: error
         }
         return Promise.reject(messageBody);
     }
@@ -53,7 +69,7 @@ const testIfExamIsInProgress = async (examId) => {
     } catch (error) {
         console.log(error);
         let messageBody = {
-            message: "Error fetching exam data",
+            message: error,
             value: false
         }
         return Promise.reject(messageBody)
@@ -67,7 +83,7 @@ const getSpecificDataFromDB = async (fields) => {
        return getData;
     } catch (error) {
         let messageBody = {
-            message: "Error fetching data"
+            message: error
         }
         return Promise.reject(messageBody)
     }
@@ -76,6 +92,9 @@ const getSpecificDataFromDB = async (fields) => {
 
 module.exports = {
     connectionToDB,
+    disconectFromDB,
+    closeMongoDbConnection,
+    readyStateMongoose,
     testIfExamIsInProgress,
     getSpecificDataFromDB
 }
