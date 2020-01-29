@@ -1,6 +1,5 @@
-
 const Exam = require('../models/exam');
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, disconectFromDB, readyStateMongoose, closeMongoDbConnection  } = require('../utils/database');
 const { verifyToken, responseErrorJson, responseOkJson} = require('../utils/common');
 const secret_key = process.env.secret_key;
 
@@ -14,7 +13,17 @@ module.exports = async function (context, req) {
         await verifyToken(token, secret_key);
         await connectionToDB();
         let getDataResponse = await getDataFromDB(context, examId);
-        context.res = await responseOkJson(getDataResponse);
+
+        let disconectFromDBRes = await disconectFromDB();
+        let stateOfMongoDb = await readyStateMongoose();
+        let closeMongoDbConnectionRes = await closeMongoDbConnection();
+    
+        
+        context.res = await responseOkJson(getDataResponse, {
+            "disconectFromDBRes" : disconectFromDBRes,
+            "stateOfMongoDb" : stateOfMongoDb,
+            "closeMongoDbConnectionResp" : closeMongoDbConnectionRes,
+        });
 
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -33,7 +42,7 @@ const getDataFromDB = async (context, examId) => {
             delete result['_id'];
             delete result['examssk'];
         } else {
-            result = "No Exam in DB "+examId
+            result = "This exam does not exist in our DB "+examId
             return Promise.reject(result)
         }
         return result;

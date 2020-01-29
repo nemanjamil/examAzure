@@ -1,5 +1,6 @@
 const Utils = require('../utils/utilsBlob');
-const { connectionToDB, testIfExamIsInProgress } = require('../utils/database');
+const { connectionToDB, testIfExamIsInProgress, 
+    disconectFromDB, readyStateMongoose, closeMongoDbConnection } = require('../utils/database');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const questionssk = process.env.QUESTIONSSK;
 const examsuser = process.env.examsuser;
@@ -30,20 +31,35 @@ module.exports = async function (context, req) {
 
         let getNumberOfAnsweredQuestionsResonse = await getNumberOfAnsweredQuestions(examId)
 
-     
+        let closeMongoDbConnectionRes = await closeMongoDbConnection();
+        let stateOfMongoDb = await readyStateMongoose();
+
+        /* function isOdd(num) { return num % 2;}
+        let rnd = Math.floor(Math.random() * 100);
+        if (isOdd(rnd)) {
+            context.res = await responseErrorJson("Error number");
+            return;
+        } */
+        
+
+        
         // if exam is in progress
         if (response.value) {
             // getOneQuestionResponse.state==false && { hasQuestions : false }
             context.res = await responseOkJson(getOneQuestionResponse.message, { 
                 hasQuestions: getOneQuestionResponse.state,
-                getNumberOfAnsweredQuestions: getNumberOfAnsweredQuestionsResonse
+                getNumberOfAnsweredQuestions: getNumberOfAnsweredQuestionsResonse,
+                stateOfMongoDb : stateOfMongoDb
+                
              });
         } else {
             context.res = {
                 status: 200,
                 body: {
                     message: response.message,
-                    status: true
+                    status: true,
+                    stateOfMongoDb : stateOfMongoDb,
+                    closeMongoDbConnectionResp : closeMongoDbConnectionRes
                 },
                 headers: {
                     'Content-Type': 'application/json'

@@ -13,13 +13,11 @@ const disconectFromDB =  async () => {
    return await mongoose.disconnect()
 }
 const connectionToDB = async () => {
-
-    mongoose.Promise = global.Promise;
-   
+  
     try {
         //mongoose.set('useCreateIndex', true) // or we can use in connect
         // &replicaSet=globaldb
-
+        console.log('Pre Start Connection to CosmosDB successful');
         await mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true", {
             useNewUrlParser: true,
             useCreateIndex: true,

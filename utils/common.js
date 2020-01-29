@@ -43,17 +43,31 @@ const SENTENCES = {
 }
 
 const verifyToken = async (token, secret_key) => {
-    return jwt.verify(token, secret_key, function (err, decoded) {
-        if (err) {
-            return Promise.reject(err);
-        } else {
-            return Promise.resolve(decoded);
-        }
-    });
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, secret_key, function (err, decoded) {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(decoded)
+            }
+        })
+    })
 }
 
 const getExamIdFromToken = async (token, secret_key) => {
-    return jwt.verify(token, secret_key, function (err, decoded) {
+
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, secret_key, function (err, decoded) {
+            if (err) {
+                reject(err);
+            } else {
+                examId = decoded.Participant_EXTERNAL_ID + "_" +
+                decoded.ExamVersion_EXTERNAL_ID + "_" +
+                decoded.ExamEvent_EXTERNAL_ID;
+                resolve(examId);
+            }
+         });
+    /* return jwt.verify(token, secret_key, function (err, decoded) {
         if (err) {
             return Promise.reject(err);
         } else {
@@ -63,6 +77,8 @@ const getExamIdFromToken = async (token, secret_key) => {
             return Promise.resolve(examId);
         }
     });
+        */
+    }); 
 }
 
 const createExamNamePath = (verifyTokenResponse) => {
