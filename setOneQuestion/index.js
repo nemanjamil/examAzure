@@ -4,13 +4,19 @@ const examtemplatecontainer = process.env.examtemplatecontainer;
 const examsuser = process.env.examsuser;
 const questionssk = process.env.QUESTIONSSK;
 const secret_key = process.env.secret_key;
-const { isArray, verifyToken, getExamIdFromToken } = require('../utils/common');
+const { isArray, verifyToken, getExamIdFromToken, responseOkJson, responseErrorJson } = require('../utils/common');
 const path = require('path');
 
 var mongoose = require('mongoose');
 const Question = require('../models/question');
 
 
+/* function isOdd(num) { return num % 2;}
+let rnd = Math.floor(Math.random() * 100);
+if (isOdd(rnd)) {
+    context.res = await responseErrorJson("Error Setting up question");
+    return;
+} */
 
 module.exports = async function (context, req) {
 
@@ -21,12 +27,15 @@ module.exports = async function (context, req) {
     const answersHash = parses.answersHash;
     const token = req.headers.authorization;
 
+    
+   
+
 
     try {
 
         await connectionToDB();
         const examId = await getExamIdFromToken(token, secret_key);
-        let response = await testIfExamIsInProgress(examId);
+        let responseExamInProgress = await testIfExamIsInProgress(examId);
 
     
         if (!isArray(answers)) await Promise.reject({ message: "Answers is not array" });
@@ -39,24 +48,19 @@ module.exports = async function (context, req) {
         // 111/99293945/333/111_99293945_333_score.json
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
 
-     //   await connectionToDB();
+        // await connectionToDB();
         if(!eventId) Promise.reject({message: "No event Id"});
-        await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
+        let saveQuestAndAnswersRes = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
 
         // dobija sve informacije vezane za exam, sva pitanja i sve odgovore, koji su tacni koji ne, sta je odgovoreno i sta je tacno a sta pogresno odgovoreno
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(createNamePathRsp, examsuser);
-        response = await updateQuestion(getJsonExamBlobResponse, createNamePathRsp, question, answers);
+        let updateQuestionResponse = await updateQuestion(getJsonExamBlobResponse, createNamePathRsp, question, answers);
 
-        context.res = {
-            status: 200,
-            body: {
-                message: response.message,
-                status: true
-            },
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
+        context.res = await responseOkJson({
+            "updateQuestionResponse" : updateQuestionResponse,
+            "saveQuestAndAnswersRes" : saveQuestAndAnswersRes,
+            "getJsonExamBlobResponse" : getJsonExamBlobResponse
+        });
 
     } catch (error) {
         context.res = {

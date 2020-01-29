@@ -15,6 +15,13 @@ const {
 } = require('../utils/common');
 const Question = require('../models/question');
 
+/* function isOdd(num) { return num % 2;}
+let rnd = Math.floor(Math.random() * 100);
+if (isOdd(rnd)) {
+    context.res = await responseErrorJson("Error number");
+    return;
+} */
+
 module.exports = async function (context, req) {
 
     const token = req.headers.authorization;
@@ -33,15 +40,6 @@ module.exports = async function (context, req) {
 
         let closeMongoDbConnectionRes = await closeMongoDbConnection();
         let stateOfMongoDb = await readyStateMongoose();
-
-        /* function isOdd(num) { return num % 2;}
-        let rnd = Math.floor(Math.random() * 100);
-        if (isOdd(rnd)) {
-            context.res = await responseErrorJson("Error number");
-            return;
-        } */
-        
-
         
         // if exam is in progress
         if (response.value) {
@@ -66,8 +64,6 @@ module.exports = async function (context, req) {
                 }
             };
         }
-
-
 
     } catch (error) {
           context.res = await responseErrorJson(error);
