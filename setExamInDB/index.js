@@ -27,8 +27,14 @@ module.exports = async function (context, req) {
             verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
             verifyTokenResponse.ExamEvent_EXTERNAL_ID;
 
-        const data = await saveExamInDB(verifyTokenResponse, examId, ExamVersion_maxPoints, 
-                                        ExamVersion_passingPoints, Exam_SuccessPercent, token);
+        const data = await saveExamInDB(
+                verifyTokenResponse, 
+                examId, 
+                ExamVersion_maxPoints, 
+                ExamVersion_passingPoints, 
+                Exam_SuccessPercent, 
+                token);
+
         context.res = await responseOkJson(data);
     } catch (error) {
         context.res = await responseErrorJson(error);

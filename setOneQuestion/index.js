@@ -33,7 +33,7 @@ module.exports = async function (context, req) {
 
     try {
 
-        await connectionToDB();
+        let connectionToDb = await connectionToDB();
         const examId = await getExamIdFromToken(token, secret_key);
         let responseExamInProgress = await testIfExamIsInProgress(examId);
 
@@ -58,7 +58,8 @@ module.exports = async function (context, req) {
 
         context.res = await responseOkJson({
             "updateQuestionResponse" : updateQuestionResponse,
-            "saveQuestAndAnswersRes" : saveQuestAndAnswersRes
+            "saveQuestAndAnswersRes" : saveQuestAndAnswersRes,
+            "connectionToDb" : connectionToDb
         });
 
     } catch (error) {
