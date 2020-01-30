@@ -11,9 +11,13 @@ let log = (msg) => {
 
 let getJsonExamBlob = async (blobLocation, containerName) => {
     return new Promise((resolve, reject) => {
-        blobService.getBlobToText(containerName, blobLocation, (err, data) => {
-            if (err) {
-                reject(err);
+        blobService.getBlobToText(containerName, blobLocation, (error, data) => {
+            if (error) {
+                reject({
+                    message : error,
+                    error: error,
+                    stateoferror: 50
+                });
             } else {
                 resolve(data);
             }
@@ -28,9 +32,13 @@ let putFileToContainerJson = async (containerName, blobName, data) => {
         }
     }
     return new Promise((resolve, reject) => {
-        blobService.createBlockBlobFromText(containerName, blobName, data, opt, (err, data) => {
-            if (err) {
-                reject(err);
+        blobService.createBlockBlobFromText(containerName, blobName, data, opt, (error, data) => {
+            if (error) {
+                reject({
+                    message : error,
+                    error: error,
+                    stateoferror: 50
+                });
             } else {
                 resolve("Inserted Data");
             }

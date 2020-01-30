@@ -44,9 +44,13 @@ const SENTENCES = {
 
 const verifyToken = async (token, secret_key) => {
     return new Promise((resolve, reject) => {
-        jwt.verify(token, secret_key, function (err, decoded) {
-            if (err) {
-                reject(err)
+        jwt.verify(token, secret_key, function (error, decoded) {
+            if (error) {
+                reject({
+                    message : "VerifyToken Get Exam from Token can't be resolved : ",
+                    error : error,
+                    stateoferror: 32
+                })
             } else {
                 resolve(decoded)
             }
@@ -57,9 +61,13 @@ const verifyToken = async (token, secret_key) => {
 const getExamIdFromToken = async (token, secret_key) => {
 
     return new Promise((resolve, reject) => {
-        jwt.verify(token, secret_key, function (err, decoded) {
-            if (err) {
-                reject(err);
+        jwt.verify(token, secret_key, function (error, decoded) {
+            if (error) {
+                reject({
+                    message : "Get Exam from Token can't be resolved",
+                    error : error,
+                    stateoferror: 31
+                });
             } else {
                 examId = decoded.Participant_EXTERNAL_ID + "_" +
                 decoded.ExamVersion_EXTERNAL_ID + "_" +
@@ -67,17 +75,6 @@ const getExamIdFromToken = async (token, secret_key) => {
                 resolve(examId);
             }
          });
-    /* return jwt.verify(token, secret_key, function (err, decoded) {
-        if (err) {
-            return Promise.reject(err);
-        } else {
-            examId = decoded.Participant_EXTERNAL_ID + "_" +
-            decoded.ExamVersion_EXTERNAL_ID + "_" +
-            decoded.ExamEvent_EXTERNAL_ID;
-            return Promise.resolve(examId);
-        }
-    });
-        */
     }); 
 }
 

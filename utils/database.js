@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 const Exam = require('../models/exam');
 mongoose.Promise = global.Promise;
 let client = null;
+const examssk = process.env.EXAMSSK;
 
 const readyStateMongoose = async () => {
     return mongoose.connection.readyState
@@ -31,14 +32,16 @@ const connectionToDB = async () => {
         console.log('Connection to CosmosDB successful');
         let messageBody = {
             message: "Connection to CosmosDB successful",
-            status: mongoose.connection.readyState
+            readystate: mongoose.connection.readyState
         }
         return Promise.resolve(messageBody);
     } catch (error) {
         let messageBody = {
-            message: error,
-            messageDesc: "Connection is not established",
-            status: mongoose.connection.readyState
+            message: error,   
+            error: error,  
+            stateoferror: 99,  
+            messagedesc: "Connection is not established",
+            readystate: mongoose.connection.readyState
         }
         return Promise.reject(messageBody);
     }
@@ -46,31 +49,49 @@ const connectionToDB = async () => {
 
 const testIfExamIsInProgress = async (examId) => {
     try {
-        const exam = await Exam.findOne({ examId: examId });
+        let exam = await Exam.findOne({ examId: examId, examssk : examssk });
         if(exam.started && !exam.finished){
             let messageBody = {
                 message: "Exam in progress",
-                value: true
+                status: true
             }
             return Promise.resolve(messageBody);
         }else if(exam.finished){
+            
             let messageBody = {
                 message: "Exam is finished",
-                value: false
+                error: "Exam is finished",  
+                stateoferror: 21,
+                status: false
             }
             return Promise.reject(messageBody);
+
         }else if(!exam.started){
+
             let messageBody = {
                 message: "Exam is not started",
-                value: false
+                error: "Exam is not started",  
+                stateoferror: 22,
+                status: false
             }
             return Promise.reject(messageBody);
+
+        } else  {
+            let messageBody = {
+                message: "testIfExamIsInProgress findOne produce ERROR - IN ELSE QUERY - UNDEFINED",
+                status: true,
+                exam: exam
+            }
+            // this one is only Promise Resolve
+            return Promise.resolve(messageBody)
         }
+
     } catch (error) {
-        console.log(error);
-        let messageBody = {
+         let messageBody = {
             message: error,
-            value: false
+            error: error,  
+            stateoferror: 20,
+            status: false 
         }
         return Promise.reject(messageBody)
     }
@@ -83,7 +104,9 @@ const getSpecificDataFromDB = async (fields) => {
        return getData;
     } catch (error) {
         let messageBody = {
-            message: error
+            message: error,
+            error: error,  
+            stateoferror: 22
         }
         return Promise.reject(messageBody)
     }

@@ -1,5 +1,5 @@
 const UtilsBlob = require('../utils/utilsBlob');
-const { connectionToDB, testIfExamIsInProgress } = require('../utils/database');
+const { connectionToDB, testIfExamIsInProgress, closeMongoDbConnection, readyStateMongoose } = require('../utils/database');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const examsuser = process.env.examsuser;
 const questionssk = process.env.QUESTIONSSK;
@@ -27,16 +27,11 @@ module.exports = async function (context, req) {
     const answersHash = parses.answersHash;
     const token = req.headers.authorization;
 
-    
-   
-
-
     try {
 
         let connectionToDb = await connectionToDB();
         const examId = await getExamIdFromToken(token, secret_key);
         let responseExamInProgress = await testIfExamIsInProgress(examId);
-
     
         if (!isArray(answers)) await Promise.reject({ message: "Answers is not array" });
         if (!parses.hasOwnProperty('question')) await Promise.reject({ message: "question value does not exist" });
@@ -48,25 +43,35 @@ module.exports = async function (context, req) {
         // 111/99293945/333/111_99293945_333_score.json
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
 
-        // await connectionToDB();
+        // save to DB
         if(!eventId) Promise.reject({message: "No event Id"});
         let saveQuestAndAnswersRes = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
 
+        // save to BLOB
         // dobija sve informacije vezane za exam, sva pitanja i sve odgovore, koji su tacni koji ne, sta je odgovoreno i sta je tacno a sta pogresno odgovoreno
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(createNamePathRsp, examsuser);
         let updateQuestionResponse = await updateQuestion(getJsonExamBlobResponse, createNamePathRsp, question, answers);
 
-        context.res = await responseOkJson({
-            "updateQuestionResponse" : updateQuestionResponse,
-            "saveQuestAndAnswersRes" : saveQuestAndAnswersRes,
-            "connectionToDb" : connectionToDb
-        });
+        let closeMongoDbConnectionRes = await closeMongoDbConnection();
+        let stateOfMongoDb = await readyStateMongoose();
+
+        context.res = await responseOkJson(
+            updateQuestionResponse,
+            {
+                "saveQuestAndAnswersRes" : saveQuestAndAnswersRes,
+                "connectionToDb" : connectionToDb,
+                "stateOfMongoDb" : stateOfMongoDb,
+                "responseExamInProgress" : responseExamInProgress
+            }
+        );
 
     } catch (error) {
+
         context.res = {
             status: 400,
             body: {
-                message: error,
+                message: "Something broke up",
+                error: error,
                 status: false
             },
             headers: {
@@ -90,7 +95,10 @@ async function updateQuestion(getJsonExamBlobResponse, blobNameJsonPath, questio
     let jsonObject = JSON.parse(getJsonExamBlobResponse);
 
     try {
+        // proveravamo da li je vec odgovoreno na ovo pitanje
         let modifyAswersResp = await modifyAswers(jsonObject, question, answers);
+
+        // tako modifikovani JSON ponovo uploaduj na File Server
         let putModifiedJsonToCont = await UtilsBlob.putFileToContainerJson(examsuser, blobNameJsonPath, JSON.stringify(modifyAswersResp));
         return putModifiedJsonToCont;
     } catch (error) {
@@ -99,6 +107,8 @@ async function updateQuestion(getJsonExamBlobResponse, blobNameJsonPath, questio
 }
 
 function modifyAswers(jsonObject, question, answers) {
+    // ovde treba da stavim ako odgovor ID pripada listi pitanja onda moze da snimi
+    // a to treba da stavim i na front end kao proveru
     let oneQuestion = jsonObject.examQuestions.filter(item => {
         return item.question_id === question
     })
@@ -106,7 +116,12 @@ function modifyAswers(jsonObject, question, answers) {
         oneQuestion[0].answersSelected = [...answers];
         return Promise.resolve(jsonObject);
     } else {
-        return Promise.reject("Allready answered question : " + question)
+        // Todo [Nemanja] ovde staviti da ako je odgovoreno pitanje i ima ga u JSON SETUJ U BAZU
+        return Promise.reject({ 
+            message : "Allready answered question : " + question,
+            error: "Allready answered question : " + question,
+            stateoferror: 41
+        })
     }
 }
 
@@ -130,14 +145,12 @@ const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastNam
     });
 
     try {
-
-        await quest.save();
-
+        return await quest.save();
     } catch (error) {
-
-        console.log(error);
         let messageBody = {
-            message: "Error saving question to database"
+            message: "Error saving question to database",
+            error: error,
+            stateoferror: 40
         }
         return Promise.reject(messageBody)
     }

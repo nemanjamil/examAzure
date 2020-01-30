@@ -27,37 +27,40 @@ module.exports = async function (context, req) {
     const token = req.headers.authorization;
  
     try {
-        await connectionToDB();
+        let connectionToDb = await connectionToDB();
         const examId = await getExamIdFromToken(token, secret_key);
         let response = await testIfExamIsInProgress(examId);
-
+        
         let verifyTokenResponse = await verifyToken(token, secret_key);
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
         let getJsonExamBlobResponse = await Utils.getJsonExamBlob(createNamePathRsp, examsuser);
         let getOneQuestionResponse = await getOneQuestion(getJsonExamBlobResponse);
-
+        
         let getNumberOfAnsweredQuestionsResonse = await getNumberOfAnsweredQuestions(examId)
-
+        
         let closeMongoDbConnectionRes = await closeMongoDbConnection();
         let stateOfMongoDb = await readyStateMongoose();
-        
+
         // if exam is in progress
-        if (response.value) {
+        if (response.status) {
+
             // getOneQuestionResponse.state==false && { hasQuestions : false }
-            context.res = await responseOkJson(getOneQuestionResponse.message, { 
-                hasQuestions: getOneQuestionResponse.state,
-                getNumberOfAnsweredQuestions: getNumberOfAnsweredQuestionsResonse,
-                stateOfMongoDb : stateOfMongoDb
-                
-             });
+            context.res = await responseOkJson(
+                getOneQuestionResponse.message, 
+                { 
+                    hasQuestions: getOneQuestionResponse.state,
+                    getNumberOfAnsweredQuestions: getNumberOfAnsweredQuestionsResonse,
+                    stateOfMongoDb : stateOfMongoDb,
+                    connectionToDb : connectionToDb,
+                }
+                );
         } else {
             context.res = {
                 status: 200,
                 body: {
                     message: response.message,
                     status: true,
-                    stateOfMongoDb : stateOfMongoDb,
-                    closeMongoDbConnectionResp : closeMongoDbConnectionRes
+                    stateOfMongoDb : stateOfMongoDb
                 },
                 headers: {
                     'Content-Type': 'application/json'
@@ -126,8 +129,7 @@ async function getOneQuestion(jsonTextObject) {
             message: getOneQuestion,
             state: true
         }
-
-
+        
     } else {
 
         return {
