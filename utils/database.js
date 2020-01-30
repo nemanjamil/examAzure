@@ -36,7 +36,9 @@ const connectionToDB = async () => {
         return Promise.resolve(messageBody);
     } catch (error) {
         let messageBody = {
-            message: error
+            message: error,
+            messageDesc: "Connection is not established",
+            status: mongoose.connection.readyState
         }
         return Promise.reject(messageBody);
     }

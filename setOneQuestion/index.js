@@ -58,8 +58,7 @@ module.exports = async function (context, req) {
 
         context.res = await responseOkJson({
             "updateQuestionResponse" : updateQuestionResponse,
-            "saveQuestAndAnswersRes" : saveQuestAndAnswersRes,
-            "getJsonExamBlobResponse" : getJsonExamBlobResponse
+            "saveQuestAndAnswersRes" : saveQuestAndAnswersRes
         });
 
     } catch (error) {
