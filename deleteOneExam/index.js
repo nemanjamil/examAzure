@@ -37,7 +37,7 @@ module.exports = async function (context, req) {
 
 const findExamAndTakeSharedKey = async (examId) => {
     try{
-        const result = await Exam.findOne({examId: examId});
+        const result = await Exam.findOne({examId: examId, examssk : examssk });
         return result.examssk;
     }catch(error){
         let messageBody = {

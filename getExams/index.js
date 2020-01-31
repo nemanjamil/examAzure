@@ -9,6 +9,7 @@ const {
 } = require('../utils/common');
 
 const examssk = process.env.EXAMSSK;
+const picturessk = process.env.PICTURESSK;
 
 
 module.exports = async function (context, req) {
@@ -105,7 +106,8 @@ const anAsyncFunction = async item => {
     try {
         let value = await item.examId;
         let result = await Picture.find({
-            examId: value
+            examId: value,
+            picturessk : picturessk
         });
         return Promise.resolve(result)
     } catch (error) {

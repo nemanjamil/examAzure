@@ -4,7 +4,7 @@ const secret_key = process.env.secret_key;
 
 const { connectionToDB } = require('../utils/database');
 const { verifyToken, responseErrorJson, responseOkJson } = require('../utils/common');
-
+const basicsk = process.env.BASICSSK;
 
 module.exports = async function (context, req) {
   
@@ -27,7 +27,7 @@ module.exports = async function (context, req) {
 
 const getSpecificDataFromDB = async (field) => {
     try {
-       const getData = await Basics.find({ name: field });
+       const getData = await Basics.find({ name: field, basicsk : basicsk });
        return getData[0].value;
     } catch (error) {
         let messageBody = {
