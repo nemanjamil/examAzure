@@ -8,7 +8,10 @@ const examtemplatecontainer = process.env.examtemplatecontainer;
 const secret_key = process.env.secret_key;
 const Question = require('../models/question');
 const crypto = require('crypto');
+const examssk = process.env.EXAMSSK;
 
+
+const questionssk = process.env.QUESTIONSSK;
 
 module.exports = async function (context, req) {
 
@@ -32,22 +35,29 @@ module.exports = async function (context, req) {
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
         let getHashResponse = await Utils.getJsonExamBlob(createNamePathRsp, examtemplatecontainer);
         let getQuestionsFromDBResponse = await getQuestionsFromDB(examId);
+    
+        // count wrong and correct answers from DB
         let countAnswersResponse = await countAnswers(getHashResponse, getQuestionsFromDBResponse);
+
+        // sort data for update DB
         let updateDbParamsResult = await updateDbParams(countAnswersResponse,updateProperties);
         
+        // update wrong and correct answers in DB for current exam
         const updateDBResult = await updateExam(examId, updateDbParamsResult);
-        const updateCheatedJSONResult = await isCheatedPropertyUpdating(examId, updateDbParamsResult);
+
+        // update isCheated colum in exam
+        //const updateCheatedJSONResult = await isCheatedPropertyUpdating(examId, updateDbParamsResult);
 
         const response = {
             updateExamDB: updateDBResult,
-            isCheatedPropertyUpdating: updateCheatedJSONResult
+            countAnswersResponse: countAnswersResponse,
+            updateDbParamsResult: updateDbParamsResult
         }
 
         context.res = await responseOkJson(response);
 
     } catch (error) {
         context.res = await responseErrorJson(error);
-        context.done();
     }
 
 }
@@ -76,13 +86,14 @@ const countAnswers = async (getHashResponse, getQuestionsFromDBResponse) => {
 const updateExam = async (examId, updateProperties) => {
 
     try {
-        const exam = await Exam.findOne({ examId: examId });
+        const exam = await Exam.findOne({ examId: examId, examssk : examssk });
 
         for (let key in updateProperties) {
             exam[updateProperties[key].name] = updateProperties[key].value;
         }
-
+        
         let result = await exam.save();
+
         result = result.toObject();
         delete result['_id'];
         delete result['examssk'];
@@ -91,7 +102,10 @@ const updateExam = async (examId, updateProperties) => {
         
     } catch (error) {
         let messageBody = {
-            message: "Error updating exam"
+            message : "Error updating exam : "+examId,
+            error: error,
+            stateoferror: 72
+
         }
         return Promise.reject(messageBody)
     }
@@ -105,20 +119,33 @@ const isCheatedPropertyUpdating = async (examId, updateProperties) => {
     let cheatedProperty = null;
     cheatedProperty = updateProperties.find(el => el.name === 'isCheated');
 
+    // if we have isCheated property in json File on blob
     if (cheatedProperty) {
         // create blob path from examId: tom_123_sd3-34sd => tom/123/sd3-34sd/tom_123_sd3-34sd_score.json
         const blobName = `${examId}_score.json`;
         const blobPath = `${examId.split('_').join('/')}/${blobName}`;
         try {
+            
             let examJsonFromBlob = await UtilsBlob.getJsonExamBlob(blobPath, examsuserContainer);
             await updateJson(examJsonFromBlob, blobPath, cheatedProperty);
             return Promise.resolve({message: "Cheated property in JSON was updated"});
+
         } catch (error) {
-            return Promise.reject(error);
+
+            let messageBody = {
+                message : "isCheatedPropertyUpdating : " + examId,
+                error: error,
+                stateoferror: 72
+            }
+
+            return Promise.reject(messageBody);
         }
     }
 
-    return Promise.resolve({message:'Not updating'});
+    return Promise.resolve({
+        message:'Not updating', 
+        cheatedProperty: cheatedProperty
+    });
 }
 
 // if isCheated property did changed
@@ -130,7 +157,9 @@ async function updateJson(examJsonFromBlob, blobPath, cheatedProperty) {
         await UtilsBlob.putFileToContainerJson(examsuserContainer, blobPath, JSON.stringify(jsonObject));
     } catch (error) {
         let messageBody = {
-            message: "Error updating cheated property in blob JSON file"
+            message : "Error updating cheated property in blob JSON file",
+            error: error,
+            stateoferror: 73
         }
         return Promise.reject(messageBody);
     }
@@ -142,11 +171,13 @@ async function createNamePath(verifyTokenResponse) {
 }
 
 const getQuestionsFromDB = async (examId) => {
-    try{
-        return await Question.find({examId: examId});
-    }catch(error){
+    try {
+        return await Question.find({examId: examId, questionssk : questionssk});
+    } catch (error) {
         let messageBody = {
-            message: error
+            message : "Cant find questions in DB : exam ID " + examId,
+            error: error,
+            stateoferror: 71
         }
         return Promise.reject(messageBody)
     }

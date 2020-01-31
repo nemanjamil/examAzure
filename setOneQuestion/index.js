@@ -118,8 +118,8 @@ function modifyAswers(jsonObject, question, answers) {
     } else {
         // Todo [Nemanja] ovde staviti da ako je odgovoreno pitanje i ima ga u JSON SETUJ U BAZU
         return Promise.reject({ 
-            message : "Allready answered question : " + question,
-            error: "Allready answered question : " + question,
+            message : "Allready answered question in BLOB : " + question,
+            error: "Allready answered question in BLOB : " + question,
             stateoferror: 41
         })
     }
