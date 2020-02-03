@@ -11,12 +11,16 @@ var mongoose = require('mongoose');
 const Question = require('../models/question');
 
 
-/* function isOdd(num) { return num % 2;}
-let rnd = Math.floor(Math.random() * 100);
-if (isOdd(rnd)) {
-    context.res = await responseErrorJson("Error Setting up question");
-    return;
-} */
+// function isOdd(num) { return num % 2;}
+// let rnd = Math.floor(Math.random() * 100);
+// if (isOdd(rnd)) {
+//     context.res = await responseErrorJson({ 
+//         message : "test error -----  SET ONE QUESTION",
+//         error : "test ERROR --------- SET ONE QUESTION",
+//         stateoferror: 47
+//     });
+//     return;
+// } 
 
 module.exports = async function (context, req) {
 
@@ -52,6 +56,7 @@ module.exports = async function (context, req) {
         // 111/99293945/333/111_99293945_333_score.json
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
 
+        // proveriti da li vec postoji u bazi ????
         // save to DB
         if(!eventId) Promise.reject({message: "No event Id"});
         let saveQuestAndAnswersRes = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
@@ -76,17 +81,8 @@ module.exports = async function (context, req) {
 
     } catch (error) {
 
-        context.res = {
-            status: 400,
-            body: {
-                message: "Something broke up",
-                error: error,
-                status: false
-            },
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
+        context.res = await responseErrorJson(error);
+        
     }
 };
 

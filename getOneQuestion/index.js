@@ -15,13 +15,20 @@ const {
 } = require('../utils/common');
 const Question = require('../models/question');
 
-/* function isOdd(num) { return num % 2;}
-let rnd = Math.floor(Math.random() * 100);
-if (isOdd(rnd)) {
-    context.res = await responseErrorJson("Error number");
-    return;
-} */
 
+//const timeout = ms => new Promise(res => setTimeout(res, ms))
+//await timeout(10000)
+/* 
+function isOdd(num) { return num % 2;}
+let rnd = Math.floor(Math.random() * 100);
+        if (isOdd(rnd)) {
+            context.res = await responseErrorJson({
+                message: "Error get One question",
+                error: "Error get One question ERROR",  
+                stateoferror: 111,
+            });
+            return;
+        } */
 module.exports = async function (context, req) {
 
     const token = req.headers.authorization;
@@ -55,17 +62,11 @@ module.exports = async function (context, req) {
                 }
                 );
         } else {
-            context.res = {
-                status: 200,
-                body: {
+            context.res = await responseOkJson({
                     message: response.message,
                     status: true,
                     stateOfMongoDb : stateOfMongoDb
-                },
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
+            });
         }
 
     } catch (error) {
@@ -79,7 +80,9 @@ const getNumberOfAnsweredQuestions = async (examId) => {
         return countAnsweredExams;
     } catch (error) {
         let messageBody = {
-            message: "Error counting questions"
+            message: "Error counting questions",
+            error: result,  
+            stateoferror: 110,
         }
         return Promise.reject(messageBody)
     }
