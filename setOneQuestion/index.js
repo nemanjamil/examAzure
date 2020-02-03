@@ -31,6 +31,15 @@ module.exports = async function (context, req) {
 
         let connectionToDb = await connectionToDB();
         const examId = await getExamIdFromToken(token, secret_key);
+
+        if (!examId) {
+            await Promise.reject({ 
+                    message : "ExamId does not exsist",
+                    error : "examId : "+examId,
+                    stateoferror: 42
+             });
+        }
+
         let responseExamInProgress = await testIfExamIsInProgress(examId);
     
         if (!isArray(answers)) await Promise.reject({ message: "Answers is not array" });

@@ -3,6 +3,7 @@ const Exam = require('../models/exam');
 mongoose.Promise = global.Promise;
 let client = null;
 const examssk = process.env.EXAMSSK;
+const basicsk = process.env.BASICSSK;
 
 const readyStateMongoose = async () => {
     return mongoose.connection.readyState
@@ -48,6 +49,8 @@ const connectionToDB = async () => {
 }
 
 const testIfExamIsInProgress = async (examId) => {
+    console.log(" >>>> >>>> >>>> testIfExamIsInProgress examId : ", examId);
+    console.log(" >>>> >>>> >>>> >>>> testIfExamIsInProgress examssk : ", examssk);
     try {
         let exam = await Exam.findOne({ examId: examId, examssk : examssk });
         if(exam.started && !exam.finished){
@@ -100,7 +103,7 @@ const testIfExamIsInProgress = async (examId) => {
 const getSpecificDataFromDB = async (fields) => {
     const Basics = require('../models/basic');
     try {
-       const getData = await Basics.find({ name: fields });
+       const getData = await Basics.find({ name: fields, basicsk : basicsk });
        return getData;
     } catch (error) {
         let messageBody = {

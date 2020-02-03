@@ -94,8 +94,11 @@ const updateDBforStatusOfExam = async (examId, currentDT) => {
         return examUpdate;
 
     } catch (error) {
+
         let messageBody = {
-            message: "Error updating exam start time"
+            message : "Error updating exam start time",
+            error: error,
+            stateoferror: 90
         }
         return Promise.reject(messageBody);
     }

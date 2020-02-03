@@ -78,17 +78,33 @@ const updateExamInDB = async (examId) => {
 
     try {
 
-        let examUpdate = await Exam.findOneAndUpdate({examId: examId, examssk: examssk}, {$set:{status: "Finished"}}, {new: true});
+        let examUpdate = await Exam.findOneAndUpdate(
+            {examId: examId, examssk: examssk}, 
+            {$set:{status: "Finished"}}, {new: true});
 
-        examUpdate = examUpdate.toObject();
-        delete examUpdate['_id'];
-        delete examUpdate['examssk'];
+        
+        if (examUpdate) {
+            
+            examUpdate = examUpdate.toObject();
+            delete examUpdate['_id'];
+            delete examUpdate['examssk'];
+            return examUpdate;
 
-        return examUpdate;
+        } else {
+             
+            let messageBody = {
+                message : "No Exam in DB "+examId,
+                error: "No Exam in DB "+examId,
+                stateoferror: 81
+            }
+            return Promise.reject(messageBody)
+        }
 
     } catch (error) {
         let messageBody = {
-            message: "Error updating exam start time"
+            message : "Error updating exam start time",
+            error: error,
+            stateoferror: 80
         }
         return Promise.reject(messageBody);
     }
