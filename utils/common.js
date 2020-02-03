@@ -8,6 +8,22 @@ const isArray = (array) => {
     }
 }
 
+const validateIfStringExist = async (string) => {
+
+    return new Promise((resolve, reject) => {
+        if (string) {
+            resolve(string)
+        } else {
+            reject({
+                message : "String does not exist : "+ string,
+                error : "String does not exist : "+ string,
+                stateoferror: 33
+            })
+        }
+    })
+
+}
+
 const responseOkJson = async (response, addedElements) => {
 
     return {
@@ -109,5 +125,6 @@ module.exports = {
     getExamIdFromToken,
     createExamNamePath,
     nameVariables,
-    parseJsonArrayToKeyValue
+    parseJsonArrayToKeyValue,
+    validateIfStringExist
 }

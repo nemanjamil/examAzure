@@ -87,7 +87,7 @@ const updateExamInDB = async (examId) => {
             { new: true }
         );
 
-        if (examUpdate.lenght>0) {
+        if (examUpdate) {
             
             examUpdate = examUpdate.toObject();
             delete examUpdate['_id'];
