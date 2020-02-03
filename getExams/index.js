@@ -91,6 +91,7 @@ const updateDBforStatusOfExam = async (examId, currentDT) => {
             new: true
         });
 
+        // [TODO]  if (examUpdate.length>0)
         return examUpdate;
 
     } catch (error) {

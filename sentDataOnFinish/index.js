@@ -83,7 +83,7 @@ const updateExamInDB = async (examId) => {
             {$set:{status: "Finished"}}, {new: true});
 
         
-        if (examUpdate) {
+        if (examUpdate.lenght>0) {
             
             examUpdate = examUpdate.toObject();
             delete examUpdate['_id'];

@@ -263,16 +263,18 @@ const updateExam = async (examId) => {
             {
                 new: true
             });
-       if (examUpdate) {
-        examUpdate = examUpdate.toObject();
-        delete examUpdate['_id'];
-        delete examUpdate['examssk'];
+
+       if (examUpdate.lenght>0) {
+            examUpdate = examUpdate.toObject();
+            delete examUpdate['_id'];
+            delete examUpdate['examssk'];
+            return examUpdate;
        } else {
-        result = "No Exam in DB "+examId
-        return Promise.reject(result)
+            result = "No Exam in DB "+examId
+            return Promise.reject(result)
        }
 
-        return examUpdate;
+        
         
     } catch (error) {
         let messageBody = {

@@ -104,7 +104,19 @@ const getSpecificDataFromDB = async (fields) => {
     const Basics = require('../models/basic');
     try {
        const getData = await Basics.find({ name: fields, basicsk : basicsk });
-       return getData;
+
+        if (getData.length>0) {
+            return getData;
+        } else {
+            
+            let messageBody = {
+                message: "Empty DB",
+                error: result,  
+                stateoferror: 23,
+            }
+            return Promise.reject(messageBody)
+        }
+
     } catch (error) {
         let messageBody = {
             message: error,

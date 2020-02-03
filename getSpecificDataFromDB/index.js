@@ -14,6 +14,7 @@ module.exports = async function (context, req) {
         await connectionToDB();
         const getDbData = await getSpecificDataFromDB(fields);
         let closeMongoDbConnectionRes = await closeMongoDbConnection();
+
         context.res = await responseOkJson(
             getDbData, 
             { 
@@ -23,7 +24,6 @@ module.exports = async function (context, req) {
         
     } catch (error) {
         context.res = await responseErrorJson(error);
-        context.done();
     }
 
 };

@@ -40,10 +40,11 @@ const getDataFromDB = async (context, examId) => {
         let result = await Exam.findOne({ examId: examId, examssk : examssk });
 
          // Remove sensible information from Exam response data
-        if (result) {
+        if (result.lenght>0) {
             result = result.toObject();
             delete result['_id'];
             delete result['examssk'];
+            return result;
         } else {
             
             let messageBody = {
@@ -53,7 +54,7 @@ const getDataFromDB = async (context, examId) => {
             }
             return Promise.reject(messageBody)
         }
-        return result;
+       
 
     } catch (error) {
         let messageBody = {
