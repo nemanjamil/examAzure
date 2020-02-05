@@ -44,7 +44,7 @@ module.exports = async function (context, req) {
              });
         }
 
-        let responseExamInProgress = await testIfExamIsInProgress(examId);
+        let responseExamInProgress = await testIfExamIsInProgress(examId, context);
     
         if (!isArray(answers)) await Promise.reject({ message: "Answers is not array" });
         if (!parses.hasOwnProperty('question')) await Promise.reject({ message: "question value does not exist" });
@@ -56,15 +56,15 @@ module.exports = async function (context, req) {
         // 111/99293945/333/111_99293945_333_score.json
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
 
-        // proveriti da li vec postoji u bazi ????
-        // save to DB
-        if(!eventId) Promise.reject({message: "No event Id"});
-        let saveQuestAndAnswersRes = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
-
         // save to BLOB
         // dobija sve informacije vezane za exam, sva pitanja i sve odgovore, koji su tacni koji ne, sta je odgovoreno i sta je tacno a sta pogresno odgovoreno
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(createNamePathRsp, examsuser);
         let updateQuestionResponse = await updateQuestion(getJsonExamBlobResponse, createNamePathRsp, question, answers);
+
+        // proveriti da li vec postoji u bazi ????
+        // save to DB
+        if(!eventId) Promise.reject({message: "No event Id"});
+        let saveQuestAndAnswersRes = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
 
         let closeMongoDbConnectionRes = await closeMongoDbConnection();
         let stateOfMongoDb = await readyStateMongoose();

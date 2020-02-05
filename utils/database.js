@@ -48,9 +48,9 @@ const connectionToDB = async () => {
     }
 }
 
-const testIfExamIsInProgress = async (examId) => {
-    console.log(" >>>> >>>> >>>> testIfExamIsInProgress examId : ", examId);
-    console.log(" >>>> >>>> >>>> >>>> testIfExamIsInProgress examssk : ", examssk);
+const testIfExamIsInProgress = async (examId, context) => {
+    context.log(" >>>> >>>> >>>> testIfExamIsInProgress examId : ", examId);
+    context.log(" >>>> >>>> >>>> >>>> testIfExamIsInProgress examssk : ", examssk);
     try {
         let exam = await Exam.findOne({ examId: examId, examssk : examssk });
         if(exam.started && !exam.finished){

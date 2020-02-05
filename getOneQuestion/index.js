@@ -36,8 +36,10 @@ module.exports = async function (context, req) {
     try {
         let connectionToDb = await connectionToDB();
         const examId = await getExamIdFromToken(token, secret_key);
-        let response = await testIfExamIsInProgress(examId);
+        let response = await testIfExamIsInProgress(examId, context);
         
+        // proveriti da li je vec taj question u bazi 
+
         let verifyTokenResponse = await verifyToken(token, secret_key);
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
         let getJsonExamBlobResponse = await Utils.getJsonExamBlob(createNamePathRsp, examsuser);
