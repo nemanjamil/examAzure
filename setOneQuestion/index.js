@@ -13,14 +13,14 @@ const Question = require('../models/question');
 
 // function isOdd(num) { return num % 2;}
 // let rnd = Math.floor(Math.random() * 100);
-// if (isOdd(rnd)) {
-//     context.res = await responseErrorJson({ 
-//         message : "test error -----  SET ONE QUESTION",
-//         error : "test ERROR --------- SET ONE QUESTION",
-//         stateoferror: 47
-//     });
-//     return;
-// } 
+//         if (isOdd(rnd)) {
+//             context.res = await responseErrorJson({ 
+//                 message : "test error -----  SET ONE QUESTION",
+//                 error : "test ERROR --------- SET ONE QUESTION",
+//                 stateoferror: 47
+//             });
+//             return;
+//         } 
 
 module.exports = async function (context, req) {
 
