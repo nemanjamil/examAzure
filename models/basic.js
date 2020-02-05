@@ -16,6 +16,14 @@ const basicSchema = new Schema({
         type: String,
         required: true
     },
+    project: {
+        type: String,
+        required: false
+    },
+    page: {
+        type: String,
+        required: true
+    },
     time: {
         type: Date,
         default: Date.now
