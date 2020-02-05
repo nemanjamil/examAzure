@@ -18,17 +18,18 @@ const Question = require('../models/question');
 
 //const timeout = ms => new Promise(res => setTimeout(res, ms))
 //await timeout(10000)
-/* 
-function isOdd(num) { return num % 2;}
-let rnd = Math.floor(Math.random() * 100);
-        if (isOdd(rnd)) {
-            context.res = await responseErrorJson({
-                message: "Error get One question",
-                error: "Error get One question ERROR",  
-                stateoferror: 111,
-            });
-            return;
-        } */
+// function isOdd(num) { return num % 2;}
+// let rnd = Math.floor(Math.random() * 100);
+// if (isOdd(rnd)) {
+//     context.res = await responseErrorJson({
+//         message: "Error get One question",
+//         error: "Error get One question ERROR",  
+//         stateoferror: 111,
+//     });
+//     return;
+// }
+
+
 module.exports = async function (context, req) {
 
     const token = req.headers.authorization;
@@ -36,13 +37,16 @@ module.exports = async function (context, req) {
     try {
         let connectionToDb = await connectionToDB();
         const examId = await getExamIdFromToken(token, secret_key);
-        let response = await testIfExamIsInProgress(examId);
+        let response = await testIfExamIsInProgress(examId, context);
         
+        // proveriti da li je vec taj question u bazi 
+
         let verifyTokenResponse = await verifyToken(token, secret_key);
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
         let getJsonExamBlobResponse = await Utils.getJsonExamBlob(createNamePathRsp, examsuser);
         let getOneQuestionResponse = await getOneQuestion(getJsonExamBlobResponse);
         
+        // proveriti da li je isti broj u bazi i u blobu od odogvorenih pitanja
         let getNumberOfAnsweredQuestionsResonse = await getNumberOfAnsweredQuestions(examId)
         
         let closeMongoDbConnectionRes = await closeMongoDbConnection();
