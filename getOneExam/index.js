@@ -12,16 +12,18 @@ module.exports = async function (context, req) {
 
     
     try {
+
         await validateIfStringExist(examId)
         await verifyToken(token, secret_key);
         await connectionToDB();
-        let getDataResponse = await getDataFromDB(context, examId);
+        let { getDataResponse, examCost } = await getDataFromDB(context, examId);
         let closeMongoDbConnectionRes = await closeMongoDbConnection();
         let stateOfMongoDb = await readyStateMongoose();
 
         context.res = await responseOkJson(getDataResponse, {
             "stateOfMongoDb" : stateOfMongoDb,
             "closeMongoDbConnectionResp" : closeMongoDbConnectionRes,
+            "examCost" : examCost
         });
 
     } catch (error) {
@@ -31,15 +33,19 @@ module.exports = async function (context, req) {
 }
 
 const getDataFromDB = async (context, examId) => {
-    try {
-        let result = await Exam.findOne({ examId: examId, examssk : examssk });
+    
+    try {       
+        await validateIfStringExist(examId)
+        await validateIfStringExist(examssk)
 
+        let result = await Exam.findOne({ examId: examId, examssk : examssk });
+        let examCost = await Exam.db.db.command({getLastRequestStatistics:1});
          // Remove sensible information from Exam response data
         if (result) {
             result = result.toObject();
             delete result['_id'];
             delete result['examssk'];
-            return result;
+            return { getDataResponse : result, examCost};
         } else {
             let messageBody = {
                 message: "This exam does not exist in our DB "+examId,
