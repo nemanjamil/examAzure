@@ -1,6 +1,6 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
-const { getSpecificDataFromDB, connectionToDB } = require('../utils/database');
+const { getSpecificDataFromDB, connectionToDB, closeMongoDbConnection } = require('../utils/database');
 
 const { sendMailUtils } = require('../utils/sendMailUtils')
 const examsuser = process.env.examsuser;
@@ -8,11 +8,23 @@ const secret_key = process.env.secret_key;
 const { verifyToken, responseOkJson, responseErrorJson, createExamNamePath, parseJsonArrayToKeyValue } = require('../utils/common');
 const examssk = process.env.EXAMSSK;
 
+// function isOdd(num) { return num % 2;}
+// let rnd = Math.floor(Math.random() * 100);
+//         if (isOdd(rnd)) {
+//             context.res = await responseErrorJson({
+//                 message: "Error sendDataOnFinish",
+//                 error: "Error sendDataOnFinish",  
+//                 stateoferror: 111,
+//             });
+//             return;
+//         }
+
 module.exports = async function (context, req) {
 
     const token = req.headers.authorization;
     let data = req.body;
     try {
+
         let verifyTokenResponse = await verifyToken(token, secret_key);
         let createNamePathRsp = await createExamResultBlobNamePath(verifyTokenResponse);
         let getJsonExamBlobResponse = await Utils.putFileToContainerJson(examsuser, createNamePathRsp, JSON.stringify(data));
@@ -35,11 +47,13 @@ module.exports = async function (context, req) {
         const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
         let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
         let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB);
-
+        
+        await closeMongoDbConnection()
 
         const responseData = {
             getJsonExamBlobResponse,
-            updateExamResult
+            updateExamResult,
+            rspsendMailUtils
         }
 
         context.res = await responseOkJson(responseData);
@@ -70,7 +84,11 @@ async function updateBlobOnExamFinish(getJsonExamFromBlob, examJsonBlobPath) {
         return putModifiedJsonToCont;
 
     } catch (error) {
-        return Promise.reject(error);
+        return Promise.reject({
+                message : "updateBlobOnExamFinish make en error ",
+                error: error,
+                stateoferror: 85
+        });
     }
 }
 

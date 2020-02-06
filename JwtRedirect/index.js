@@ -5,11 +5,11 @@ const azureStorage = require('azure-storage');
 const { sendMailUtils } = require('../utils/sendMailUtils')
 const UtilsBlob = require('../utils/utilsBlob');
 const { getSpecificDataFromDB } = require('../utils/database');
-const { createExamNamePath, verifyToken, parseJsonArrayToKeyValue } = require('../utils/common');
+const { createExamNamePath, verifyToken, parseJsonArrayToKeyValue, responseErrorJson } = require('../utils/common');
 const blobService = azureStorage.createBlobService(storageAccount, accessKey)
 // const jwt = require('jsonwebtoken');
 const secret_key = process.env.secret_key;
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, closeMongoDbConnection } = require('../utils/database');
 const Exam = require('../models/exam');
 const path = require('path');
 const examssk = process.env.EXAMSSK;
@@ -20,12 +20,12 @@ module.exports = async function (context, req) {
     let examUpdateResult = null;
 
     try {
-        console.log("jwtRedirect");
+        
         let tokenExistResponse = await tokenExist(req.query);
 
         // dekoduje token 
         let verifyTokenResponse = await verifyToken(tokenExistResponse, secret_key);
-
+        
         // iz token informacija nalazi Exam koji vraca u tekstualnom obliku sa pridodatim informacijama
         // i vraca putanju gde bi za polaganje ovog User-a taj exem trebao da se iskopira
         const { examData, blobNameJsonPath } = await fetchExamVersion(verifyTokenResponse, examtemplatecontainer);
@@ -46,7 +46,7 @@ module.exports = async function (context, req) {
         } else {
                 // proverava da li postoji vec ovaj Exem na toj putanji, ako postoji link je vec bio jednom pokrenut i test ne sme a se nastavi      
                 const testIfExamBlobAlreadyExist = await isExamInBlobExist(blobNameJsonPath, containerNameExam);
-
+            
                 // if exam blob exist but exam didn't started
                 let didExamStartedBefore = null;
                 if (testIfExamBlobAlreadyExist.doesBlobExist && testIfExamBlobAlreadyExist.doesBlobExist !== null) {
@@ -100,6 +100,8 @@ module.exports = async function (context, req) {
 
         }
 
+        await closeMongoDbConnection(); 
+
         context.res = {
             status: 302,
             body: data,
@@ -112,14 +114,8 @@ module.exports = async function (context, req) {
         context.done();
 
     } catch (error) {
-        console.log("error", error);
-        context.res = {
-            status: 400,
-            body: error,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
+        console.log("error JWT REDIRECT", error);
+        context.res = await responseErrorJson(error);
     }
 };
 
@@ -128,7 +124,9 @@ async function tokenExist(reqquery) {
         return reqquery.token;
     } else {
         let messageBody = {
-            message: "No token in request!"
+            message : "No token in request!",
+            error:  "No token in request!",
+            stateoferror: 130
         }
         return Promise.reject(messageBody)
     }
@@ -184,18 +182,26 @@ async function isExamInBlobExist(blobNameJsonPath, containerNameExam) {
                     resolve({ doesBlobExist: false, message: 'Blob does not exist...' })
                 }
             } else {
-                console.log('Testing if blob exist error...');
-                reject({ doesBlobExist: null, message: 'Something went wrong' });
+                reject({ 
+                    message : "doesBlobExist : "+blobNameJsonPath,
+                    error:  err,
+                    stateoferror: 134,
+                    doesBlobExist: null
+                });
             }
         });
     });
 }
 
 async function didExamBegin(blobNameJsonPath, containerNameExam) {
-    const examJsonString = await UtilsBlob.getJsonExamBlob(blobNameJsonPath, containerNameExam);
-    const examJson = JSON.parse(examJsonString);
 
-    return examJson.Exam_Started;
+    try {
+        const examJsonString = await UtilsBlob.getJsonExamBlob(blobNameJsonPath, containerNameExam);
+        const examJson = JSON.parse(examJsonString);
+        return examJson.Exam_Started;
+    } catch (error) {
+        return Promise.reject(error)
+    }
 }
 
 
@@ -207,10 +213,12 @@ function copyExamFileToContainerJson(containerName, blobName, data) {
     }
     return new Promise((resolve, reject) => {
 
-        blobService.createBlockBlobFromText(containerName, blobName, data, opt, err => {
-            if (err) {
+        blobService.createBlockBlobFromText(containerName, blobName, data, opt, error => {
+            if (error) {
                 reject({
-                    message: "Fail copiing exam in blob"
+                    message : "Copy exam fail = createBlockBlobFromText ",
+                    error : error,
+                    stateoferror: 135
                 });
             } else {
                 resolve({
@@ -226,7 +234,9 @@ function parseJson(getJsonExamResolve) {
         return JSON.parse(getJsonExamResolve)
     } catch (err) {
         let messageBody = {
-            message: err.message
+            message : "Parse JSON error",
+            error:  err,
+            stateoferror: 133
         }
         return Promise.reject(messageBody)
     }
@@ -238,7 +248,11 @@ async function getJsonExam(ExamVersion_EXTERNAL_ID, containerName) {
     return new Promise((resolve, reject) => {
         blobService.getBlobToText(containerName, ExamVersion_EXTERNAL_ID + '.json', (err, data) => {
             if (err) {
-                reject(err);
+                reject({
+                    message : "getBlobToText get Exam",
+                    error:  err,
+                    stateoferror: 131 
+                });
             } else {
                 resolve(data);
             }
@@ -282,7 +296,9 @@ const updateExam = async (examId) => {
         
     } catch (error) {
         let messageBody = {
-            message: error
+            message: "updateExam : "+examId,
+            error: error,  
+            stateoferror: 136,
         }
         return Promise.reject(messageBody)
     }

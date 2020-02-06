@@ -109,7 +109,7 @@ const nameVariables = {
 }
 
 const parseJsonArrayToKeyValue = async (data) => {
-     let newObj = []
+    let newObj = []
     data.forEach((el, i) => {
         newObj[el.name] = JSON.parse(el.value)
     })
