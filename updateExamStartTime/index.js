@@ -2,6 +2,7 @@ const UtilsBlob = require('../utils/utilsBlob');
 const { connectionToDB } = require('../utils/database');
 const Exam = require('../models/exam');
 const { getSpecificDataFromDB } = require('../utils/database');
+const { SENTENCES } = require('../utils/common');
 const { sendMailUtils } = require('../utils/sendMailUtils')
 const examsuserContainer = process.env.examsuser;
 const secret_key = process.env.secret_key;
@@ -78,7 +79,7 @@ const updateExamInDB = async (examId) => {
         data = { 
             startTime: new Date(),
             started : true,
-            status: 'In Progress' 
+            status: SENTENCES.inProgress
         }
 
         let examUpdate = await Exam.findOneAndUpdate(

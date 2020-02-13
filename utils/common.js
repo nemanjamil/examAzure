@@ -55,7 +55,8 @@ const responseErrorJson = async (error,statusNumber = 400) => {
 
 const SENTENCES = {
     questionsAnswered: "All questions are answered",
-    somethingWentWrong: "Something went wrong"
+    somethingWentWrong: "Something went wrong",
+    inProgress: "In Progress"
 }
 
 const verifyToken = async (token, secret_key) => {

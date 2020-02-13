@@ -5,7 +5,8 @@ const {
 } = require('../utils/database');
 const {
     responseErrorJson,
-    responseOkJson
+    responseOkJson,
+    SENTENCES
 } = require('../utils/common');
 
 const examssk = process.env.EXAMSSK;
@@ -36,7 +37,7 @@ module.exports = async function (context, req) {
 }
 
 const countStatusOfExam = async (el) => {
-    if (el.finishTime === null && el.finished === false) {
+    if (el.finishTime === null && el.finished === false && el.status === SENTENCES.inProgress) {
 
         let ts = Date.now();
         let currentDT = new Date(ts);
