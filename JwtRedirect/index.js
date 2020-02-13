@@ -46,6 +46,9 @@ module.exports = async function (context, req) {
         } else {
                 // proverava da li postoji vec ovaj Exem na toj putanji, ako postoji link je vec bio jednom pokrenut i test ne sme a se nastavi      
                 const testIfExamBlobAlreadyExist = await isExamInBlobExist(blobNameJsonPath, containerNameExam);
+
+                // status Exam in DB
+                // TODO nemanja
             
                 // if exam blob exist but exam didn't started
                 let didExamStartedBefore = null;

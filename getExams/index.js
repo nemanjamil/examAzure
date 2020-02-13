@@ -1,5 +1,6 @@
 const Picture = require('../models/picture');
 const Exam = require('../models/exam');
+const { commonstrings } = require('../utils/strings');
 const {
     connectionToDB
 } = require('../utils/database');
@@ -35,8 +36,13 @@ module.exports = async function (context, req) {
 
 }
 
+
+const setStatusOfExam = async (examDataObject) => {
+    return await Promise.all(examDataObject.examsList.map(item => countStatusOfExam(item)));
+}
+
 const countStatusOfExam = async (el) => {
-    if (el.finishTime === null && el.finished === false) {
+    if (el.finishTime === null && el.finished === false && el.status === commonstrings.inProgress) {
 
         let ts = Date.now();
         let currentDT = new Date(ts);
@@ -67,9 +73,8 @@ const countStatusOfExam = async (el) => {
 
     return el
 }
-const setStatusOfExam = async (examDataObject) => {
-    return await Promise.all(examDataObject.examsList.map(item => countStatusOfExam(item)));
-}
+
+
 const getData = async (seVar) => {
     return await Promise.all(seVar.examsList.map(item => anAsyncFunction(item)));
 }
