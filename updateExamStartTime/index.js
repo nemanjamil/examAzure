@@ -1,6 +1,5 @@
 const UtilsBlob = require('../utils/utilsBlob');
 const { connectionToDB } = require('../utils/database');
-const { commonstrings } = require('../utils/strings');
 const Exam = require('../models/exam');
 const { getSpecificDataFromDB } = require('../utils/database');
 const { sendMailUtils } = require('../utils/sendMailUtils')
@@ -79,7 +78,7 @@ const updateExamInDB = async (examId) => {
         data = { 
             startTime: new Date(),
             started : true,
-            status: commonstrings.inProgress 
+            status: 'In Progress' 
         }
 
         let examUpdate = await Exam.findOneAndUpdate(
