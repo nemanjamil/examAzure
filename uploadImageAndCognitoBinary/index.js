@@ -93,6 +93,15 @@ module.exports = async function (context, req) {
 const  calculateCongnito = async (requestComputerVisionResponse) => {
 
     let cognitoRes = await JSON.parse(requestComputerVisionResponse.body)
+
+    if (cognitoRes.hasOwnProperty('error')) {
+        let messageBody = {
+            message : "Cognito error - insufficient resources ",
+            error: cognitoRes,
+            stateoferror: 90
+        }
+        return Promise.reject(messageBody);
+    }
     
     let numberOfObjects = cognitoRes.objects.length
     let numberOfFaces = cognitoRes.faces.length

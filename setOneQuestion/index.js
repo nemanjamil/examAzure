@@ -64,7 +64,7 @@ module.exports = async function (context, req) {
         // proveriti da li vec postoji u bazi ????
         // save to DB
         if(!eventId) Promise.reject({message: "No event Id"});
-        let saveQuestAndAnswersRes = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
+        let { saveQuestion, examCost } = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
 
         let closeMongoDbConnectionRes = await closeMongoDbConnection();
         let stateOfMongoDb = await readyStateMongoose();
@@ -72,7 +72,8 @@ module.exports = async function (context, req) {
         context.res = await responseOkJson(
             updateQuestionResponse,
             {
-                "saveQuestAndAnswersRes" : saveQuestAndAnswersRes,
+                "saveQuestion" : saveQuestion,
+                "examCost" : examCost,
                 "connectionToDb" : connectionToDb,
                 "stateOfMongoDb" : stateOfMongoDb,
                 "responseExamInProgress" : responseExamInProgress
@@ -150,7 +151,9 @@ const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastNam
     });
 
     try {
-        return await quest.save();
+        let saveQuestion = await quest.save();
+        let examCost = await quest.db.db.command({getLastRequestStatistics:1});
+        return { saveQuestion, examCost }
     } catch (error) {
         let messageBody = {
             message: "Error saving question to database",
