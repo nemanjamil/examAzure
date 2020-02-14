@@ -20,6 +20,7 @@ module.exports = async function (context, req) {
     const searchText = req.body.searchText;
 
     try {
+        
         await connectionToDB();
         const data = await getDataFromDB(tablePage, rowsPerTablePage, searchText);
         let getPictureInfo = await getData(data);
@@ -27,11 +28,8 @@ module.exports = async function (context, req) {
         await setStatusOfExam(jsonOfPicture);
         context.res = await responseOkJson(jsonOfPicture);
 
-        //let jsonOfPicture = await getJsonOfPictures(data,getPictureInfo); // obsolete
-        
     } catch (error) {
         context.res = await responseErrorJson(error);
-        context.done();
     }
 
 }
