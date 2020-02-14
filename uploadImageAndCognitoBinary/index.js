@@ -98,7 +98,7 @@ const  calculateCongnito = async (requestComputerVisionResponse) => {
         let messageBody = {
             message : "Cognito error - insufficient resources ",
             error: cognitoRes,
-            stateoferror: 90
+            stateoferror: 151
         }
         return Promise.reject(messageBody);
     }
