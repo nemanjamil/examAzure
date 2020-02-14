@@ -62,7 +62,7 @@ const testIfExamIsInProgress = async (examId, context) => {
         }else if(exam.finished){
             
             let messageBody = {
-                message: "Exam is finished",
+                message: "Exam is finished, state of exam is finished in DB",
                 error: "Exam is finished",  
                 stateoferror: 21,
                 status: false
