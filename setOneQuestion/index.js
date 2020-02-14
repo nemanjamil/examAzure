@@ -1,6 +1,5 @@
 const UtilsBlob = require('../utils/utilsBlob');
 const { connectionToDB, testIfExamIsInProgress, closeMongoDbConnection, readyStateMongoose } = require('../utils/database');
-const examtemplatecontainer = process.env.examtemplatecontainer;
 const examsuser = process.env.examsuser;
 const questionssk = process.env.QUESTIONSSK;
 const secret_key = process.env.secret_key;

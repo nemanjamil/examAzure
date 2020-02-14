@@ -1,5 +1,3 @@
-var mongoose = require('mongoose');
-const Basics = require('../models/basic');
 const { getSpecificDataFromDB, closeMongoDbConnection } = require('../utils/database');
 
 const { connectionToDB } = require('../utils/database');

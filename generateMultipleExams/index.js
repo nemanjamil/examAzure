@@ -1,4 +1,3 @@
-const sgMail = require('@sendgrid/mail');
 const Exam = require('../models/exam');
 const secret_key = process.env.secret_key;
 const { connectionToDB } = require('../utils/database');
