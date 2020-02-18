@@ -6,7 +6,6 @@ const { responseErrorJson, responseOkJson } = require('../utils/common');
 module.exports = async function (context, req) { 
 
     const examId = req.body.examId;
-    const picturessk = process.env.PICTURESSK;
     const tablePage = req.body.tablePage;
     const rowsPerTablePage = req.body.rowsPerTablePage;
 
@@ -22,7 +21,7 @@ module.exports = async function (context, req) {
 
     try {
         await connectionToDB();
-        const getGalleryData = await getDataFromDB(context, examId, tablePage, rowsPerTablePage, filters, picturessk, orderFilter);
+        const getGalleryData = await getDataFromDB(context, examId, tablePage, rowsPerTablePage, filters, examId, orderFilter);
         context.res = await responseOkJson(getGalleryData);
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -30,12 +29,12 @@ module.exports = async function (context, req) {
 
 }
 
-const getDataFromDB = async (context, examId, tablePage, rowsPerTablePage, filters, picturessk, orderFilter) => {
+const getDataFromDB = async (context, examId, tablePage, rowsPerTablePage, filters, examId, orderFilter) => {
     try {
 
         let searchParams = {
             'examId': examId,
-            'picturessk' : picturessk,
+            'picturessk' : examId,
             'stateOfPicture' : []
         }
 

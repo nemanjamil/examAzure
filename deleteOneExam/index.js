@@ -5,7 +5,6 @@ const { connectionToDB } = require('../utils/database');
 const { responseErrorJson } = require('../utils/common');
 
 const questionssk = process.env.QUESTIONSSK;
-const picturessk = process.env.PICTURESSK;
 const examssk = process.env.EXAMSSK;
 
 
@@ -22,7 +21,7 @@ module.exports = async function (context, req) {
         await connectionToDB();
         //const sharedKey = await findExamAndTakeSharedKey(examId);
         await deleteExamQuestions(examId, questionssk);
-        await deleteExamPictures(examId, picturessk);
+        await deleteExamPictures(examId, examId);
         await deleteExam(examId, examssk);
         context.res = {
             status: 200,
@@ -63,10 +62,10 @@ const deleteExamQuestions = async (examId, sharedKey) => {
 }
 
 
-const deleteExamPictures = async (examId, sharedKey) => {
+const deleteExamPictures = async (examId, examId) => {
     try {
 
-        await Picture.deleteMany({'picturessk' : sharedKey, 'examId': examId});
+        await Picture.deleteMany({ picturessk : examId, examId: examId});
 
     } catch (error) {
 

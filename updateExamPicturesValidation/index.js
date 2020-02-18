@@ -2,7 +2,6 @@
 const Picture = require('../models/picture');
 const { connectionToDB } = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
-const picturessk = process.env.PICTURESSK;
 
 /**
  * This function is used in Gallery to switch status of exam all pictures 
@@ -55,7 +54,7 @@ const updateAllExamPictures = async (context, examId, picturesIds, validationTyp
         }
 
         const result = await Picture.updateMany(
-                {'picturessk' : picturessk, "examId" : examId, "pictureId": { $in: picturesIds }},
+                {'picturessk' : examId, "examId" : examId, "pictureId": { $in: picturesIds }},
                 {"$set":{"stateOfPicture" : stateOfPicture}}, 
                 {"multi": true}, 
                 (err, writeResult) => {

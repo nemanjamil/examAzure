@@ -2,7 +2,6 @@
 const Picture = require('../models/picture');
 const { connectionToDB } = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
-const picturessk = process.env.PICTURESSK;
 /**
  * This fuction is used for Gallery to validate pictures
  */
@@ -14,7 +13,7 @@ module.exports = async function (context, req) {
 
     try {
         await connectionToDB();
-        const updatePictureResult = await updatePictureInDB(context, pictureId, validationType);
+        const updatePictureResult = await updatePictureInDB(context, pictureId, validationType, examId);
 
         context.res = await responseOkJson(updatePictureResult);
 
@@ -25,10 +24,10 @@ module.exports = async function (context, req) {
 
 }
 
-const updatePictureInDB = async (context, pictureId, validationType) => {
+const updatePictureInDB = async (context, pictureId, validationType, examId) => {
 
     try {
-        const picture = await Picture.findOne({ pictureId: pictureId, picturessk : picturessk });
+        const picture = await Picture.findOne({ pictureId: pictureId, picturessk : examId });
 
         // let pictureJSON = await JSON.parse(picture.pictureJSON); 
  
