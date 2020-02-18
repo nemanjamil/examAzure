@@ -1,7 +1,6 @@
 const Utils = require('../utils/utilsBlob');
 const { connectionToDB, testIfExamIsInProgress, 
      readyStateMongoose, closeMongoDbConnection } = require('../utils/database');
-const questionssk = process.env.QUESTIONSSK;
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 //const { parse } = require('querystring');
@@ -79,7 +78,7 @@ module.exports = async function (context, req) {
 
 const getNumberOfAnsweredQuestions = async (examId) => {
      try {
-        let countAnsweredExams = await Question.count({ examId: examId, questionssk : questionssk })
+        let countAnsweredExams = await Question.count({ examId: examId, questionssk : examId })
         return countAnsweredExams;
     } catch (error) {
         let messageBody = {

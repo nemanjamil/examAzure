@@ -1,7 +1,6 @@
 const UtilsBlob = require('../utils/utilsBlob');
 const { connectionToDB, testIfExamIsInProgress, closeMongoDbConnection, readyStateMongoose } = require('../utils/database');
 const examsuser = process.env.examsuser;
-const questionssk = process.env.QUESTIONSSK;
 const secret_key = process.env.secret_key;
 const { isArray, verifyToken, getExamIdFromToken, responseOkJson, responseErrorJson } = require('../utils/common');
 const path = require('path');
@@ -134,8 +133,6 @@ const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastNam
 
     const examId = path.basename(createNamePathRsp, '_score.json');
 
-    //const questionssk = examId;
-
     const quest = new Question({
         userName: userFirstName,
         userLastName: userLastName,
@@ -145,7 +142,7 @@ const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastNam
         examId: examId,
         questionId: question,
         answers: answers,
-        questionssk: questionssk,
+        questionssk: examId,
         answersHash: answersHash
     });
 

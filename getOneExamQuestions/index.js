@@ -2,7 +2,6 @@
 const Question = require('../models/question');
 const { connectionToDB } = require('../utils/database');
 const { responseErrorJson } = require('../utils/common');
-const questionssk = process.env.QUESTIONSSK;
 
 module.exports = async function (context, req) {
 
@@ -21,7 +20,7 @@ module.exports = async function (context, req) {
 
 const getDataFromDB = async (context, examId) => {
     try{
-        const result = await Question.find({examId: examId, questionssk : questionssk});
+        const result = await Question.find({examId: examId, questionssk : examId });
         context.res = {
             status: 200,
             body: result

@@ -10,9 +10,6 @@ const Question = require('../models/question');
 const crypto = require('crypto');
 const examssk = process.env.EXAMSSK;
 
-
-const questionssk = process.env.QUESTIONSSK;
-
 module.exports = async function (context, req) {
 
     const { examId } = req.body;
@@ -174,7 +171,7 @@ async function createNamePath(verifyTokenResponse) {
 
 const getQuestionsFromDB = async (examId) => {
     try {
-        return await Question.find({examId: examId, questionssk : questionssk});
+        return await Question.find({examId: examId, questionssk : examId});
     } catch (error) {
         let messageBody = {
             message : "Cant find questions in DB : exam ID " + examId,
