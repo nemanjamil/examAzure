@@ -48,7 +48,7 @@ const pictureSchema = new Schema({
         type: Object
     }
 }, 
-{ shardKey: { tag: 1, picturessk: 1 }}
+{ shardKey: { picturessk: 1 }}
 );
 
 module.exports = mongoose.model('Picture', pictureSchema);

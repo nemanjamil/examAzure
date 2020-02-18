@@ -30,7 +30,7 @@ const basicSchema = new Schema({
     },
 
 }, 
-{ shardKey: { tag: 1, basicsk: 1 }}
+{ shardKey: { basicsk: 1 }}
 );
 
 module.exports = mongoose.model('Basics', basicSchema);

@@ -59,14 +59,22 @@ const getDataFromDB = async (context, examId, tablePage, rowsPerTablePage, filte
             .limit(rowsPerTablePage * picturesPerRow);
 
         const numberOfPictures = (await Picture.find(searchParams)).length;
+        console.log("numberOfPictures ", numberOfPictures);
+        let examCostnumberOfPictures = await Picture.db.db.command({getLastRequestStatistics:1});
+
+        console.log("examCostnumberOfPictures : ", examCostnumberOfPictures);
+
         searchParams.stateOfPicture = 1;
         const numberOfValidPictures = (await Picture.find(searchParams)).length;
+        let examCostnumberOfValidPictures = await Picture.db.db.command({getLastRequestStatistics:1});
 
         const data = {
             galleryData: galleryData,
             numberOfPictures: numberOfPictures,
             numberOfValidPictures: numberOfValidPictures,
-            areAllPicturesValid: numberOfPictures === numberOfValidPictures
+            areAllPicturesValid: numberOfPictures === numberOfValidPictures,
+            examCostnumberOfPictures: examCostnumberOfPictures,
+            examCostnumberOfValidPictures: examCostnumberOfValidPictures
         }
 
         return data

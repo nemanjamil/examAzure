@@ -42,7 +42,7 @@ const questionSchema = new Schema({
     },
     answers: [{type: String}]
 }, 
-{ shardKey: { tag: 1, questionssk: 1 }}
+{ shardKey: { questionssk: 1 }}
 );
 
 module.exports = mongoose.model('Question', questionSchema);

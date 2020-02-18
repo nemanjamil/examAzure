@@ -84,7 +84,7 @@ const examSchema = new Schema({
         type: String
     }
 }, 
-{ shardKey: { tag: 1, examssk: 1 }}
+{ shardKey: { examssk: 1 }}
 );
 
 module.exports = mongoose.model('Exam', examSchema);
