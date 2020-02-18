@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 const Exam = require('../models/exam');
 mongoose.Promise = global.Promise;
 let client = null;
-const examssk = process.env.EXAMSSK;
 const basicsk = process.env.BASICSSK;
 
 const readyStateMongoose = async () => {
@@ -50,9 +49,9 @@ const connectionToDB = async () => {
 
 const testIfExamIsInProgress = async (examId, context) => {
     context.log(" >>>> >>>> >>>> testIfExamIsInProgress examId : ", examId);
-    context.log(" >>>> >>>> >>>> >>>> testIfExamIsInProgress examssk : ", examssk);
+
     try {
-        let exam = await Exam.findOne({ examId: examId, examssk : examssk });
+        let exam = await Exam.findOne({ examId: examId, examssk : examId });
         if(exam.started && !exam.finished){
             let messageBody = {
                 message: "Exam in progress",

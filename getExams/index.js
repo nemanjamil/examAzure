@@ -9,8 +9,6 @@ const {
     SENTENCES
 } = require('../utils/common');
 
-const examssk = process.env.EXAMSSK;
-
 
 module.exports = async function (context, req) {
 
@@ -82,7 +80,7 @@ const updateDBforStatusOfExam = async (examId, currentDT) => {
 
         let examUpdate = await Exam.findOneAndUpdate({
             examId: examId,
-            examssk: examssk
+            examssk: examId
         }, {
             $set: data
         }, {

@@ -6,7 +6,6 @@ const { getSpecificDataFromDB } = require('../utils/database');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const UtilsBlob = require('../utils/utilsBlob');
 const { sendMailgenerateMultipleExams } = require('../utils/sendMailUtils')
-const examssk = process.env.EXAMSSK;
 const jwt = require('jsonwebtoken');
 const uuid =  require('uuid');
 
@@ -136,7 +135,7 @@ const saveExamInDB = async (generateTokenData, user, examId, ExamVersion_maxPoin
             isCheated: null,
             status: 'Prepared',
             nameOfExam: generateTokenData.Name_Of_Exam,
-            examssk: examssk
+            examssk: examId
         }
         let examInsert = new Exam(dataExamObj);
         return await examInsert.save();

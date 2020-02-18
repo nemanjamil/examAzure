@@ -6,7 +6,6 @@ const { sendMailUtils } = require('../utils/sendMailUtils')
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { verifyToken, responseOkJson, responseErrorJson, createExamNamePath, parseJsonArrayToKeyValue } = require('../utils/common');
-const examssk = process.env.EXAMSSK;
 
 // function isOdd(num) { return num % 2;}
 // let rnd = Math.floor(Math.random() * 100);
@@ -97,7 +96,7 @@ const updateExamInDB = async (examId) => {
     try {
 
         let examUpdate = await Exam.findOneAndUpdate(
-            {examId: examId, examssk: examssk}, 
+            { examId: examId, examssk: examId }, 
             {$set:{status: "Finished"}}, {new: true});
 
         

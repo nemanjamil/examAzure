@@ -2,8 +2,6 @@ const Exam = require('../models/exam');
 const { connectionToDB, readyStateMongoose, closeMongoDbConnection  } = require('../utils/database');
 const { verifyToken, responseErrorJson, responseOkJson,  validateIfStringExist } = require('../utils/common');
 const secret_key = process.env.secret_key;
-const examssk = process.env.EXAMSSK;
-
 
 module.exports = async function (context, req) {
 
@@ -33,7 +31,7 @@ module.exports = async function (context, req) {
 
 const getDataFromDB = async (context, examId) => {
     try {
-        let result = await Exam.findOne({ examId: examId, examssk : examssk });
+        let result = await Exam.findOne({ examId: examId, examssk : examId });
         let examCost = await Exam.db.db.command({getLastRequestStatistics:1});
          // Remove sensible information from Exam response data
         if (result) {

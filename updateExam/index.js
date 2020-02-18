@@ -8,7 +8,6 @@ const examtemplatecontainer = process.env.examtemplatecontainer;
 const secret_key = process.env.secret_key;
 const Question = require('../models/question');
 const crypto = require('crypto');
-const examssk = process.env.EXAMSSK;
 
 module.exports = async function (context, req) {
 
@@ -85,7 +84,7 @@ const countAnswers = async (getHashResponse, getQuestionsFromDBResponse) => {
 const updateExam = async (examId, updateProperties) => {
 
     try {
-        const exam = await Exam.findOne({ examId: examId, examssk : examssk });
+        const exam = await Exam.findOne({ examId: examId, examssk : examId });
 
         for (let key in updateProperties) {
             exam[updateProperties[key].name] = updateProperties[key].value;

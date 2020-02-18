@@ -2,10 +2,7 @@ const Exam = require('../models/exam');
 const Picture = require('../models/picture');
 const Question = require('../models/question');
 const { connectionToDB } = require('../utils/database');
-const { responseErrorJson } = require('../utils/common');
-
-const examssk = process.env.EXAMSSK;
-
+const { responseErrorJson, responseOkJson } = require('../utils/common');
 
 module.exports = async function (context, req) {
 
@@ -19,23 +16,25 @@ module.exports = async function (context, req) {
     try {
         await connectionToDB();
         //const sharedKey = await findExamAndTakeSharedKey(examId);
-        await deleteExamQuestions(examId, examId);
-        await deleteExamPictures(examId, examId);
-        await deleteExam(examId, examssk);
-        context.res = {
-            status: 200,
-        };
-        context.done();
+        let deleteQuestions = await deleteExamQuestions(examId);
+        let deletePictures = await deleteExamPictures(examId);
+        let deleteExam = await deleteExam(examId);
+
+        return  responseOkJson({
+            deleteQuestions,
+            deletePictures,
+            deleteExam
+        })
+
     } catch (error) {
         context.res = await responseErrorJson(error);
-        context.done();
     }
 
 }
 
 const findExamAndTakeSharedKey = async (examId) => {
     try{
-        const result = await Exam.findOne({examId: examId, examssk : examssk });
+        const result = await Exam.findOne({examId: examId, examssk : examId });
         return result.examssk;
     }catch(error){
         let messageBody = {
@@ -46,7 +45,7 @@ const findExamAndTakeSharedKey = async (examId) => {
 }
 
 
-const deleteExamQuestions = async (examId, examId) => {
+const deleteExamQuestions = async (examId) => {
     try {
 
         await Question.deleteMany({ questionssk : examId, examId: examId });
@@ -61,7 +60,7 @@ const deleteExamQuestions = async (examId, examId) => {
 }
 
 
-const deleteExamPictures = async (examId, examId) => {
+const deleteExamPictures = async (examId) => {
     try {
 
         await Picture.deleteMany({ picturessk : examId, examId: examId});
@@ -76,10 +75,10 @@ const deleteExamPictures = async (examId, examId) => {
 }
 
 
-const deleteExam = async (examId, sharedKey) => {
+const deleteExam = async (examId) => {
     try {
 
-        await Exam.deleteOne({'examssk' : sharedKey, 'examId': examId});
+        await Exam.deleteOne({ examssk : examId, examId: examId});
 
     } catch (error) {
 

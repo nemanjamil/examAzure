@@ -6,7 +6,6 @@ const { responseErrorJson, responseOkJson, parseJsonArrayToKeyValue } = require(
 const { getSpecificDataFromDB } = require('../utils/database');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const UtilsBlob = require('../utils/utilsBlob');
-const examssk = process.env.EXAMSSK;
 const jwt = require('jsonwebtoken');
 const uuid =  require('uuid');
 
@@ -122,7 +121,7 @@ const saveExamInDB = async (generateTokenData, examId, ExamVersion_maxPoints,
             isCheated: null,
             status: 'Prepared',
             nameOfExam: generateTokenData.Name_Of_Exam,
-            examssk: examssk
+            examssk: examId
         });
 
         const result = await exam.save();

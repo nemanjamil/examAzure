@@ -12,8 +12,6 @@ const secret_key = process.env.secret_key;
 const { connectionToDB, closeMongoDbConnection } = require('../utils/database');
 const Exam = require('../models/exam');
 const path = require('path');
-const examssk = process.env.EXAMSSK;
-
 
 module.exports = async function (context, req) {
 
@@ -268,7 +266,7 @@ const updateExam = async (examId) => {
         let examUpdate = await Exam.findOneAndUpdate(
             {
                 examId: examId, 
-                examssk: examssk
+                examssk: examId
             }, 
             { $set:{
                 status:"Ready"

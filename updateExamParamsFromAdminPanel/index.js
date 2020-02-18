@@ -1,7 +1,6 @@
 const Exam = require('../models/exam');
 const {  responseOkJson, responseErrorJson } = require('../utils/common');
 const { connectionToDB } = require('../utils/database');
-const examssk = process.env.EXAMSSK;
 
 module.exports = async function (context, req) {
    
@@ -21,7 +20,7 @@ const updateExam = async (exam, rowsToUpdate) => {
      try {
 
         let examUpdate = await Exam.findOneAndUpdate(
-            {examId: exam.examId, examssk: examssk}, 
+            { examId: exam.examId, examssk: exam.examId }, 
             {$set: rowsToUpdate}, 
             {new: true}
             );
