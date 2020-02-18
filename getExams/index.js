@@ -23,7 +23,7 @@ module.exports = async function (context, req) {
         let getPictureInfo = await getData(data);
         let jsonOfPicture = await getJsonOfPicturesV2(data, getPictureInfo);
         await setStatusOfExam(jsonOfPicture);
-        context.res = await responseOkJson(jsonOfPicture);
+        context.res = await responseOkJson(jsonOfPicture, data.examCostExam);
 
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -282,9 +282,12 @@ const getDataFromDB = async (tablePage, rowsPerTablePage, searchText) => {
             .skip(tablePage * rowsPerTablePage)
             .limit(rowsPerTablePage);
 
+        let examCostExam = await Exam.db.db.command({getLastRequestStatistics:1});
+
         const data = {
             numberOfExams: numberOfExams,
-            examsList: result
+            examsList: result,
+            examCostExam: examCostExam
         }
 
         return data;
