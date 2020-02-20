@@ -1,7 +1,8 @@
 const sgMail = require('@sendgrid/mail');
 
 // CREATE EXAM
-const sendMailUtils = async (verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB, tokenUrl, title) => {
+const sendMailUtils = async (verifyTokenResponse, parseJsonArrayToKeyValueRes, 
+    fieldsDB, tokenUrl, title, valid_from, valid_until) => {
 
     let language = verifyTokenResponse.language
 
@@ -9,6 +10,9 @@ const sendMailUtils = async (verifyTokenResponse, parseJsonArrayToKeyValueRes, f
     let GEN_Email_Create_1_Sentence = parseJsonArrayToKeyValueRes[fieldsDB[1]][language]; 
     let GEN_Sender_Email_Name = parseJsonArrayToKeyValueRes[fieldsDB[2]][language]; 
     let GEN_Email_Create_2_Sentence = parseJsonArrayToKeyValueRes[fieldsDB[3]][language]; 
+    let GEN_Email_Create_Sentence_Valid_1 = parseJsonArrayToKeyValueRes[fieldsDB[4]][language]; 
+    let GEN_Email_Create_Sentence_Valid_2 = parseJsonArrayToKeyValueRes[fieldsDB[5]][language]; 
+    let GEN_Email_Create_Signature = parseJsonArrayToKeyValueRes[fieldsDB[6]][language]; 
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
@@ -28,12 +32,16 @@ const sendMailUtils = async (verifyTokenResponse, parseJsonArrayToKeyValueRes, f
             GEN_Email_Create_2_Sentence : GEN_Email_Create_2_Sentence,
             linktoexam: tokenUrl,
             name_of_exam: verifyTokenResponse.Name_Of_Exam,
-            date_time: Date(Date.now()).toString(),
-            examdetails: JSON.stringify(verifyTokenResponse)
+            GEN_Email_Create_Sentence_Valid_1: GEN_Email_Create_Sentence_Valid_1,
+            GEN_Email_Create_Sentence_Valid_2: GEN_Email_Create_Sentence_Valid_2,
+            valid_from, valid_from,
+            valid_until, valid_until,
+            GEN_Email_Create_Signature: GEN_Email_Create_Signature,
+            date_time: Date(Date.now()).toString()
+            //examdetails: JSON.stringify(verifyTokenResponse)
         },
     };
 
-    console.log("msg : ", msg);
     try {
        return await sgMail.send(msg);
     } catch (error) {
