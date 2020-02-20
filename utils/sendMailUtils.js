@@ -1,14 +1,15 @@
 const sgMail = require('@sendgrid/mail');
 
-const sendMailUtils = async (verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB) => {
+// CREATE EXAM
+const sendMailUtils = async (verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB, tokenUrl, title) => {
 
     let language = verifyTokenResponse.language
 
     let STATUS_EMAIL_HI = parseJsonArrayToKeyValueRes[fieldsDB[0]][language]; 
-    let STATUS_EMAIL_SENTENCE = parseJsonArrayToKeyValueRes[fieldsDB[1]][language]; 
-    let STATUS_EMAIL_TITLE = parseJsonArrayToKeyValueRes[fieldsDB[2]][language]; 
-    let GEN_Sender_Email_Name = parseJsonArrayToKeyValueRes[fieldsDB[3]][language]; 
-   
+    let GEN_Email_Create_1_Sentence = parseJsonArrayToKeyValueRes[fieldsDB[1]][language]; 
+    let GEN_Sender_Email_Name = parseJsonArrayToKeyValueRes[fieldsDB[2]][language]; 
+    let GEN_Email_Create_2_Sentence = parseJsonArrayToKeyValueRes[fieldsDB[3]][language]; 
+
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
         to: verifyTokenResponse.proctor_email_receiver,
@@ -16,19 +17,25 @@ const sendMailUtils = async (verifyTokenResponse, parseJsonArrayToKeyValueRes, f
             name: GEN_Sender_Email_Name,
             email: process.env.SENDGRID_FROM_MAIL
         },
-        templateId: process.env.TEMPLATE_ID_SENDGRID_FOR_EMAIL_STATUS,
+        templateId: process.env.TEMPLATE_ID_SENDGRID,  // CREATE EXAM
         dynamic_template_data: {
-            subject: STATUS_EMAIL_TITLE,
+            subject: title,
             hello: STATUS_EMAIL_HI,
-            status_sentence: STATUS_EMAIL_SENTENCE,
+            first_name: verifyTokenResponse.Participant_Firstname,
+            last_name: verifyTokenResponse.Participant_Lastname,
             name: GEN_Sender_Email_Name,
+            GEN_Email_Create_1_Sentence : GEN_Email_Create_1_Sentence,
+            GEN_Email_Create_2_Sentence : GEN_Email_Create_2_Sentence,
+            linktoexam: tokenUrl,
+            name_of_exam: verifyTokenResponse.Name_Of_Exam,
             date_time: Date(Date.now()).toString(),
             examdetails: JSON.stringify(verifyTokenResponse)
         },
     };
 
+    console.log("msg : ", msg);
     try {
-        return await sgMail.send(msg);
+       return await sgMail.send(msg);
     } catch (error) {
         return error
     }
@@ -68,8 +75,9 @@ const sendMailgenerateMultipleExams = async (token, participantFirstName, partic
         },
     };
  
+    console.log("msg" , msg);
     try {
-        let sendmail = await sgMail.send(msg);
+        //let sendmail = await sgMail.send(msg);
         return Promise.resolve(sendmail);
     } catch (error) {
         return Promise.reject(error);

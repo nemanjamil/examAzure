@@ -53,7 +53,7 @@ const countStatusOfExam = async (el) => {
                 }
                 return Promise.reject(messageBody)
             }
-            el.status = difference;
+            el.status = SENTENCES.abortedByUser //difference;
         }
 
 
@@ -73,7 +73,7 @@ const updateDBforStatusOfExam = async (examId, currentDT) => {
 
     try {
         data = {
-            status: 'Aborted by user',
+            status: SENTENCES.abortedByUser,
             finishTime: currentDT,
             finished: true
         }

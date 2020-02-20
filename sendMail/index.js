@@ -1,37 +1,37 @@
 const sgMail = require('@sendgrid/mail');
-const {
-    responseErrorJson,
-    responseOkJson
-} = require('../utils/common');
+const { getSpecificDataFromDB } = require('../utils/database');
+const { sendMailUtils } = require('../utils/sendMailUtils')
+const { connectionToDB } = require('../utils/database');
+const { responseErrorJson, responseOkJson, verifyToken,
+        parseJsonArrayToKeyValue, validateIfStringExist } = require('../utils/common');
+const secret_key = process.env.secret_key;
 
 module.exports = async function (context, req) {
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    const msg = {
-        to: req.body.proctor_email_receiver,
-        replyTo: req.body.participantemail,
-        from: {
-            name: req.body.nameofsender,
-            email: process.env.SENDGRID_FROM_MAIL
-        },
-        templateId: process.env.TEMPLATE_ID_SENDGRID,
-        dynamic_template_data: {
-            subject: req.body.title,
-            name: req.body.firstname,
-            linktoexam: req.body.token
-        },
-    };
-
+   
     try {
-        let sendmail = await sgMail.send(msg, function (error, json) {
-            if (error) {
-                console.error("error", error);
-                context.log(error); 
-            } 
-        });
+        await connectionToDB();
 
-        console.log(sendmail);
-        context.res = await responseOkJson(sendmail);
+        let tokenUrl = req.body.tokenUrl
+        await validateIfStringExist(tokenUrl)
+
+        let tokenExistResponse = req.body.token
+        await validateIfStringExist(tokenExistResponse);
+
+        let verifyTokenResponse = await verifyToken(tokenExistResponse, secret_key);
+
+        let fieldsDB = [
+         'STATUS_EMAIL_HI', 'GEN_Email_Create_1_Sentence', 
+         'GEN_Sender_Email_Name', 'GEN_Email_Create_2_Sentence']
+
+        const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
+        let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
+
+        let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, parseJsonArrayToKeyValueRes, 
+            fieldsDB, tokenUrl, req.body.title);
+                  
+        context.res = await responseOkJson(rspsendMailUtils);
 
     } catch (error) {
         context.res = await responseErrorJson(error);
