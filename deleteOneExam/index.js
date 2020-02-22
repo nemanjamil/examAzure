@@ -18,7 +18,7 @@ module.exports = async function (context, req) {
         //const sharedKey = await findExamAndTakeSharedKey(examId);
         let deleteQuestions = await deleteExamQuestions(examId);
         let deletePictures = await deleteExamPictures(examId);
-        let deleteExam = await deleteExam(examId);
+        let deleteExam = await deleteExamData(examId);
 
         return  responseOkJson({
             deleteQuestions,
@@ -75,7 +75,7 @@ const deleteExamPictures = async (examId) => {
 }
 
 
-const deleteExam = async (examId) => {
+const deleteExamData = async (examId) => {
     try {
 
         await Exam.deleteOne({ examssk : examId, examId: examId});

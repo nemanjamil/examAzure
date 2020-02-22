@@ -50,7 +50,7 @@ const sendMailUtils = async (verifyTokenResponse, parseJsonArrayToKeyValueRes,
 }
 
 
-const sendMailgenerateMultipleExams = async (token, participantFirstName, participantEmail, 
+const sendMailgenerateMultipleExams = async (token, participantFirstName, participantemail, 
                                             proctorEmailReceiver, reactAppBaseUrl, language,
                                             parseJsonArrayToKeyValueRes, fieldsDB) => {
 
@@ -68,7 +68,7 @@ const sendMailgenerateMultipleExams = async (token, participantFirstName, partic
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
         to: proctorEmailReceiver,
-        replyTo: participantEmail,
+        replyTo: participantemail,
         from: {
             name: sendData.nameofsender,
             email: process.env.SENDGRID_FROM_MAIL
@@ -76,16 +76,15 @@ const sendMailgenerateMultipleExams = async (token, participantFirstName, partic
         templateId: process.env.TEMPLATE_ID_SENDGRID,
         dynamic_template_data: {
             hello: STATUS_EMAIL_HI,
-            subject: sendData.title + " - " + participantFirstName + " - " + participantEmail,
+            subject: sendData.title + " - " + participantFirstName + " - " + participantemail,
             status_sentence: sendData.message,
             name: sendData.firstname,
             linktoexam: sendData.token
         },
     };
  
-    console.log("msg" , msg);
     try {
-        //let sendmail = await sgMail.send(msg);
+        let sendmail = await sgMail.send(msg);
         return Promise.resolve(sendmail);
     } catch (error) {
         return Promise.reject(error);

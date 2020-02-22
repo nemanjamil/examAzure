@@ -50,17 +50,17 @@ module.exports = async function (context, req) {
 
 const prepareGenerationOfToken = async (user, dataExam, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB) => {
 
-        let uuidNmb = uuid.v1()
-        let generateTokenResponse =  await generateToken(user, dataExam, proctorEmailReceiver, uuidNmb)
+        let uuidNmb = uuid.v1();
+        let generateTokenResponse =  await generateToken(user, dataExam, proctorEmailReceiver, uuidNmb);
         let blobLocation = dataExam.ExamVersion_EXTERNAL_ID+".json";
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(blobLocation, examtemplatecontainer);
         let getJsonExamBlobResponseParsed = await JSON.parse(getJsonExamBlobResponse);
-        
+
         let ExamVersion_maxPoints = getJsonExamBlobResponseParsed.ExamVersion_maxPoints;
         let ExamVersion_passingPoints = getJsonExamBlobResponseParsed.ExamVersion_passingPoints;
         let Exam_SuccessPercent = getJsonExamBlobResponseParsed.Exam_SuccessPercent;
 
-        let examId = dataExam.Participant_EXTERNAL_ID + "_" +
+        let examId = user.Participant_EXTERNAL_ID + "_" +
             dataExam.ExamVersion_EXTERNAL_ID + "_" +
             uuidNmb;
 
@@ -68,7 +68,7 @@ const prepareGenerationOfToken = async (user, dataExam, proctorEmailReceiver, re
                 ExamVersion_passingPoints, Exam_SuccessPercent, uuidNmb, generateTokenResponse.token);
 
         let sendMailResponse = await sendMailgenerateMultipleExams(generateTokenResponse.token, user.Participant_Firstname, 
-                                                                   user.participantEmail, proctorEmailReceiver, 
+                                                                   user.participantemail, proctorEmailReceiver, 
                                                                    reactAppBaseUrl, user.language, parseJsonArrayToKeyValueRes, fieldsDB);
 
         return {
@@ -90,10 +90,10 @@ const generateToken = async (user, dataExam, proctorEmailReceiver, uuidNmb) => {
     let time = Math.floor(new Date().getTime() / 1000);
 
     let data = {
-        Participant_EXTERNAL_ID: dataExam.Participant_EXTERNAL_ID,
+        Participant_EXTERNAL_ID: user.Participant_EXTERNAL_ID,
         Participant_Firstname: user.Participant_Firstname.trim(),
         Participant_Lastname: user.Participant_Lastname.trim(),
-        participantemail: user.participantEmail.trim(),
+        participantemail: user.participantemail.trim(),
         proctor_email_receiver: proctorEmailReceiver,
         Name_Of_Exam: dataExam.Name_Of_Exam.trim(),
         ExamVersion_EXTERNAL_ID: dataExam.ExamVersion_EXTERNAL_ID,
@@ -119,7 +119,7 @@ const saveExamInDB = async (generateTokenData, user, examId, ExamVersion_maxPoin
         let dataExamObj = {
             userName: user.Participant_Firstname,
             userLastName: user.Participant_Lastname,
-            participantExternalId: generateTokenData.Participant_EXTERNAL_ID,
+            participantExternalId: user.Participant_EXTERNAL_ID,
             examVersionExternalId: generateTokenData.ExamVersion_EXTERNAL_ID,
             examEventExternalId: uuidNmb,
             examVersionMaxPoints : ExamVersion_maxPoints,
