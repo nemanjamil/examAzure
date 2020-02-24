@@ -2,14 +2,13 @@ const accessKey = process.env.accessKey;
 const storageAccount = process.env.storageAccount;
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const azureStorage = require('azure-storage');
-const { sendMailUtils } = require('../utils/sendMailUtils')
+const { sendMailUtilsStatus } = require('../utils/sendMailUtils')
 const UtilsBlob = require('../utils/utilsBlob');
-const { getSpecificDataFromDB } = require('../utils/database');
 const { createExamNamePath, verifyToken, parseJsonArrayToKeyValue, responseErrorJson } = require('../utils/common');
 const blobService = azureStorage.createBlobService(storageAccount, accessKey)
 // const jwt = require('jsonwebtoken');
 const secret_key = process.env.secret_key;
-const { connectionToDB, closeMongoDbConnection } = require('../utils/database');
+const { connectionToDB, closeMongoDbConnection, getSpecificDataFromDB } = require('../utils/database');
 const Exam = require('../models/exam');
 const path = require('path');
 
@@ -27,7 +26,7 @@ module.exports = async function (context, req) {
         // iz token informacija nalazi Exam koji vraca u tekstualnom obliku sa pridodatim informacijama
         // i vraca putanju gde bi za polaganje ovog User-a taj exem trebao da se iskopira
         const { examData, blobNameJsonPath } = await fetchExamVersion(verifyTokenResponse, examtemplatecontainer);
-
+       
         const containerNameExam = process.env.examsuser;
         let redirect = null;
         let data = null;
@@ -56,15 +55,19 @@ module.exports = async function (context, req) {
                     // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
                     copyExamVersionResponse = await copyExamFileToContainerJson(containerNameExam, blobNameJsonPath, JSON.stringify(examData));
 
-                    //  let blobNameJson = createExamNamePath(verifyTokenResponse);
                     const examId = path.basename(blobNameJsonPath, '_score.json');
                     examUpdateResult = await updateExam(examId);
 
-                    let fieldsDB = ['STATUS_EMAIL_HI', 'STATUS_EMAIL_SENTENCE', 'STATUS_EMAIL_TITLE','GEN_Sender_Email_Name']
+                    let fieldsDB = ['STATUS_EMAIL_HI', 'GEN_Email_Status_Link_To_Gallery',
+                    'GEN_Email_Status_For_Information','GEN_Email_Status_Ready',
+                    'GEN_Email_Status_The_Exam', 'GEN_Sender_Email_Name']
+                    
                     const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
                     let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
-                    let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB);
-                  
+
+                    let rspsendMailUtils = await sendMailUtilsStatus(verifyTokenResponse, parseJsonArrayToKeyValueRes, 
+                        fieldsDB);
+
                     console.log("zavrsio update");
 
                     redirect = verifyTokenResponse.fe_endpoint +
