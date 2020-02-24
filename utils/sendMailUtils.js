@@ -1,4 +1,6 @@
 const sgMail = require('@sendgrid/mail');
+const moment = require('moment');
+
 
 // CREATE EXAM
 const sendMailUtils = async (verifyTokenResponse, parseJsonArrayToKeyValueRes, 
@@ -58,13 +60,18 @@ const sendMailUtilsStatus = async (verifyTokenResponse, parseJsonArrayToKeyValue
     let STATUS_EMAIL_HI = parseJsonArrayToKeyValueRes[fieldsDB[0]][language]; 
     let GEN_Email_Status_Link_To_Gallery = parseJsonArrayToKeyValueRes[fieldsDB[1]][language]; 
     let GEN_Email_Status_For_Information = parseJsonArrayToKeyValueRes[fieldsDB[2]][language]; 
-    let GEN_Email_Status_Ready = parseJsonArrayToKeyValueRes[fieldsDB[3]][language]; 
+    let GEN_Email_Status_Ready = parseJsonArrayToKeyValueRes[fieldsDB[3]][language];  // THIS is used also when is started exam GEN_Email_Status_Started_On
     let GEN_Email_Status_The_Exam = parseJsonArrayToKeyValueRes[fieldsDB[4]][language]; 
     let GEN_Sender_Email_Name = parseJsonArrayToKeyValueRes[fieldsDB[5]][language]; 
+    let GEN_Email_Status_TITLE = parseJsonArrayToKeyValueRes[fieldsDB[6]][language]; 
 
-    let status_exam_information = `${GEN_Email_Status_For_Information} ${verifyTokenResponse.Participant_Firstname} ${verifyTokenResponse.Participant_Lastname} ${GEN_Email_Status_The_Exam} "${verifyTokenResponse.Name_Of_Exam}" ${GEN_Email_Status_Ready}`;
+
+    let status_exam_information = GEN_Email_Status_For_Information+" "+verifyTokenResponse.Participant_Firstname+
+     " "+verifyTokenResponse.Participant_Lastname+" "+GEN_Email_Status_The_Exam+ " "+
+     verifyTokenResponse.Name_Of_Exam+" "+GEN_Email_Status_Ready+" "+moment().format('DD-MM-YYYY, HH:mm:ss');  ;
     
-    let title = "TEMS - "+verifyTokenResponse.Name_Of_Exam +" || useremail : "+verifyTokenResponse.participantemail
+    let title = "TEMS - "+GEN_Email_Status_TITLE+" || "+verifyTokenResponse.Name_Of_Exam +" || useremail : "+verifyTokenResponse.participantemail
+    
     let examIdFromJsonBlob = verifyTokenResponse.Participant_EXTERNAL_ID+"_"+verifyTokenResponse.ExamVersion_EXTERNAL_ID+"_"+verifyTokenResponse.ExamEvent_EXTERNAL_ID
     //let href_link_to_gallery = `${process.env.ADMIN_FRONT_END_ENDPOINT}/exam/gallery/${examIdFromJsonBlob}`;
     let href_link_to_gallery = `${process.env.ADMIN_FRONT_END_ENDPOINT}/exams`;

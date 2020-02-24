@@ -16,6 +16,7 @@
     "jsonwebtoken": "^8.5.0",
     "lodash.sample": "^4.2.1",
     "lodash.shuffle": "^4.2.0",
+    "moment": "^2.24.0",
     "mongodb": "^3.5.3",
     "mongoose": "^5.9.0",
     "multipart-formdata": "^1.1.0",

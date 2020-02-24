@@ -59,9 +59,10 @@ module.exports = async function (context, req) {
                     examUpdateResult = await updateExam(examId);
 
                     let fieldsDB = ['STATUS_EMAIL_HI', 'GEN_Email_Status_Link_To_Gallery',
-                    'GEN_Email_Status_For_Information','GEN_Email_Status_Ready',
-                    'GEN_Email_Status_The_Exam', 'GEN_Sender_Email_Name']
-                    
+                    'GEN_Email_Status_For_Information','GEN_Email_Status_Ready_State',
+                    'GEN_Email_Status_The_Exam', 'GEN_Sender_Email_Name',
+                    'GEN_Email_Status_Ready']
+
                     const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
                     let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
 

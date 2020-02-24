@@ -3,7 +3,8 @@ const { getSpecificDataFromDB } = require('../utils/database');
 const { sendMailUtils } = require('../utils/sendMailUtils')
 const { connectionToDB } = require('../utils/database');
 const { responseErrorJson, responseOkJson, verifyToken,
-        parseJsonArrayToKeyValue, validateIfStringExist, convertUnixTime } = require('../utils/common');
+        parseJsonArrayToKeyValue, validateIfStringExist } = require('../utils/common');
+var moment = require('moment');
 const secret_key = process.env.secret_key;
 
 module.exports = async function (context, req) {
@@ -21,8 +22,8 @@ module.exports = async function (context, req) {
 
         let verifyTokenResponse = await verifyToken(tokenExistResponse, secret_key);
 
-        let valid_from  = convertUnixTime(verifyTokenResponse.iat)
-        let valid_until  = convertUnixTime(verifyTokenResponse.iat + verifyTokenResponse.tokenvalidfor)
+        let valid_from  = moment.unix(verifyTokenResponse.iat).format("DD/MM/YYYY");
+        let valid_until  = moment.unix(verifyTokenResponse.iat + verifyTokenResponse.tokenvalidfor).format("DD/MM/YYYY"); 
 
         let fieldsDB = [
          'STATUS_EMAIL_HI', 'GEN_Email_Create_1_Sentence', 
