@@ -66,9 +66,9 @@ const sendMailUtilsStatus = async (verifyTokenResponse, parseJsonArrayToKeyValue
     let GEN_Email_Status_TITLE = parseJsonArrayToKeyValueRes[fieldsDB[6]][language]; 
 
 
-    let status_exam_information = GEN_Email_Status_For_Information+" "+verifyTokenResponse.Participant_Firstname+
-     " "+verifyTokenResponse.Participant_Lastname+" "+GEN_Email_Status_The_Exam+ " "+
-     verifyTokenResponse.Name_Of_Exam+" "+GEN_Email_Status_Ready+" "+moment().format('DD-MM-YYYY, HH:mm:ss');  ;
+    let status_exam_information = GEN_Email_Status_For_Information+" => "+verifyTokenResponse.Participant_Firstname+
+     " "+verifyTokenResponse.Participant_Lastname+" => "+GEN_Email_Status_The_Exam+ " \""+
+     verifyTokenResponse.Name_Of_Exam+"\" "+GEN_Email_Status_Ready+" "+moment().format('DD-MM-YYYY, HH:mm:ss');  ;
     
     let title = "TEMS - "+GEN_Email_Status_TITLE+" || "+verifyTokenResponse.Name_Of_Exam +" || useremail : "+verifyTokenResponse.participantemail
     
@@ -76,7 +76,6 @@ const sendMailUtilsStatus = async (verifyTokenResponse, parseJsonArrayToKeyValue
     //let href_link_to_gallery = `${process.env.ADMIN_FRONT_END_ENDPOINT}/exam/gallery/${examIdFromJsonBlob}`;
     let href_link_to_gallery = `${process.env.ADMIN_FRONT_END_ENDPOINT}/exams`;
 
-    
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
         to: verifyTokenResponse.proctor_email_receiver,

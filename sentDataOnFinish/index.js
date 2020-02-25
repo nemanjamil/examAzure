@@ -2,7 +2,7 @@ const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
 const { getSpecificDataFromDB, connectionToDB, closeMongoDbConnection } = require('../utils/database');
 
-const { sendMailUtils } = require('../utils/sendMailUtils')
+const { sendMailUtilsStatus } = require('../utils/sendMailUtils')
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { verifyToken, responseOkJson, responseErrorJson, createExamNamePath, parseJsonArrayToKeyValue } = require('../utils/common');
@@ -38,15 +38,21 @@ module.exports = async function (context, req) {
                        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
                        verifyTokenResponse.ExamEvent_EXTERNAL_ID
 
-        await connectionToDB();
-        let updateExamResult = await updateExamInDB(examId);
+         await connectionToDB();
+         let updateExamResult = await updateExamInDB(examId);
 
         // send email to proctor
-        let fieldsDB = ['STATUS_EMAIL_HI', 'STATUS_EMAIL_SENTENCE_FINISHED_EXAM', 'STATUS_EMAIL_TITLE', 'GEN_Sender_Email_Name']
+        let fieldsDB = ['STATUS_EMAIL_HI', 'GEN_Email_Status_Link_To_Gallery',
+                    'GEN_Email_Status_For_Information','GEN_Email_Status_Finished_State',
+                    'GEN_Email_Status_The_Exam', 'GEN_Sender_Email_Name',
+                    'GEN_Email_Status_Finished']
+
         const getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
+
         let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
-        let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, parseJsonArrayToKeyValueRes, fieldsDB);
-        
+        let rspsendMailUtils = await sendMailUtilsStatus(verifyTokenResponse, parseJsonArrayToKeyValueRes, 
+            fieldsDB);
+       
         await closeMongoDbConnection()
 
         const responseData = {
