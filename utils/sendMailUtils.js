@@ -72,7 +72,7 @@ const sendMailUtilsStatus = async (verifyTokenResponse, parseJsonArrayToKeyValue
     
     let title = "TEMS - "+GEN_Email_Status_TITLE+" || "+verifyTokenResponse.Name_Of_Exam +" || useremail : "+verifyTokenResponse.participantemail
     
-    let examIdFromJsonBlob = verifyTokenResponse.Participant_EXTERNAL_ID+"_"+verifyTokenResponse.ExamVersion_EXTERNAL_ID+"_"+verifyTokenResponse.ExamEvent_EXTERNAL_ID
+    //let examIdFromJsonBlob = verifyTokenResponse.Participant_EXTERNAL_ID+"_"+verifyTokenResponse.ExamVersion_EXTERNAL_ID+"_"+verifyTokenResponse.ExamEvent_EXTERNAL_ID
     //let href_link_to_gallery = `${process.env.ADMIN_FRONT_END_ENDPOINT}/exam/gallery/${examIdFromJsonBlob}`;
     let href_link_to_gallery = `${process.env.ADMIN_FRONT_END_ENDPOINT}/exams`;
 
@@ -103,39 +103,54 @@ const sendMailUtilsStatus = async (verifyTokenResponse, parseJsonArrayToKeyValue
 }
 
 
-const sendMailgenerateMultipleExams = async (token, participantFirstName, participantemail, 
-                                            proctorEmailReceiver, reactAppBaseUrl, language,
-                                            parseJsonArrayToKeyValueRes, fieldsDB) => {
+// MULTIPLE EXAMS
+const sendMailgenerateMultipleExams = async (token, dataExam,
+    user, proctor_email_receiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB) => {
 
-    const EMAIL_TITLE = parseJsonArrayToKeyValueRes[fieldsDB[0]][language]; 
-    const EMAIL_MESSAGE = parseJsonArrayToKeyValueRes[fieldsDB[1]][language]; 
-    const STATUS_EMAIL_HI = parseJsonArrayToKeyValueRes[fieldsDB[2]][language]; 
+        let language = user.language;
 
-    const sendData = {};
-    sendData.title = EMAIL_TITLE;
-    sendData.message = EMAIL_MESSAGE;
-    sendData.firstname = participantFirstName;
-    sendData.nameofsender = "EXAM";
-    sendData.token = `${reactAppBaseUrl}/JwtRedirect?token=${token}`;
+        let STATUS_EMAIL_HI = parseJsonArrayToKeyValueRes[fieldsDB[0]][language]; 
+        let GEN_Email_Create_1_Sentence = parseJsonArrayToKeyValueRes[fieldsDB[1]][language]; 
+        let GEN_Sender_Email_Name = parseJsonArrayToKeyValueRes[fieldsDB[2]][language]; 
+        let GEN_Email_Create_2_Sentence = parseJsonArrayToKeyValueRes[fieldsDB[3]][language]; 
+        let GEN_Email_Create_Sentence_Valid_1 = parseJsonArrayToKeyValueRes[fieldsDB[4]][language]; 
+        let GEN_Email_Create_Sentence_Valid_2 = parseJsonArrayToKeyValueRes[fieldsDB[5]][language]; 
+        let GEN_Email_Create_Signature = parseJsonArrayToKeyValueRes[fieldsDB[6]][language]; 
 
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    const msg = {
-        to: proctorEmailReceiver,
-        replyTo: participantemail,
-        from: {
-            name: sendData.nameofsender,
-            email: process.env.SENDGRID_FROM_MAIL
-        },
-        templateId: process.env.TEMPLATE_ID_SENDGRID,
-        dynamic_template_data: {
-            hello: STATUS_EMAIL_HI,
-            subject: sendData.title + " - " + participantFirstName + " - " + participantemail,
-            status_sentence: sendData.message,
-            name: sendData.firstname,
-            linktoexam: sendData.token
-        },
-    };
- 
+        let title = "TEMS - "+ dataExam.Name_Of_Exam +" || userEmail : "+user.participantemail
+        let tokenUrl = `${reactAppBaseUrl}/JwtRedirect?token=${token}`;
+
+        let valid_from  = moment.unix(dataExam.ExamEvent_GenerationTime).format("DD/MM/YYYY");
+        let valid_until  = moment.unix(dataExam.ExamEvent_GenerationTime + dataExam.tokenvalidfor).format("DD/MM/YYYY"); 
+    
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        let msg = {
+            to: proctor_email_receiver,
+            from: {
+                name: GEN_Sender_Email_Name,
+                email: process.env.SENDGRID_FROM_MAIL
+            },
+            templateId: process.env.TEMPLATE_ID_SENDGRID,  // CREATE EXAM TEMPLATE
+            dynamic_template_data: {
+                subject: title,
+                hello: STATUS_EMAIL_HI,
+                first_name: user.Participant_Firstname,
+                last_name: user.Participant_Lastname,
+                name: GEN_Sender_Email_Name,
+                GEN_Email_Create_1_Sentence : GEN_Email_Create_1_Sentence,
+                GEN_Email_Create_2_Sentence : GEN_Email_Create_2_Sentence,
+                linktoexam: tokenUrl,
+                name_of_exam: dataExam.Name_Of_Exam,
+                GEN_Email_Create_Sentence_Valid_1: GEN_Email_Create_Sentence_Valid_1,
+                GEN_Email_Create_Sentence_Valid_2: GEN_Email_Create_Sentence_Valid_2,
+                valid_from, valid_from,
+                valid_until, valid_until,
+                GEN_Email_Create_Signature: GEN_Email_Create_Signature,
+                date_time: Date(Date.now()).toString()
+                //examdetails: JSON.stringify(verifyTokenResponse)
+            },
+        }; 
+
     try {
         let sendmail = await sgMail.send(msg);
         return Promise.resolve(sendmail);

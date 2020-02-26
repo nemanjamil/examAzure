@@ -32,9 +32,16 @@ module.exports = async function (context, req) {
         
         await connectionToDB();
 
-        let fieldsDB = ['NEW_EXAM_EMAIL_TITLE', 'NEW_EXAM_EMAIL_MESSAGE', 'STATUS_EMAIL_HI'];
+
+        let fieldsDB = [
+            'STATUS_EMAIL_HI', 'GEN_Email_Create_1_Sentence', 
+            'GEN_Sender_Email_Name', 'GEN_Email_Create_2_Sentence',
+            'GEN_Email_Create_Sentence_Valid_1', 'GEN_Email_Create_Sentence_Valid_2',
+            'GEN_Email_Create_Signature']
+   
         let getDbDataForEmailTemplate = await getSpecificDataFromDB(fieldsDB);
         let parseJsonArrayToKeyValueRes = await parseJsonArrayToKeyValue(getDbDataForEmailTemplate);
+                  
 
         let generateTokenRes = await generateTokens(users, dataExam, proctorEmailReceiver, reactAppBaseUrl, 
                                                     parseJsonArrayToKeyValueRes, fieldsDB)
@@ -67,9 +74,8 @@ const prepareGenerationOfToken = async (user, dataExam, proctorEmailReceiver, re
         let saveExamInDBResponse = await saveExamInDB(dataExam, user, examId, ExamVersion_maxPoints, 
                 ExamVersion_passingPoints, Exam_SuccessPercent, uuidNmb, generateTokenResponse.token);
 
-        let sendMailResponse = await sendMailgenerateMultipleExams(generateTokenResponse.token, user.Participant_Firstname, 
-                                                                   user.participantemail, proctorEmailReceiver, 
-                                                                   reactAppBaseUrl, user.language, parseJsonArrayToKeyValueRes, fieldsDB);
+        let sendMailResponse = await sendMailgenerateMultipleExams(generateTokenResponse.token, generateTokenResponse.data,
+             user, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB);
 
         return {
             generateTokenResponse,
@@ -107,6 +113,7 @@ const generateToken = async (user, dataExam, proctorEmailReceiver, uuidNmb) => {
         ExamEvent_EXTERNAL_ID: uuidNmb,
         language: user.language
     }
+
     let token = jwt.sign(data, secret_key);
     return {token: token, data: data}
 }
