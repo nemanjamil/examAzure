@@ -20,9 +20,11 @@ module.exports = async function (context, req) {
     
     if (!Array.isArray(users) || users.length<=0) {
         context.res = await responseErrorJson("Error in JSON :  users");
+        return;
     } 
     if (!Array.isArray(dataExam) || dataExam.length<=0) {
         context.res = await responseErrorJson("Error in JSON :  Empty Data");
+        return;
     } 
 
     const proctorEmailReceiver =  req.body.proctorEmailReceiver;
@@ -50,7 +52,6 @@ module.exports = async function (context, req) {
     } catch (error) {
         
         context.res = await responseErrorJson(error);
-        context.done();
     }
 
 }
