@@ -21,7 +21,7 @@ module.exports = async function (context, req) {
     if (!Array.isArray(users) || users.length<=0) {
         context.res = await responseErrorJson("Error in JSON :  users");
     } 
-    if (isEmpty(dataExam)) {
+    if (!Array.isArray(dataExam) || dataExam.length<=0) {
         context.res = await responseErrorJson("Error in JSON :  Empty Data");
     } 
 
@@ -55,23 +55,42 @@ module.exports = async function (context, req) {
 
 }
 
+
+const generateTokens = async (users, dataExam, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB) => {
+    return Promise.all(users.map(user => {
+         return prepareGenerationOfToken(user, dataExam, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB)
+        }
+    ))
+}
+
 const prepareGenerationOfToken = async (user, dataExam, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB) => {
+      return Promise.all(dataExam.map(oneexam => {
+            return generateAllExamforOneUser(user, oneexam, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB)
+           }
+       ))
+}
+
+const generateAllExamforOneUser =  async (user, oneexam, proctorEmailReceiver, 
+    reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB) => {
 
         let uuidNmb = uuid.v1();
-        let generateTokenResponse =  await generateToken(user, dataExam, proctorEmailReceiver, uuidNmb);
-        let blobLocation = dataExam.ExamVersion_EXTERNAL_ID+".json";
+
+        let generateTokenResponse =  await generateToken(user, oneexam, proctorEmailReceiver, uuidNmb);
+
+        let blobLocation = oneexam.ExamVersion_EXTERNAL_ID+".json";
+      
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(blobLocation, examtemplatecontainer);
         let getJsonExamBlobResponseParsed = await JSON.parse(getJsonExamBlobResponse);
-
+        
         let ExamVersion_maxPoints = getJsonExamBlobResponseParsed.ExamVersion_maxPoints;
         let ExamVersion_passingPoints = getJsonExamBlobResponseParsed.ExamVersion_passingPoints;
         let Exam_SuccessPercent = getJsonExamBlobResponseParsed.Exam_SuccessPercent;
 
         let examId = user.Participant_EXTERNAL_ID + "_" +
-            dataExam.ExamVersion_EXTERNAL_ID + "_" +
+            oneexam.ExamVersion_EXTERNAL_ID + "_" +
             uuidNmb;
-
-        let saveExamInDBResponse = await saveExamInDB(dataExam, user, examId, ExamVersion_maxPoints, 
+      
+        let saveExamInDBResponse = await saveExamInDB(oneexam, user, examId, ExamVersion_maxPoints, 
                 ExamVersion_passingPoints, Exam_SuccessPercent, uuidNmb, generateTokenResponse.token);
 
         let sendMailResponse = await sendMailgenerateMultipleExams(generateTokenResponse.token, generateTokenResponse.data,
@@ -82,14 +101,9 @@ const prepareGenerationOfToken = async (user, dataExam, proctorEmailReceiver, re
             saveExamInDBResponse,
             sendMailResponse
         };
+
 }
 
-const generateTokens = async (users, dataExam, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB) => {
-    return Promise.all(users.map(user => {
-         return prepareGenerationOfToken(user, dataExam, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB)
-        }
-    ))
-}
 
 const generateToken = async (user, dataExam, proctorEmailReceiver, uuidNmb) => {
 
@@ -114,8 +128,16 @@ const generateToken = async (user, dataExam, proctorEmailReceiver, uuidNmb) => {
         language: user.language
     }
 
-    let token = jwt.sign(data, secret_key);
-    return {token: token, data: data}
+    return new Promise((resolve,reject) => {
+        jwt.sign(data, secret_key, function(err, token) {
+            if (err) {
+                reject(err)
+            } else {
+                resolve({token, data})
+            }
+        });
+    })
+
 }
 
 const saveExamInDB = async (generateTokenData, user, examId, ExamVersion_maxPoints, 
