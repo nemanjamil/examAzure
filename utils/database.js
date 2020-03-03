@@ -1,5 +1,7 @@
 var mongoose = require('mongoose');
 const Exam = require('../models/exam');
+const { validateIfStringExist } = require('../utils/common');
+
 mongoose.Promise = global.Promise;
 let client = null;
 const basicsk = process.env.BASICSSK;
@@ -51,6 +53,8 @@ const testIfExamIsInProgress = async (examId, context) => {
     context.log(" >>>> >>>> >>>> testIfExamIsInProgress examId : ", examId);
 
     try {
+        await validateIfStringExist(examId)
+
         let exam = await Exam.findOne({ examId: examId, examssk : examId });
         if(exam.started && !exam.finished){
             let messageBody = {
@@ -58,7 +62,7 @@ const testIfExamIsInProgress = async (examId, context) => {
                 status: true
             }
             return Promise.resolve(messageBody);
-        }else if(exam.finished){
+        } else if (exam.finished) {
             
             let messageBody = {
                 message: "Exam is finished, state of exam is finished in DB",

@@ -2,7 +2,8 @@ const UtilsBlob = require('../utils/utilsBlob');
 const { connectionToDB, testIfExamIsInProgress, closeMongoDbConnection, readyStateMongoose } = require('../utils/database');
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
-const { isArray, verifyToken, getExamIdFromToken, responseOkJson, responseErrorJson } = require('../utils/common');
+const { isArray, verifyToken, getExamIdFromToken, 
+     responseOkJson, responseErrorJson, checkIfValuesForKeyExistInObject } = require('../utils/common');
 const path = require('path');
 
 var mongoose = require('mongoose');
@@ -59,7 +60,7 @@ module.exports = async function (context, req) {
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(createNamePathRsp, examsuser);
         let updateQuestionResponse = await updateQuestion(getJsonExamBlobResponse, createNamePathRsp, question, answers);
 
-        // proveriti da li vec postoji u bazi ????
+        // [TODO] Nemanja proveriti da li vec postoji u bazi ?
         // save to DB
         if(!eventId) Promise.reject({message: "No event Id"});
         let { saveQuestion, examCost } = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
@@ -101,10 +102,11 @@ async function updateQuestion(getJsonExamBlobResponse, blobNameJsonPath, questio
     try {
         // proveravamo da li je vec odgovoreno na ovo pitanje
         let modifyAswersResp = await modifyAswers(jsonObject, question, answers);
-
+        
         // tako modifikovani JSON ponovo uploaduj na File Server
         let putModifiedJsonToCont = await UtilsBlob.putFileToContainerJson(examsuser, blobNameJsonPath, JSON.stringify(modifyAswersResp));
         return putModifiedJsonToCont;
+
     } catch (error) {
         return Promise.reject(error);
     }
@@ -113,10 +115,20 @@ async function updateQuestion(getJsonExamBlobResponse, blobNameJsonPath, questio
 function modifyAswers(jsonObject, question, answers) {
     // ovde treba da stavim ako odgovor ID pripada listi pitanja onda moze da snimi
     // a to treba da stavim i na front end kao proveru
+   
     let oneQuestion = jsonObject.examQuestions.filter(item => {
         return item.question_id === question
     })
-    if (oneQuestion[0].answersSelected === undefined || oneQuestion[0].answersSelected.length == 0) {
+ 
+    if (!isArray(oneQuestion)) {
+        return Promise.reject({ 
+            message : "This question does not exist in exam : " + question,
+            error: "This question does not exist in exam : " + question,
+            stateoferror: 43
+        });
+    }
+
+    if (oneQuestion[0].answersSelected === undefined || oneQuestion[0].answersSelected.length === 0) {
         oneQuestion[0].answersSelected = [...answers];
         return Promise.resolve(jsonObject);
     } else {
@@ -133,7 +145,7 @@ const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastNam
 
     const examId = path.basename(createNamePathRsp, '_score.json');
 
-    const quest = new Question({
+    let questionObj = {
         userName: userFirstName,
         userLastName: userLastName,
         time: new Date(),
@@ -144,9 +156,11 @@ const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastNam
         answers: answers,
         questionssk: examId,
         answersHash: answersHash
-    });
+    }
+    const quest = new Question(questionObj);
 
     try {
+        let checkKeyValueInObject = await checkIfValuesForKeyExistInObject(questionObj)
         let saveQuestion = await quest.save();
         let examCost = await quest.db.db.command({getLastRequestStatistics:1});
         return { saveQuestion, examCost }

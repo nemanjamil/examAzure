@@ -118,6 +118,33 @@ const parseJsonArrayToKeyValue = async (data) => {
     return newObj;
 }
 
+const checkIfValuesForKeyExistInObject = async (dataObject) => {
+        
+       let arrayFromObject = Object.keys(dataObject)
+
+       const ixValueExist = (currentValue) => {
+            if (dataObject[currentValue]) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    return new Promise((resolve, reject) => {
+
+        let checkObjectState = arrayFromObject.every(ixValueExist);
+         if (checkObjectState) {
+            resolve("All values in object exist")
+        } else {
+            reject({
+                message : "Some values in object does not exist",
+                error : dataObject,
+                stateoferror: 34
+            });
+        }
+    })
+
+}
+
 module.exports = {
     isArray,
     SENTENCES,
@@ -128,5 +155,6 @@ module.exports = {
     createExamNamePath,
     nameVariables,
     parseJsonArrayToKeyValue,
-    validateIfStringExist
+    validateIfStringExist,
+    checkIfValuesForKeyExistInObject
 }

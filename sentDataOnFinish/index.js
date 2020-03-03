@@ -1,6 +1,7 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
 const { getSpecificDataFromDB, connectionToDB, closeMongoDbConnection } = require('../utils/database');
+const { validateIfStringExist } = require('../utils/common');
 
 const { sendMailUtilsStatus } = require('../utils/sendMailUtils')
 const examsuser = process.env.examsuser;
@@ -100,7 +101,7 @@ async function updateBlobOnExamFinish(getJsonExamFromBlob, examJsonBlobPath) {
 const updateExamInDB = async (examId) => {
 
     try {
-
+        await validateIfStringExist(examId)
         let examUpdate = await Exam.findOneAndUpdate(
             { examId: examId, examssk: examId }, 
             {$set:{status: "Finished"}}, {new: true});
