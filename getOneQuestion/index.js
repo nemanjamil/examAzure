@@ -20,8 +20,8 @@ const Question = require('../models/question');
 // let rnd = Math.floor(Math.random() * 100);
 // if (isOdd(rnd)) {
 //     context.res = await responseErrorJson({
-//         message: "Error get One question",
-//         error: "Error get One question ERROR",  
+//         message: "Error get One question FAKE",
+//         error: "Error get One question FAKE ERROR",  
 //         stateoferror: 111,
 //     });
 //     return;
@@ -31,7 +31,7 @@ const Question = require('../models/question');
 module.exports = async function (context, req) {
 
     const token = req.headers.authorization;
- 
+
     try {
         let connectionToDb = await connectionToDB();
         const examId = await getExamIdFromToken(token, secret_key);

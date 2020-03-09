@@ -23,6 +23,7 @@ module.exports = async function (context, req) {
 
     const token = req.headers.authorization;
     let data = req.body;
+
     try {
 
         let verifyTokenResponse = await verifyToken(token, secret_key);

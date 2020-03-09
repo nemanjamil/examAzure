@@ -30,6 +30,10 @@ module.exports = async function (context, req) {
 }
 
 const getDataFromDB = async (context, examId) => {
+
+    // TODO proverit da li postoji examId
+    // takodje staviti na FE da ako dobije error od ove funkcije pokusa ponovo
+    // ali da pokusava max 5 puta
     try {
         let result = await Exam.findOne({ examId: examId, examssk : examId });
         let examCost = await Exam.db.db.command({getLastRequestStatistics:1});
