@@ -1,10 +1,13 @@
 const accessKey = process.env.accessKey;
 const storageAccount = process.env.storageAccount;
 const examtemplatecontainer = process.env.examtemplatecontainer;
+const containerNameExam = process.env.examsuser;
+
 const azureStorage = require('azure-storage');
 const { sendMailUtilsStatus } = require('../utils/sendMailUtils')
 const UtilsBlob = require('../utils/utilsBlob');
-const { createExamNamePath, verifyToken, parseJsonArrayToKeyValue, responseErrorJson } = require('../utils/common');
+const { createExamNamePath, verifyToken, createSaltExamPath, validateIfStringExist,
+    parseJsonArrayToKeyValue, responseErrorJson } = require('../utils/common');
 const blobService = azureStorage.createBlobService(storageAccount, accessKey)
 // const jwt = require('jsonwebtoken');
 const secret_key = process.env.secret_key;
@@ -20,14 +23,13 @@ module.exports = async function (context, req) {
         
         let tokenExistResponse = await tokenExist(req.query);
 
-        // dekoduje token 
+        // Token Decode 
         let verifyTokenResponse = await verifyToken(tokenExistResponse, secret_key);
         
         // iz token informacija nalazi Exam koji vraca u tekstualnom obliku sa pridodatim informacijama
         // i vraca putanju gde bi za polaganje ovog User-a taj exem trebao da se iskopira
         const { examData, blobNameJsonPath } = await fetchExamVersion(verifyTokenResponse, examtemplatecontainer);
-       
-        const containerNameExam = process.env.examsuser;
+        
         let redirect = null;
         let data = null;
         let copyExamVersionResponse = "";
@@ -55,6 +57,10 @@ module.exports = async function (context, req) {
                     // kopira exam u storage blob i dobija odgovor u Promisu "Fall" ili "Json upload successfully"
                     copyExamVersionResponse = await copyExamFileToContainerJson(containerNameExam, blobNameJsonPath, JSON.stringify(examData));
 
+                    // Fetch SALT From EXAMTEMPLATE and copy TO SALT folder for current exam
+                    const fetchAndCopySaltRes = await fetchAndCopySalt(verifyTokenResponse, examtemplatecontainer);
+
+        
                     const examId = path.basename(blobNameJsonPath, '_score.json');
                     examUpdateResult = await updateExam(examId);
 
@@ -120,6 +126,36 @@ module.exports = async function (context, req) {
         context.res = await responseErrorJson(error);
     }
 };
+
+
+const fetchAndCopySalt = async (verifyTokenResponse, examtemplatecontainer) => {
+
+    try {
+        
+        let blobLocationForSalt = "salt/"+verifyTokenResponse.ExamVersion_EXTERNAL_ID+".salt";
+       
+        let getSaltFromBlob  = await UtilsBlob.getJsonExamBlob(blobLocationForSalt, examtemplatecontainer)
+       
+        let checkIfStringExist = await validateIfStringExist(getSaltFromBlob);
+       
+        let blobLocationSaltCopy = createSaltExamPath(verifyTokenResponse);
+       
+        return await UtilsBlob.createBlobInAzure(containerNameExam, blobLocationSaltCopy, getSaltFromBlob, 'text/plain');
+
+    } catch (error) {
+
+        let messageBody = {
+            message : "Copy Salt to Blob",
+            error:  error,
+            stateoferror: 137
+        }
+        return Promise.reject(messageBody)
+
+    }
+        
+    
+}
+
 
 async function tokenExist(reqquery) {
     if (reqquery.token) {

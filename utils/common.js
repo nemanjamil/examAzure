@@ -106,6 +106,16 @@ const createExamNamePath = (verifyTokenResponse) => {
         verifyTokenResponse.ExamEvent_EXTERNAL_ID + "/" + blobNameJson;
 }
 
+const createSaltExamPath = (verifyTokenResponse) => {
+    let blobNameJson = verifyTokenResponse.Participant_EXTERNAL_ID + "_" +
+        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
+        verifyTokenResponse.ExamEvent_EXTERNAL_ID + ".salt";
+
+    return verifyTokenResponse.Participant_EXTERNAL_ID + "/" +
+        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "/" +
+        verifyTokenResponse.ExamEvent_EXTERNAL_ID + "/salt/" + blobNameJson;
+}
+
 const nameVariables = {
     basicsk : "tems"
 }
@@ -153,6 +163,7 @@ module.exports = {
     responseErrorJson,
     getExamIdFromToken,
     createExamNamePath,
+    createSaltExamPath,
     nameVariables,
     parseJsonArrayToKeyValue,
     validateIfStringExist,
