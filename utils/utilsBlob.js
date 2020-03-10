@@ -25,6 +25,30 @@ let getJsonExamBlob = async (blobLocation, containerName) => {
     });
 }
 
+function createBlobInAzure(containerName, blobName, data, contentType) {
+    let opt = {
+        contentSettings: {
+            contentType: contentType,
+        }
+    }
+    return new Promise((resolve, reject) => {
+
+        blobService.createBlockBlobFromText(containerName, blobName, data, opt, (error, data) => {
+            if (error) {
+                reject({
+                    message : "Blob Failed to Create",
+                    error : error,
+                    stateoferror: 136
+                });
+            } else {
+                resolve({
+                    message: data
+                });
+            }
+        });
+    });
+}
+
 let putFileToContainerJson = async (containerName, blobName, data) => {
     let opt = {
         contentSettings: {
@@ -98,5 +122,6 @@ module.exports = {
     putFileToContainerJson,
     uploadImageToContainder,
     getContainerFilesDetails,
-    path
+    path,
+    createBlobInAzure
 }
