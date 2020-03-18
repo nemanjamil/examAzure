@@ -31,6 +31,7 @@ const connectionToDB = async () => {
                 password: process.env.COSMOSDB_PASSWORD
             }
         });
+
         console.log('Connection to CosmosDB successful');
         let messageBody = {
             message: "Connection to CosmosDB successful",
@@ -40,7 +41,7 @@ const connectionToDB = async () => {
     } catch (error) {
         let messageBody = {
             message: error,   
-            error: error,  
+            error: [error.message, error.name],  
             stateoferror: 99,  
             messagedesc: "Connection is not established",
             readystate: mongoose.connection.readyState
@@ -93,9 +94,10 @@ const testIfExamIsInProgress = async (examId, context) => {
         }
 
     } catch (error) {
+         console.log("error 20 ", error);
          let messageBody = {
             message: error,
-            error: error,  
+            error: [error.message, error.name],  
             stateoferror: 20,
             status: false 
         }

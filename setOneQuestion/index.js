@@ -1,5 +1,5 @@
 const UtilsBlob = require('../utils/utilsBlob');
-const { connectionToDB, testIfExamIsInProgress, closeMongoDbConnection, readyStateMongoose } = require('../utils/database');
+const { connectionToDB, testIfExamIsInProgress, readyStateMongoose } = require('../utils/database');
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { isArray, verifyToken, getExamIdFromToken, 
@@ -65,7 +65,6 @@ module.exports = async function (context, req) {
         if(!eventId) Promise.reject({message: "No event Id"});
         let { saveQuestion, examCost } = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
 
-        let closeMongoDbConnectionRes = await closeMongoDbConnection();
         let stateOfMongoDb = await readyStateMongoose();
 
         context.res = await responseOkJson(

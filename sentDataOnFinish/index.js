@@ -1,6 +1,6 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
-const { getSpecificDataFromDB, connectionToDB, closeMongoDbConnection } = require('../utils/database');
+const { getSpecificDataFromDB, connectionToDB } = require('../utils/database');
 const { validateIfStringExist } = require('../utils/common');
 
 const { sendMailUtilsStatus } = require('../utils/sendMailUtils')
@@ -55,8 +55,6 @@ module.exports = async function (context, req) {
         let rspsendMailUtils = await sendMailUtilsStatus(verifyTokenResponse, parseJsonArrayToKeyValueRes, 
             fieldsDB);
        
-        await closeMongoDbConnection()
-
         const responseData = {
             getJsonExamBlobResponse,
             updateExamResult,

@@ -12,8 +12,7 @@ const Picture = require('../models/picture');
 const {
     disconectFromDB,
     connectionToDB,
-    readyStateMongoose,
-    closeMongoDbConnection 
+    readyStateMongoose 
 } = require('../utils/database');
 
 const {
@@ -67,14 +66,12 @@ module.exports = async function (context, req) {
 
      
         let disconectFromDBRsp =  await disconectFromDB();
-        let closeMongoDbConnectionResp = await closeMongoDbConnection();
-        let stateOfMongoDb = await readyStateMongoose();
+         let stateOfMongoDb = await readyStateMongoose();
 
         response = {
             "uploadImageToContainderRes": uploadImageToContainderRes,
             "requestComputerVisionResponse": requestComputerVisionResponse.message,
             "putFileToContainerJsonResponse": putFileToContainerJsonResponse,
-            "closeMongoDbConnectionResp" : closeMongoDbConnectionResp,
             "disconectFromDBRsp" : disconectFromDBRsp,
             "stateOfMongoDb" : stateOfMongoDb,
             "pictureSaveResult": pictureSaveResult

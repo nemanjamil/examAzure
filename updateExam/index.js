@@ -1,6 +1,6 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
-const { connectionToDB, closeMongoDbConnection } = require('../utils/database');
+const { connectionToDB } = require('../utils/database');
 const { verifyToken, responseErrorJson, responseOkJson } = require('../utils/common');
 const UtilsBlob = require('../utils/utilsBlob');
 const examsuserContainer = process.env.examsuser;
@@ -44,8 +44,7 @@ module.exports = async function (context, req) {
 
         // update isCheated colum in exam
         //const updateCheatedJSONResult = await isCheatedPropertyUpdating(examId, updateDbParamsResult);
-        await closeMongoDbConnection();
-
+       
         const response = {
             updateExamDB: updateDBResult,
             countAnswersResponse: countAnswersResponse,

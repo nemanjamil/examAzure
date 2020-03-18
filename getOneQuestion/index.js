@@ -1,6 +1,6 @@
 const Utils = require('../utils/utilsBlob');
 const { connectionToDB, testIfExamIsInProgress, 
-     readyStateMongoose, closeMongoDbConnection } = require('../utils/database');
+     readyStateMongoose } = require('../utils/database');
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 //const { parse } = require('querystring');
@@ -17,6 +17,7 @@ const Question = require('../models/question');
 //const timeout = ms => new Promise(res => setTimeout(res, ms))
 //await timeout(10000)
 // function isOdd(num) { return num % 2;}
+
 // let rnd = Math.floor(Math.random() * 100);
 // if (isOdd(rnd)) {
 //     context.res = await responseErrorJson({
@@ -47,7 +48,6 @@ module.exports = async function (context, req) {
         // proveriti da li je isti broj u bazi i u blobu od odogvorenih pitanja
         let getNumberOfAnsweredQuestionsResonse = await getNumberOfAnsweredQuestions(examId)
         
-        let closeMongoDbConnectionRes = await closeMongoDbConnection();
         let stateOfMongoDb = await readyStateMongoose();
 
         // if exam is in progress

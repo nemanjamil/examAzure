@@ -8,8 +8,6 @@ const secret_key = process.env.secret_key;
 
 module.exports = async function (context, req) {
     
-    //let functionKey = req.headers['x-functions-key'];
-    //let examVersionExternalId = path.basename(req.body.examVersionExternalId,".json");
     const token = req.headers.authorization;
 
     try {

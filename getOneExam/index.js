@@ -1,5 +1,5 @@
 const Exam = require('../models/exam');
-const { connectionToDB, readyStateMongoose, closeMongoDbConnection  } = require('../utils/database');
+const { connectionToDB, readyStateMongoose  } = require('../utils/database');
 const { verifyToken, responseErrorJson, responseOkJson,  validateIfStringExist } = require('../utils/common');
 const secret_key = process.env.secret_key;
 
@@ -14,13 +14,11 @@ module.exports = async function (context, req) {
         await verifyToken(token, secret_key);
         await connectionToDB();
         let { getDataResponse, examCost }  = await getDataFromDB(context, examId);
-        let closeMongoDbConnectionRes = await closeMongoDbConnection();
         let stateOfMongoDb = await readyStateMongoose();
 
         context.res = await responseOkJson(getDataResponse, {
             "stateOfMongoDb" : stateOfMongoDb,
-            "examCost" : examCost,
-            "closeMongoDbConnectionResp" : closeMongoDbConnectionRes,
+            "examCost" : examCost
         });
 
     } catch (error) {
@@ -56,7 +54,7 @@ const getDataFromDB = async (context, examId) => {
     } catch (error) {
         let messageBody = {
             message: "Error occurs on find one getOneExam",
-            error: error,  
+            error : [error.message, error.name],
             stateoferror: 62,
         }
         return Promise.reject(messageBody)
