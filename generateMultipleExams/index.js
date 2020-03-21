@@ -126,6 +126,7 @@ const generateToken = async (user, dataExam, proctorEmailReceiver, uuidNmb) => {
         tokenvalidfor: dataExam.tokenvalidfor * 24 * 60 * 60,
         ExamEvent_GenerationTime: time,
         ExamEvent_EXTERNAL_ID: uuidNmb,
+        camera_screenshot: dataExam.camera_screenshot,
         language: user.language
     }
 

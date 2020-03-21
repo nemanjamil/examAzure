@@ -38,7 +38,7 @@ function createBlobInAzure(containerName, blobName, data, contentType) {
                 reject({
                     message : "Blob Failed to Create",
                     error : error,
-                    stateoferror: 136
+                    stateoferror: 52
                 });
             } else {
                 resolve({
@@ -61,7 +61,7 @@ let putFileToContainerJson = async (containerName, blobName, data) => {
                 reject({
                     message : error,
                     error: error,
-                    stateoferror: 50
+                    stateoferror: 51
                 });
             } else {
                 resolve("Inserted Data");
