@@ -49,23 +49,40 @@ module.exports = async function (context, req) {
 
     try {
         let verifyTokenResponse = await verifyToken(token, secret_key);
+
         let blobName = createNamePath(verifyTokenResponse, eventId, uid, extensionImage);
         let uploadImageToContainderRes = await uploadImageToContainder(containerName, blobName, data, length);
-        let requestComputerVisionResponse = await requestComputerVision(parts, uriBase, subscriptionKey);
 
-        let calculateCognitoResponse  = await calculateCongnito(requestComputerVisionResponse)
+        let  calculateCognitoResponse = "";
+        let  requestComputerVisionResponse = "";
+        if (verifyTokenResponse.cameraAndCognitoServices<=1) {
+            requestComputerVisionResponse = await requestComputerVision(parts, uriBase, subscriptionKey);
+            calculateCognitoResponse  = await calculateCongnito(requestComputerVisionResponse)
+
+        } else {
+            requestComputerVisionResponse = {}
+            requestComputerVisionResponse.body = '{"faces":[],"objects":[]}';
+            requestComputerVisionResponse.message = "Cognito is not used";
+            calculateCognitoResponse = {}
+            calculateCognitoResponse.stateOfPicture = 0
+            calculateCognitoResponse.numberOfObjects = 0
+            calculateCognitoResponse.numberOfFaces = 0
+            calculateCognitoResponse.numberOfPersons = 0
+            calculateCognitoResponse.tags = [{ name : "person"}]
+        }
 
         let extensionJson = "json";
-        let blobNameJson = createNamePath(verifyTokenResponse, eventId, uid, extensionJson);
-        var putFileToContainerJsonResponse = await Utils.putFileToContainerJson(containerName, blobNameJson, requestComputerVisionResponse.body);
 
+        let blobNameJson = createNamePath(verifyTokenResponse, eventId, uid, extensionJson);    
+        var putFileToContainerJsonResponse = await Utils.putFileToContainerJson(containerName, blobNameJson, requestComputerVisionResponse.body);
+        
         await connectionToDB();
         const pictureSaveResult = await savePictureInDB(eventId, questionId, blobName, 
             verifyTokenResponse, requestComputerVisionResponse.body, uid,
             calculateCognitoResponse);
 
      
-        let disconectFromDBRsp =  await disconectFromDB();
+        let disconectFromDBRsp = "not"; //  await disconectFromDB();
          let stateOfMongoDb = await readyStateMongoose();
 
         response = {
