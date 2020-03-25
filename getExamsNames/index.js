@@ -39,6 +39,10 @@ const getOneBlobJson = async (name) =>  {
     let blobLocation = name
     let responseFromBlob = await UtilsBlob.getJsonExamBlob(blobLocation, examtemplatecontainer);
     var obj = await JSON.parse(responseFromBlob); 
-    return { name : blobLocation, jsonExamName : obj.ExamVersion_Name, customName :  obj.ExamVersion_CustomName };
+
+    return { name : blobLocation, 
+             jsonExamName : obj.ExamVersion_Name, 
+             customName :  obj.ExamVersion_CustomName,
+             plannedDuration: obj.ExamVersion_plannedDuration };
 }
 
