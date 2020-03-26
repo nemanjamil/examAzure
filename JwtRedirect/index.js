@@ -36,11 +36,22 @@ module.exports = async function (context, req) {
 
         // test if exam token duration expired
         const now = Math.round(Date.now()/1000);
+
+        await validateIfStringExist(verifyTokenResponse.tokenValidFrom);
+
+        let tokenValidFrom = verifyTokenResponse.tokenValidFrom
+
+        let canStartExamValidFrom = now > tokenValidFrom;
+
         let hasTokenExpire = now > (examData.ExamEvent_GenerationTime + examData.tokenvalidfor);
 
         if(hasTokenExpire){
 
             redirect = verifyTokenResponse.fe_endpoint + '/error?status=expired';
+
+        } else if (!canStartExamValidFrom) {
+
+            redirect = verifyTokenResponse.fe_endpoint + '/error?status=notallowed&time='+tokenValidFrom;
 
         } else {
                 // proverava da li postoji vec ovaj Exem na toj putanji, ako postoji link je vec bio jednom pokrenut i test ne sme a se nastavi      
