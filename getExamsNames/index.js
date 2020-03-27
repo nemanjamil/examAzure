@@ -43,6 +43,7 @@ const getOneBlobJson = async (name) =>  {
     return { name : blobLocation, 
              jsonExamName : obj.ExamVersion_Name, 
              customName :  obj.ExamVersion_CustomName,
+             externalId :  obj.ExamVersion_EXTERNAL_ID,
              plannedDuration: obj.ExamVersion_plannedDuration };
 }
 
