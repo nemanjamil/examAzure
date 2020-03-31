@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const basicSchema = new Schema({
-    basicsk: { 
+    basicssk: { 
         type: String, 
         required: true, 
         //unique: true 
@@ -30,7 +30,7 @@ const basicSchema = new Schema({
     },
 
 }, 
-{ shardKey: { basicsk: 1 }}
+{ shardKey: { basicssk: 1 }}
 );
 
 module.exports = mongoose.model('Basics', basicSchema);

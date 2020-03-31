@@ -1,7 +1,7 @@
 const { responseOkJson, responseErrorJson } = require( '../utils/common');
 const { connectionToDB } = require('../utils/database');
 const Basic = require('../models/basic');
-const basicsk = process.env.BASICSSK;
+const basicssk = process.env.BASICSSK;
 
 
 
@@ -40,7 +40,7 @@ async function saveBaseField(baseField){
             value: baseField.value,
             project: baseField.project,
             page: baseField.page,
-            basicsk: basicsk
+            basicssk: basicssk
         });
 
         const result = await basic.save();
@@ -59,7 +59,7 @@ async function editBaseField(baseField){
     try {
 
         const result = await Basic.updateOne(
-            {'basicsk' : basicsk, "_id" : baseField._id},
+            {'basicssk' : basicssk, "_id" : baseField._id},
             {"$set":{
                 "name" : baseField.name,
                 "value": baseField.value,
@@ -82,7 +82,7 @@ async function deleteBaseField(baseField){
     
     try {
 
-        const result = await Basic.deleteOne({'basicsk' : basicsk, '_id': baseField._id});
+        const result = await Basic.deleteOne({'basicssk' : basicssk, '_id': baseField._id});
 
         return result;
         

@@ -4,7 +4,7 @@ const { validateIfStringExist } = require('../utils/common');
 
 mongoose.Promise = global.Promise;
 let client = null;
-const basicsk = process.env.BASICSSK;
+const basicssk = process.env.BASICSSK;
 
 const readyStateMongoose = async () => {
     return mongoose.connection.readyState
@@ -108,7 +108,7 @@ const testIfExamIsInProgress = async (examId, context) => {
 const getSpecificDataFromDB = async (fields) => {
     const Basics = require('../models/basic');
     try {
-       const getData = await Basics.find({ name: fields, basicsk : basicsk });
+       const getData = await Basics.find({ name: fields, basicssk : basicssk });
 
         if (getData.length>0) {
             return getData;

@@ -117,7 +117,7 @@ const createSaltExamPath = (verifyTokenResponse) => {
 }
 
 const nameVariables = {
-    basicsk : "tems"
+    basicssk : "tems"
 }
 
 const parseJsonArrayToKeyValue = async (data) => {

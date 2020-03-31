@@ -1,7 +1,7 @@
 const { responseOkJson, responseErrorJson } = require( '../utils/common');
 const { connectionToDB } = require('../utils/database');
 const Basic = require('../models/basic');
-const basicsk = process.env.BASICSSK;
+const basicssk = process.env.BASICSSK;
 
 
 
@@ -21,7 +21,7 @@ module.exports = async function (context, req) {
 async function getAllBasicFieldsData(){
     try {
        
-        let getData = await Basic.find({ basicsk : basicsk });
+        let getData = await Basic.find({ basicssk : basicssk });
         
         if (getData.length>0) {
              return getData;
