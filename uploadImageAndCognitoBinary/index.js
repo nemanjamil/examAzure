@@ -23,7 +23,7 @@ const {
 
 const uuidv1 = require('uuid/v1');
 
-let subscriptionKey = process.env.COMPUTER_VISION_SUBSCRIPTION_KEY
+let subscriptionKey = process.env.subscriptionKeyCognito
 let endpoint = process.env.COMPUTER_VISION_ENDPOINT
 if (!subscriptionKey) {
     throw new Error('Set your environment variables for your subscription key and endpoint.');
