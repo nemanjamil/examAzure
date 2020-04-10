@@ -1,6 +1,5 @@
 const Utils = require('../utils/utilsBlob');
-const { connectionToDB, testIfExamIsInProgress, 
-     readyStateMongoose } = require('../utils/database');
+const { connectionToDB, testIfExamIsInProgress, handleMongoConnection } = require('../utils/database');
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 //const { parse } = require('querystring');
@@ -34,7 +33,7 @@ module.exports = async function (context, req) {
     const token = req.headers.authorization;
 
     try {
-        let connectionToDb = await connectionToDB();
+        let connectionToDb = await connectionToDB("getOneQuestion");
         const examId = await getExamIdFromToken(token, secret_key);
         let response = await testIfExamIsInProgress(examId, context);
         
@@ -48,8 +47,8 @@ module.exports = async function (context, req) {
         // proveriti da li je isti broj u bazi i u blobu od odogvorenih pitanja
         let getNumberOfAnsweredQuestionsResonse = await getNumberOfAnsweredQuestions(examId)
         
-        let stateOfMongoDb = await readyStateMongoose();
-
+        
+        let handleMongoConn = await handleMongoConnection()
         // if exam is in progress
         if (response.status) {
 
@@ -59,7 +58,7 @@ module.exports = async function (context, req) {
                 { 
                     hasQuestions: getOneQuestionResponse.state,
                     getNumberOfAnsweredQuestions: getNumberOfAnsweredQuestionsResonse,
-                    stateOfMongoDb : stateOfMongoDb,
+                    handleMongoConn : handleMongoConn,
                     connectionToDb : connectionToDb,
                 }
                 );
@@ -67,7 +66,7 @@ module.exports = async function (context, req) {
             context.res = await responseOkJson({
                     message: response.message,
                     status: true,
-                    stateOfMongoDb : stateOfMongoDb
+                    handleMongoConn : handleMongoConn
             });
         }
 
@@ -78,12 +77,11 @@ module.exports = async function (context, req) {
 
 const getNumberOfAnsweredQuestions = async (examId) => {
      try {
-        let countAnsweredExams = await Question.count({ examId: examId, questionssk : examId })
-        return countAnsweredExams;
+        return await Question.count({ examId: examId, questionssk : examId })
     } catch (error) {
         let messageBody = {
             message: "Error counting questions",
-            error: result,  
+            error: [error.message, error.name],  
             stateoferror: 110,
         }
         return Promise.reject(messageBody)

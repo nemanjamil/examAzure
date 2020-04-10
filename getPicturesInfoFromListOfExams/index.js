@@ -1,6 +1,6 @@
 const Exam = require('../models/exam');
 const Picture = require('../models/picture');
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
 
 module.exports = async function (context, req) {
@@ -10,14 +10,16 @@ module.exports = async function (context, req) {
     const rowsPerTablePage = req.body.rowsPerPage;
 
     try {
-        await connectionToDB();
+        await connectionToDB("getPicturesInfoFromListOfExams");
         let data = await getDataFromDB(tablePage, rowsPerTablePage);
 
         let getPictureInfo = await getData(data); // https://flaviocopes.com/javascript-async-await-array-map/
         
         let jsonOfPicture = await getJsonOfPictures(data,getPictureInfo);
       
-        context.res = await responseOkJson(jsonOfPicture);
+        let handleMongoConn = await handleMongoConnection()
+
+        context.res = await responseOkJson(jsonOfPicture, handleMongoConn);
        
     } catch (error) {
         context.res = await responseErrorJson(error);

@@ -1,15 +1,18 @@
 const Exam = require('../models/exam');
 const {  responseOkJson, responseErrorJson } = require('../utils/common');
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 
 module.exports = async function (context, req) {
    
     const { exam, rowsToUpdate } = req.body;
 
     try {
-        await connectionToDB();
+        await connectionToDB("updateExamParamsFromAdminPanel");
         const updateDBResult = await updateExam(exam, rowsToUpdate);
+
+        let handleMongoConn = await handleMongoConnection()
         context.res = await responseOkJson(updateDBResult);
+
     } catch (error) {
         context.res = await responseErrorJson(error);
     }

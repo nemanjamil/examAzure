@@ -1,7 +1,6 @@
 const Exam = require('../models/exam');
-const { connectionToDB, readyStateMongoose, closeMongoDbConnection  } = require('../utils/database');
-const { verifyToken, responseErrorJson, responseOkJson,  validateIfStringExist } = require('../utils/common');
-const secret_key = process.env.secret_key;
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { responseErrorJson, responseOkJson,  validateIfStringExist } = require('../utils/common');
 
 module.exports = async function (context, req) {
 
@@ -11,15 +10,14 @@ module.exports = async function (context, req) {
 
     try {
         await validateIfStringExist(examId)
-        await connectionToDB();
+        await connectionToDB("getOneExamWithoutToken");
         let { getDataResponse, examCost }  = await getDataFromDB(context, examId);
-        let closeMongoDbConnectionRes = await closeMongoDbConnection();
-        let stateOfMongoDb = await readyStateMongoose();
 
-        context.res = await responseOkJson(getDataResponse, {
-            "stateOfMongoDb" : stateOfMongoDb,
+        let handleMongoConn = await handleMongoConnection()
+
+        context.res = await responseOkJson(getDataResponse,{
             "examCost" : examCost,
-            "closeMongoDbConnectionResp" : closeMongoDbConnectionRes,
+            "handleMongoConn" : handleMongoConn
         });
 
     } catch (error) {
@@ -31,7 +29,12 @@ module.exports = async function (context, req) {
 const getDataFromDB = async (context, examId) => {
     try {
         let result = await Exam.findOne({ examId: examId, examssk : examId });
-        let examCost = await Exam.db.db.command({getLastRequestStatistics:1});
+
+        let examCost = "";
+        if (process.env.EXAM_COST==="true") {
+            examCost = await Exam.db.db.command({getLastRequestStatistics:1});
+        };
+        
          // Remove sensible information from Exam response data
         if (result) {
             result = result.toObject();

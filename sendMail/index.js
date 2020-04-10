@@ -1,7 +1,7 @@
 const sgMail = require('@sendgrid/mail');
 const { getSpecificDataFromDB } = require('../utils/database');
 const { sendMailUtils } = require('../utils/sendMailUtils')
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson, verifyToken,
         parseJsonArrayToKeyValue, validateIfStringExist } = require('../utils/common');
 var moment = require('moment');
@@ -12,7 +12,7 @@ module.exports = async function (context, req) {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
    
     try {
-        await connectionToDB();
+        await connectionToDB("SendMail");
 
         let tokenUrl = req.body.tokenUrl
         await validateIfStringExist(tokenUrl)
@@ -36,7 +36,8 @@ module.exports = async function (context, req) {
 
         let rspsendMailUtils = await sendMailUtils(verifyTokenResponse, parseJsonArrayToKeyValueRes, 
             fieldsDB, tokenUrl, req.body.title, valid_from, valid_until);
-                  
+        
+        let handleMongoConn = await handleMongoConnection()
         context.res = await responseOkJson(rspsendMailUtils);
 
     } catch (error) {

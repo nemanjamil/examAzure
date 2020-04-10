@@ -10,9 +10,8 @@ const multipartFormdata = require('multipart-formdata')
 const request = require('request');
 const Picture = require('../models/picture');
 const {
-    disconectFromDB,
     connectionToDB,
-    readyStateMongoose 
+    handleMongoConnection
 } = require('../utils/database');
 
 const {
@@ -76,22 +75,20 @@ module.exports = async function (context, req) {
         let blobNameJson = createNamePath(verifyTokenResponse, eventId, uid, extensionJson);    
         var putFileToContainerJsonResponse = await Utils.putFileToContainerJson(containerName, blobNameJson, requestComputerVisionResponse.body);
         
-        await connectionToDB();
+        await connectionToDB("uploadImageAndCognitoBinary");
+        
         const pictureSaveResult = await savePictureInDB(eventId, questionId, blobName, 
             verifyTokenResponse, requestComputerVisionResponse.body, uid,
             calculateCognitoResponse);
 
-     
-        let disconectFromDBRsp = "not"; //  await disconectFromDB();
-         let stateOfMongoDb = await readyStateMongoose();
+        let handleMongoConn = await handleMongoConnection()
 
         response = {
             "uploadImageToContainderRes": uploadImageToContainderRes,
             "requestComputerVisionResponse": requestComputerVisionResponse.message,
             "putFileToContainerJsonResponse": putFileToContainerJsonResponse,
-            "disconectFromDBRsp" : disconectFromDBRsp,
-            "stateOfMongoDb" : stateOfMongoDb,
-            "pictureSaveResult": pictureSaveResult
+            "pictureSaveResult": pictureSaveResult,
+            "handleMongoConn" : handleMongoConn
         }
 
         context.res = await responseOkJson(response);
@@ -220,7 +217,12 @@ const savePictureInDB = async (eventId, questionId, blobName, verifyTokenRespons
 
     try {
         let picSave = await picture.save();
-        let picCost = await picture.db.db.command({getLastRequestStatistics:1});
+
+        let picCost = "";
+        if (process.env.EXAM_COST==="true") {
+            picCost = await picture.db.db.command({getLastRequestStatistics:1});
+        };
+
         return {picSave,picCost}
 
     } catch (error) {

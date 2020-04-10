@@ -1,6 +1,6 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
-const { getSpecificDataFromDB, connectionToDB } = require('../utils/database');
+const { getSpecificDataFromDB, connectionToDB, handleMongoConnection } = require('../utils/database');
 const { validateIfStringExist } = require('../utils/common');
 
 const { sendMailUtilsStatus } = require('../utils/sendMailUtils')
@@ -40,7 +40,7 @@ module.exports = async function (context, req) {
                        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
                        verifyTokenResponse.ExamEvent_EXTERNAL_ID
 
-         await connectionToDB();
+         await connectionToDB("sentDataOnFinish");
          let updateExamResult = await updateExamInDB(examId);
 
         // send email to proctor
@@ -61,7 +61,8 @@ module.exports = async function (context, req) {
             rspsendMailUtils
         }
 
-        context.res = await responseOkJson(responseData);
+        let handleMongoConn = await handleMongoConnection()
+        context.res = await responseOkJson(responseData, handleMongoConn);
 
     } catch (error) {
         console.log(error);
@@ -105,7 +106,6 @@ const updateExamInDB = async (examId) => {
             { examId: examId, examssk: examId }, 
             {$set:{status: "Finished"}}, {new: true});
 
-        
         if (examUpdate) {
             
             examUpdate = examUpdate.toObject();

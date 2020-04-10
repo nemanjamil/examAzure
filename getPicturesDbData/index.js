@@ -1,5 +1,5 @@
 const Picture = require('../models/picture');
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
 
 
@@ -20,9 +20,12 @@ module.exports = async function (context, req) {
     }
 
     try {
-        await connectionToDB();
+        await connectionToDB("getPicturesDbData");
         const getGalleryData = await getDataFromDB(context, examId, tablePage, rowsPerTablePage, filters, orderFilter);
-        context.res = await responseOkJson(getGalleryData);
+        
+        let handleMongoConn = await handleMongoConnection()
+        context.res = await responseOkJson(getGalleryData, handleMongoConn);
+
     } catch (error) {
         context.res = await responseErrorJson(error);
     }
@@ -59,11 +62,21 @@ const getDataFromDB = async (context, examId, tablePage, rowsPerTablePage, filte
             .limit(rowsPerTablePage * picturesPerRow);
 
         const numberOfPictures = (await Picture.find(searchParams)).length;
-        let examCostnumberOfPictures = await Picture.db.db.command({getLastRequestStatistics:1});
+
+        let examCostnumberOfPictures = "";
+        if (process.env.EXAM_COST==="true") {
+            examCostnumberOfPictures = await Picture.db.db.command({getLastRequestStatistics:1});
+        };
 
         searchParams.stateOfPicture = 1;
         const numberOfValidPictures = (await Picture.find(searchParams)).length;
-        let examCostnumberOfValidPictures = await Picture.db.db.command({getLastRequestStatistics:1});
+
+        let examCostnumberOfValidPictures = "";
+        if (process.env.EXAM_COST==="true") {
+            examCostnumberOfValidPictures = await Picture.db.db.command({getLastRequestStatistics:1});
+        };
+
+   
 
         const data = {
             galleryData: galleryData,

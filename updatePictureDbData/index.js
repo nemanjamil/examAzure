@@ -1,6 +1,6 @@
 
 const Picture = require('../models/picture');
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection} = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
 /**
  * This fuction is used for Gallery to validate pictures
@@ -12,10 +12,11 @@ module.exports = async function (context, req) {
     const examId = req.body.examId;
 
     try {
-        await connectionToDB();
-        const updatePictureResult = await updatePictureInDB(context, pictureId, validationType, examId);
+        await connectionToDB("updatePictureDbData");
+        const { pictureSave, examCost } = await updatePictureInDB(context, pictureId, validationType, examId);
 
-        context.res = await responseOkJson(updatePictureResult);
+        let handleMongoConn = await handleMongoConnection()
+        context.res = await responseOkJson(pictureSave, [examCost,handleMongoConn]);
 
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -54,10 +55,15 @@ const updatePictureInDB = async (context, pictureId, validationType, examId) => 
 
         let pictureSave = await picture.save();
 
+        let examCost = "";
+        if (process.env.EXAM_COST==="true") {
+            examCost = await picture.db.db.command({getLastRequestStatistics:1});
+        };
+
         pictureSave = pictureSave.toObject();
         delete pictureSave['_id'];
         delete pictureSave['picturessk'];
-        return pictureSave;
+        return { pictureSave, examCost} ;
 
     } catch (error) {
 

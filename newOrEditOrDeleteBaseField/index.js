@@ -1,5 +1,5 @@
 const { responseOkJson, responseErrorJson } = require( '../utils/common');
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 const Basic = require('../models/basic');
 const basicssk = process.env.BASICSSK;
 
@@ -11,7 +11,7 @@ module.exports = async function (context, req) {
     let baseField = req.body.baseField;
 
     try {
-        await connectionToDB();
+        await connectionToDB("NewOrEditorDeleteBaseField");
 
         let result = null;
 
@@ -22,7 +22,7 @@ module.exports = async function (context, req) {
         }else if(newOrEditOrDelete === 'delete'){
             result = await deleteBaseField(baseField);
         }
-        
+        let handleMongoConn = await handleMongoConnection()
         context.res = await responseOkJson(result);
 
     } catch (error) {

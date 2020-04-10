@@ -1,6 +1,6 @@
 const Exam = require('../models/exam');
 const secret_key = process.env.secret_key;
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson, parseJsonArrayToKeyValue } = require('../utils/common');
 const { getSpecificDataFromDB } = require('../utils/database');
 const examtemplatecontainer = process.env.examtemplatecontainer;
@@ -32,7 +32,7 @@ module.exports = async function (context, req) {
 
     try {
         
-        await connectionToDB();
+        await connectionToDB("generateMultipleExams");
 
 
         let fieldsDB = [
@@ -47,7 +47,10 @@ module.exports = async function (context, req) {
 
         let generateTokenRes = await generateTokens(users, dataExam, proctorEmailReceiver, reactAppBaseUrl, 
                                                     parseJsonArrayToKeyValueRes, fieldsDB)
-        context.res = await responseOkJson(generateTokenRes);
+
+        let handleMongoConn = await handleMongoConnection()
+        
+        context.res = await responseOkJson(generateTokenRes, handleMongoConn);
 
     } catch (error) {
         

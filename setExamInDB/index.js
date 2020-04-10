@@ -1,6 +1,6 @@
 const Exam = require('../models/exam');
 const secret_key = process.env.secret_key;
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson, verifyToken } = require('../utils/common');
 const examtemplatecontainer = process.env.examtemplatecontainer;
 const UtilsBlob = require('../utils/utilsBlob');
@@ -10,7 +10,7 @@ module.exports = async function (context, req) {
     const token = req.headers.authorization;
 
     try {
-        await connectionToDB();
+        await connectionToDB("setExamInDB");
         let verifyTokenResponse = await verifyToken(token, secret_key);
 
         let blobLocation = verifyTokenResponse.ExamVersion_EXTERNAL_ID+".json";
@@ -33,6 +33,8 @@ module.exports = async function (context, req) {
                 ExamVersion_passingPoints, 
                 Exam_SuccessPercent, 
                 token);
+        
+        let handleMongoConn = await handleMongoConnection()
 
         context.res = await responseOkJson(data);
     } catch (error) {

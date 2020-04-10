@@ -1,6 +1,6 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 const { verifyToken, responseErrorJson, responseOkJson } = require('../utils/common');
 const UtilsBlob = require('../utils/utilsBlob');
 const examsuserContainer = process.env.examsuser;
@@ -27,7 +27,7 @@ module.exports = async function (context, req) {
 
     try {
 
-        await connectionToDB();
+        await connectionToDB("updateExam");
         let verifyTokenResponse = await verifyToken(token, secret_key); 
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
         let getHashResponse = await Utils.getJsonExamBlob(createNamePathRsp, examtemplatecontainer);
@@ -45,13 +45,15 @@ module.exports = async function (context, req) {
         // update isCheated colum in exam
         //const updateCheatedJSONResult = await isCheatedPropertyUpdating(examId, updateDbParamsResult);
        
+        let handleMongoConn = await handleMongoConnection()
+
         const response = {
             updateExamDB: updateDBResult,
-            countAnswersResponse: countAnswersResponse,
-            updateDbParamsResult: updateDbParamsResult
+            countAnswersResponse: "noData", //countAnswersResponse,
+            updateDbParamsResult: "noData" //updateDbParamsResult
         }
 
-        context.res = await responseOkJson(response);
+        context.res = await responseOkJson(response, handleMongoConn);
 
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -94,6 +96,8 @@ const updateExam = async (examId, updateProperties) => {
         result = result.toObject();
         delete result['_id'];
         delete result['examssk'];
+        delete result['correctAnswers'];
+        delete result['wrongAnswers'];
 
         return result;
         

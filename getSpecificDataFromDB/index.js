@@ -1,7 +1,7 @@
 const { getSpecificDataFromDB } = require('../utils/database');
-
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
+
 
 module.exports = async function (context, req) {
 
@@ -9,13 +9,15 @@ module.exports = async function (context, req) {
    
     try {
         if (!fields) await Promise.reject("Missing data field");
-        await connectionToDB();
+        await connectionToDB("getSpecificData");
         const getDbData = await getSpecificDataFromDB(fields);
-   
+        
+        let handleMongoConn = await handleMongoConnection()
         context.res = await responseOkJson(
             getDbData, 
             { 
-                hasRespond : true
+                hasRespond : true,
+                "handleMongoConn" : handleMongoConn
             });
         
     } catch (error) {

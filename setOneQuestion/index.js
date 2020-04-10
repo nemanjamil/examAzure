@@ -1,5 +1,5 @@
 const UtilsBlob = require('../utils/utilsBlob');
-const { connectionToDB, testIfExamIsInProgress, readyStateMongoose } = require('../utils/database');
+const { connectionToDB, testIfExamIsInProgress, handleMongoConnection } = require('../utils/database');
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { isArray, verifyToken, getExamIdFromToken, 
@@ -12,14 +12,15 @@ const Question = require('../models/question');
 
 // function isOdd(num) { return num % 2;}
 // let rnd = Math.floor(Math.random() * 100);
-//         if (isOdd(rnd)) {
-//             context.res = await responseErrorJson({ 
-//                 message : "test error -----  SET ONE QUESTION",
-//                 error : "test ERROR --------- SET ONE QUESTION",
-//                 stateoferror: 47
-//             });
-//             return;
-//         } 
+// if (isOdd(rnd)) {
+//     context.res = await responseErrorJson({ 
+//         message : "test error -----  SET ONE QUESTION",
+//         error : "test ERROR --------- SET ONE QUESTION",
+//         stateoferror: 47
+//     });
+//     return;
+// } 
+
 
 module.exports = async function (context, req) {
 
@@ -32,7 +33,7 @@ module.exports = async function (context, req) {
 
     try {
 
-        let connectionToDb = await connectionToDB();
+        let connectionToDb = await connectionToDB("setOneQuestion");
         const examId = await getExamIdFromToken(token, secret_key);
 
         if (!examId) {
@@ -64,8 +65,8 @@ module.exports = async function (context, req) {
         // save to DB
         if(!eventId) Promise.reject({message: "No event Id"});
         let { saveQuestion, examCost } = await saveQuestAndAnswers(createNamePathRsp, userFirstName, userLastName, question, answers, eventId, answersHash);
-
-        let stateOfMongoDb = await readyStateMongoose();
+        
+        let handleMongoConn = await handleMongoConnection()
 
         context.res = await responseOkJson(
             updateQuestionResponse,
@@ -73,8 +74,8 @@ module.exports = async function (context, req) {
                 "saveQuestion" : saveQuestion,
                 "examCost" : examCost,
                 "connectionToDb" : connectionToDb,
-                "stateOfMongoDb" : stateOfMongoDb,
-                "responseExamInProgress" : responseExamInProgress
+                "responseExamInProgress" : responseExamInProgress,
+                "handleMongoConn" : handleMongoConn
             }
         );
 
@@ -160,13 +161,22 @@ const saveQuestAndAnswers = async (createNamePathRsp, userFirstName, userLastNam
 
     try {
         let checkKeyValueInObject = await checkIfValuesForKeyExistInObject(questionObj)
-        let saveQuestion = await quest.save();
-        let examCost = await quest.db.db.command({getLastRequestStatistics:1});
-        return { saveQuestion, examCost }
+        let saveQst = await quest.save();
+
+        let examCost = "";
+        if (process.env.EXAM_COST==="true") {
+            examCost = await quest.db.db.command({getLastRequestStatistics:1});
+        };
+       
+        let saveQuestion  = {...saveQst['_doc']}
+        delete saveQuestion.examName;
+      
+        return { saveQuestion: null, examCost }
+        
     } catch (error) {
         let messageBody = {
             message: "Error saving question to database",
-            error: error,
+            error: [error.message, error.name],
             stateoferror: 40
         }
         return Promise.reject(messageBody)

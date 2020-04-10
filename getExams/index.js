@@ -1,6 +1,7 @@
 const Picture = require('../models/picture');
 const Exam = require('../models/exam');
 const {
+    handleMongoConnection,
     connectionToDB
 } = require('../utils/database');
 const {
@@ -18,12 +19,14 @@ module.exports = async function (context, req) {
 
     try {
         
-        await connectionToDB();
+        await connectionToDB("getExams");
         const data = await getDataFromDB(tablePage, rowsPerTablePage, searchText);
         let getPictureInfo = await getData(data);
         let jsonOfPicture = await getJsonOfPicturesV2(data, getPictureInfo);
         await setStatusOfExam(jsonOfPicture);
-        context.res = await responseOkJson(jsonOfPicture, data.examCostExam);
+
+        let handleMongoConn = await handleMongoConnection()
+        context.res = await responseOkJson(jsonOfPicture, [data.examCostExam, handleMongoConn]);
 
     } catch (error) {
         context.res = await responseErrorJson(error);
@@ -282,12 +285,16 @@ const getDataFromDB = async (tablePage, rowsPerTablePage, searchText) => {
             .skip(tablePage * rowsPerTablePage)
             .limit(rowsPerTablePage);
 
-        let examCostExam = await Exam.db.db.command({getLastRequestStatistics:1});
+        let examCost = "";
+        if (process.env.EXAM_COST==="true") {
+            examCost = await Exam.db.db.command({getLastRequestStatistics:1});
+        };
+        
 
         const data = {
             numberOfExams: numberOfExams,
             examsList: result,
-            examCostExam: examCostExam
+            examCost: examCost
         }
 
         return data;

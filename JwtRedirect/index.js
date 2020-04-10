@@ -313,7 +313,7 @@ async function getJsonExam(ExamVersion_EXTERNAL_ID, containerName) {
 const updateExam = async (examId) => {
 
     try {
-        await connectionToDB();
+        await connectionToDB("JwtRedirect");
         let examUpdate = await Exam.findOneAndUpdate(
             {
                 examId: examId, 

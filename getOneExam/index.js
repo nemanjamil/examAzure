@@ -1,24 +1,25 @@
 const Exam = require('../models/exam');
-const { connectionToDB, readyStateMongoose  } = require('../utils/database');
+const { connectionToDB, handleMongoConnection  } = require('../utils/database');
 const { verifyToken, responseErrorJson, responseOkJson,  validateIfStringExist } = require('../utils/common');
 const secret_key = process.env.secret_key;
 
+    
 module.exports = async function (context, req) {
 
     const examId = req.body.examId;
     const token = req.headers.authorization;
 
-    
     try {
         await validateIfStringExist(examId)
         await verifyToken(token, secret_key);
-        await connectionToDB();
+        await connectionToDB("getOneExam");
         let { getDataResponse, examCost }  = await getDataFromDB(context, examId);
-        let stateOfMongoDb = await readyStateMongoose();
-
+        
+        let handleMongoConn = await handleMongoConnection()
+        
         context.res = await responseOkJson(getDataResponse, {
-            "stateOfMongoDb" : stateOfMongoDb,
-            "examCost" : examCost
+            "examCost" : examCost,
+            "handleMongoConn" : handleMongoConn    
         });
 
     } catch (error) {
@@ -34,12 +35,20 @@ const getDataFromDB = async (context, examId) => {
     // ali da pokusava max 5 puta
     try {
         let result = await Exam.findOne({ examId: examId, examssk : examId });
-        let examCost = await Exam.db.db.command({getLastRequestStatistics:1});
+
+        let examCost = "";
+        if (process.env.EXAM_COST==="true") {
+            examCost = await Exam.db.db.command({getLastRequestStatistics:1});
+        };
+
          // Remove sensible information from Exam response data
         if (result) {
             result = result.toObject();
             delete result['_id'];
             delete result['examssk'];
+            delete result['correctAnswers'];
+            delete result['wrongAnswers'];
+            
             return { "getDataResponse" : result, examCost } 
         } else {
             let messageBody = {

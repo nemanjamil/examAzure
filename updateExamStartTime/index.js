@@ -1,5 +1,5 @@
 const UtilsBlob = require('../utils/utilsBlob');
-const { connectionToDB } = require('../utils/database');
+const { connectionToDB, handleMongoConnection } = require('../utils/database');
 const Exam = require('../models/exam');
 const { getSpecificDataFromDB } = require('../utils/database');
 const { SENTENCES } = require('../utils/common');
@@ -19,7 +19,7 @@ module.exports = async function (context, req) {
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(createNamePathRsp, examsuserContainer);
         let updateQuestionReq = await updateJson(getJsonExamBlobResponse, createNamePathRsp);
 
-        await connectionToDB();
+        await connectionToDB("updateExamStartTime");
         const examId = examIdCalculate(verifyTokenResponse);
         const updateResult = await updateExamInDB(examId);
 
@@ -35,12 +35,14 @@ module.exports = async function (context, req) {
         let rspsendMailUtils = await sendMailUtilsStatus(verifyTokenResponse, parseJsonArrayToKeyValueRes, 
             fieldsDB);
 
+        let handleMongoConn = await handleMongoConnection()
+
         response = {
             updateQuestion: updateQuestionReq,
             updateExamDb: updateResult
         }
 
-        context.res = await responseOkJson(response);
+        context.res = await responseOkJson(response, handleMongoConn);
 
     } catch (error) {
         context.res = await responseErrorJson(error);

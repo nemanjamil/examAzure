@@ -6,6 +6,17 @@ mongoose.Promise = global.Promise;
 let client = null;
 const basicssk = process.env.BASICSSK;
 
+const handleMongoConnection = async () => {
+    let disconnectState = await disconectFromDB()
+    let closeMongoDbConnectionRes = await closeMongoDbConnection()
+    let readyState = await readyStateMongoose()
+    return {
+        readyState,
+        disconnectState,
+        closeMongoDbConnectionRes
+    }
+}
+
 const readyStateMongoose = async () => {
     return mongoose.connection.readyState
 }
@@ -15,12 +26,14 @@ const closeMongoDbConnection = async () => {
 const disconectFromDB =  async () => {
    return await mongoose.disconnect()
 }
-const connectionToDB = async () => {
-  
+const connectionToDB = async (functionName=null) => {
+    
+    let stateOfMDB = await readyStateMongoose();
+    console.log('Pre Start MongoDB Conn : ', functionName, stateOfMDB);
+    
     try {
-        //mongoose.set('useCreateIndex', true) // or we can use in connect
+        // mongoose.set('useCreateIndex', true) // or we can use in connect
         // &replicaSet=globaldb
-        console.log('Pre Start Connection to CosmosDB successful');
         await mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true", {
             useNewUrlParser: true,
             useCreateIndex: true,
@@ -32,12 +45,13 @@ const connectionToDB = async () => {
             }
         });
 
-        console.log('Connection to CosmosDB successful');
+        console.log(functionName);
         let messageBody = {
             message: "Connection to CosmosDB successful",
             readystate: mongoose.connection.readyState
         }
         return Promise.resolve(messageBody);
+
     } catch (error) {
         let messageBody = {
             message: error,   
@@ -78,7 +92,7 @@ const testIfExamIsInProgress = async (examId, context) => {
             let messageBody = {
                 message: "Exam is not started",
                 error: "Exam is not started",  
-                stateoferror: 22,
+                stateoferror: 27,
                 status: false
             }
             return Promise.reject(messageBody);
@@ -125,7 +139,7 @@ const getSpecificDataFromDB = async (fields) => {
     } catch (error) {
         let messageBody = {
             message: error,
-            error: error,  
+            error: [error.message, error.name],  
             stateoferror: 22
         }
         return Promise.reject(messageBody)
@@ -136,6 +150,7 @@ const getSpecificDataFromDB = async (fields) => {
 module.exports = {
     connectionToDB,
     disconectFromDB,
+    handleMongoConnection,
     closeMongoDbConnection,
     readyStateMongoose,
     testIfExamIsInProgress,
