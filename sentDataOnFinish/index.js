@@ -1,6 +1,6 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
-const { getSpecificDataFromDB, connectionToDB, handleMongoConnection } = require('../utils/database');
+const { getSpecificDataFromDB, handleMongoConnection } = require('../utils/database');
 const { validateIfStringExist } = require('../utils/common');
 
 const { sendMailUtilsStatus } = require('../utils/sendMailUtils')
@@ -40,7 +40,7 @@ module.exports = async function (context, req) {
                        verifyTokenResponse.ExamVersion_EXTERNAL_ID + "_" +
                        verifyTokenResponse.ExamEvent_EXTERNAL_ID
 
-         await connectionToDB("sentDataOnFinish");
+         // await connectionToDB("sentDataOnFinish");
          let updateExamResult = await updateExamInDB(examId);
 
         // send email to proctor

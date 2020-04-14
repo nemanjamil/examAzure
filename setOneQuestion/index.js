@@ -1,5 +1,5 @@
 const UtilsBlob = require('../utils/utilsBlob');
-const { connectionToDB, testIfExamIsInProgress, handleMongoConnection } = require('../utils/database');
+const { testIfExamIsInProgress, handleMongoConnection } = require('../utils/database');
 const examsuser = process.env.examsuser;
 const secret_key = process.env.secret_key;
 const { isArray, verifyToken, getExamIdFromToken, 
@@ -33,7 +33,7 @@ module.exports = async function (context, req) {
 
     try {
 
-        let connectionToDb = await connectionToDB("setOneQuestion");
+        // await connectionToDB("setOneQuestion");
         const examId = await getExamIdFromToken(token, secret_key);
 
         if (!examId) {
@@ -73,7 +73,6 @@ module.exports = async function (context, req) {
             {
                 "saveQuestion" : saveQuestion,
                 "examCost" : examCost,
-                "connectionToDb" : connectionToDb,
                 "responseExamInProgress" : responseExamInProgress,
                 "handleMongoConn" : handleMongoConn
             }

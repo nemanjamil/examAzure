@@ -1,5 +1,5 @@
 const Utils = require('../utils/utilsBlob');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const examsuser = process.env.examsuser;
 //const { parse } = require('querystring');
 const { responseOkJson, responseErrorJson } = require('../utils/common');
@@ -10,7 +10,7 @@ module.exports = async function (context, req) {
  
     try {
 
-        await connectionToDB("getExamFromBlob");
+        // await connectionToDB("getExamFromBlob");
 
         let getJsonExamBlobResponse = await Utils.getJsonExamBlob(examName, examsuser);
 

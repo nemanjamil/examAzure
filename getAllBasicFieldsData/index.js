@@ -1,5 +1,5 @@
 const { responseOkJson, responseErrorJson } = require( '../utils/common');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const Basic = require('../models/basic');
 const basicssk = process.env.BASICSSK;
 
@@ -8,7 +8,7 @@ const basicssk = process.env.BASICSSK;
 module.exports = async function (context, req) {
 
     try {
-        await connectionToDB("getAllBasicsFieldsData");
+        // await connectionToDB("getAllBasicsFieldsData");
         let getLanguageDataResult = await getAllBasicFieldsData();
 
         let handleMongoConn = await handleMongoConnection()

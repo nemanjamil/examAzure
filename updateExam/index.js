@@ -1,6 +1,6 @@
 const Utils = require('../utils/utilsBlob');
 const Exam = require('../models/exam');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const { verifyToken, responseErrorJson, responseOkJson } = require('../utils/common');
 const UtilsBlob = require('../utils/utilsBlob');
 const examsuserContainer = process.env.examsuser;
@@ -27,7 +27,7 @@ module.exports = async function (context, req) {
 
     try {
 
-        await connectionToDB("updateExam");
+        // await connectionToDB("updateExam");
         let verifyTokenResponse = await verifyToken(token, secret_key); 
         let createNamePathRsp = await createNamePath(verifyTokenResponse);
         let getHashResponse = await Utils.getJsonExamBlob(createNamePathRsp, examtemplatecontainer);

@@ -1,5 +1,5 @@
 const UtilsBlob = require('../utils/utilsBlob');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const Exam = require('../models/exam');
 const { getSpecificDataFromDB } = require('../utils/database');
 const { SENTENCES } = require('../utils/common');
@@ -19,7 +19,7 @@ module.exports = async function (context, req) {
         let getJsonExamBlobResponse = await UtilsBlob.getJsonExamBlob(createNamePathRsp, examsuserContainer);
         let updateQuestionReq = await updateJson(getJsonExamBlobResponse, createNamePathRsp);
 
-        await connectionToDB("updateExamStartTime");
+        // await connectionToDB("updateExamStartTime");
         const examId = examIdCalculate(verifyTokenResponse);
         const updateResult = await updateExamInDB(examId);
 

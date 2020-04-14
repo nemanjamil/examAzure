@@ -1,9 +1,6 @@
 const Picture = require('../models/picture');
 const Exam = require('../models/exam');
-const {
-    handleMongoConnection,
-    connectionToDB
-} = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const {
     responseErrorJson,
     responseOkJson,
@@ -19,7 +16,7 @@ module.exports = async function (context, req) {
 
     try {
         
-        await connectionToDB("getExams");
+        // await connectionToDB("getExams");
         const data = await getDataFromDB(tablePage, rowsPerTablePage, searchText);
         let getPictureInfo = await getData(data);
         let jsonOfPicture = await getJsonOfPicturesV2(data, getPictureInfo);

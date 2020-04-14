@@ -6,7 +6,7 @@ const secret_key = process.env.secret_key;
 const { verifyToken, responseOkJson, responseErrorJson } = require('../utils/common');
 const Picture = require('../models/picture');
 const path = require('path');
-const { connectionToDB } = require('../utils/database');
+// const { connectionToDB } = require('../utils/database');
 
 const {
     parse
@@ -52,7 +52,7 @@ module.exports = async function (context, req) {
         delete data.name;
 
         // Saving picture data to Database
-        await connectionToDB();
+        // await connectionToDB();
         const pictureSaveResult = await savePictureInDB(context, eventId, questionId, blobName, verifyTokenResponse, responseFromCognitive);
 
         response = {

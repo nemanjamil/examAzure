@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { connection } = require('../utils/database');
 
 const Schema = mongoose.Schema;
 
@@ -51,4 +52,4 @@ const pictureSchema = new Schema({
 { shardKey: { picturessk: 1 }}
 );
 
-module.exports = mongoose.model('Picture', pictureSchema);
+module.exports = connection.model('Picture', pictureSchema);

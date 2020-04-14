@@ -1,7 +1,7 @@
 const Exam = require('../models/exam');
 const Picture = require('../models/picture');
 const Question = require('../models/question');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
 
 module.exports = async function (context, req) {
@@ -14,7 +14,7 @@ module.exports = async function (context, req) {
     }
 
     try {
-        await connectionToDB("deleteOneExam");
+        //await connectionToDB("deleteOneExam");
         //const sharedKey = await findExamAndTakeSharedKey(examId);
         let deleteQuestions = await deleteExamQuestions(examId);
         let deletePictures = await deleteExamPictures(examId);

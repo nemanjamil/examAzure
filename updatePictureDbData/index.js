@@ -1,6 +1,6 @@
 
 const Picture = require('../models/picture');
-const { connectionToDB, handleMongoConnection} = require('../utils/database');
+const { handleMongoConnection} = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
 /**
  * This fuction is used for Gallery to validate pictures
@@ -12,7 +12,7 @@ module.exports = async function (context, req) {
     const examId = req.body.examId;
 
     try {
-        await connectionToDB("updatePictureDbData");
+        // await connectionToDB("updatePictureDbData");
         const { pictureSave, examCost } = await updatePictureInDB(context, pictureId, validationType, examId);
 
         let handleMongoConn = await handleMongoConnection()

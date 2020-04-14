@@ -9,10 +9,7 @@ const getStream = require('into-stream');
 const multipartFormdata = require('multipart-formdata')
 const request = require('request');
 const Picture = require('../models/picture');
-const {
-    connectionToDB,
-    handleMongoConnection
-} = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 
 const {
     verifyToken,
@@ -75,7 +72,7 @@ module.exports = async function (context, req) {
         let blobNameJson = createNamePath(verifyTokenResponse, eventId, uid, extensionJson);    
         var putFileToContainerJsonResponse = await Utils.putFileToContainerJson(containerName, blobNameJson, requestComputerVisionResponse.body);
         
-        await connectionToDB("uploadImageAndCognitoBinary");
+        // await connectionToDB("uploadImageAndCognitoBinary");
         
         const pictureSaveResult = await savePictureInDB(eventId, questionId, blobName, 
             verifyTokenResponse, requestComputerVisionResponse.body, uid,

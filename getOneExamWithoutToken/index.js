@@ -1,5 +1,5 @@
 const Exam = require('../models/exam');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson,  validateIfStringExist } = require('../utils/common');
 
 module.exports = async function (context, req) {
@@ -10,7 +10,7 @@ module.exports = async function (context, req) {
 
     try {
         await validateIfStringExist(examId)
-        await connectionToDB("getOneExamWithoutToken");
+        // await connectionToDB("getOneExamWithoutToken");
         let { getDataResponse, examCost }  = await getDataFromDB(context, examId);
 
         let handleMongoConn = await handleMongoConnection()

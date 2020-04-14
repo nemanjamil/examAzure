@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { connection } = require('../utils/database');
 const Schema = mongoose.Schema;
 
 const examSchema = new Schema({
@@ -87,5 +87,5 @@ const examSchema = new Schema({
 { shardKey: { examssk: 1 }}
 );
 
-module.exports = mongoose.model('Exam', examSchema);
+module.exports = connection.model('Exam', examSchema);
 

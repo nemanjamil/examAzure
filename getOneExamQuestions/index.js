@@ -1,6 +1,6 @@
 
 const Question = require('../models/question');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson, validateIfStringExist } = require('../utils/common');
 
 
@@ -10,7 +10,7 @@ module.exports = async function (context, req) {
 
     try {
         await validateIfStringExist(examId)
-        await connectionToDB("getOneExamQuestion");
+        // await connectionToDB("getOneExamQuestion");
         let getDataFromDBResponse = await getDataFromDB(context, examId);
 
         let handleMongoConn = await handleMongoConnection()

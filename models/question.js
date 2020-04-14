@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { connection } = require('../utils/database');
 
 const Schema = mongoose.Schema;
 
@@ -45,4 +46,4 @@ const questionSchema = new Schema({
 { shardKey: { questionssk: 1 }}
 );
 
-module.exports = mongoose.model('Question', questionSchema);
+module.exports = connection.model('Question', questionSchema);

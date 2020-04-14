@@ -1,7 +1,7 @@
 const sgMail = require('@sendgrid/mail');
 const Exam = require('../models/exam');
 const secret_key = process.env.secret_key;
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson, parseJsonArrayToKeyValue } = require('../utils/common');
 const { getSpecificDataFromDB } = require('../utils/database');
 const examtemplatecontainer = process.env.examtemplatecontainer;
@@ -19,7 +19,7 @@ module.exports = async function (context, req) {
     const language = req.body.data.language;
 
     try {
-        await connectionToDB("generateExamAndTokenPostman");
+        // await connectionToDB("generateExamAndTokenPostman");
 
         let response = {};
 

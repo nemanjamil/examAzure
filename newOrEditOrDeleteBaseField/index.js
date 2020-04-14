@@ -1,5 +1,5 @@
 const { responseOkJson, responseErrorJson } = require( '../utils/common');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const Basic = require('../models/basic');
 const basicssk = process.env.BASICSSK;
 
@@ -11,7 +11,7 @@ module.exports = async function (context, req) {
     let baseField = req.body.baseField;
 
     try {
-        await connectionToDB("NewOrEditorDeleteBaseField");
+        // await connectionToDB("NewOrEditorDeleteBaseField");
 
         let result = null;
 

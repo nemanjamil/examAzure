@@ -1,5 +1,5 @@
 const Picture = require('../models/picture');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
 
 
@@ -20,7 +20,7 @@ module.exports = async function (context, req) {
     }
 
     try {
-        await connectionToDB("getPicturesDbData");
+        // await connectionToDB("getPicturesDbData");
         const getGalleryData = await getDataFromDB(context, examId, tablePage, rowsPerTablePage, filters, orderFilter);
         
         let handleMongoConn = await handleMongoConnection()

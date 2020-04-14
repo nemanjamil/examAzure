@@ -11,7 +11,7 @@ const { createExamNamePath, verifyToken, createSaltExamPath, validateIfStringExi
 const blobService = azureStorage.createBlobService(storageAccount, accessKey)
 // const jwt = require('jsonwebtoken');
 const secret_key = process.env.secret_key;
-const { connectionToDB, closeMongoDbConnection, getSpecificDataFromDB } = require('../utils/database');
+const { closeMongoDbConnection, getSpecificDataFromDB } = require('../utils/database');
 const Exam = require('../models/exam');
 const path = require('path');
 
@@ -313,7 +313,7 @@ async function getJsonExam(ExamVersion_EXTERNAL_ID, containerName) {
 const updateExam = async (examId) => {
 
     try {
-        await connectionToDB("JwtRedirect");
+        // await connectionToDB("JwtRedirect");
         let examUpdate = await Exam.findOneAndUpdate(
             {
                 examId: examId, 

@@ -1,15 +1,11 @@
 var mongoose = require('mongoose');
-const Exam = require('../models/exam');
 const { validateIfStringExist } = require('../utils/common');
-
-mongoose.Promise = global.Promise;
-let client = null;
 const basicssk = process.env.BASICSSK;
 
 const handleMongoConnection = async () => {
-    let disconnectState = await disconectFromDB()
-    let closeMongoDbConnectionRes = await closeMongoDbConnection()
-    let readyState = await readyStateMongoose()
+    let disconnectState = "" //await disconectFromDB()
+    let closeMongoDbConnectionRes = "" // await closeMongoDbConnection()
+    let readyState = ""; // await readyStateMongoose()
     return {
         readyState,
         disconnectState,
@@ -17,41 +13,72 @@ const handleMongoConnection = async () => {
     }
 }
 
-const readyStateMongoose = async () => {
+const readyStateMongoose = async (parentFunction=null) => {
     return mongoose.connection.readyState
 }
-const closeMongoDbConnection = async () => {
+const closeMongoDbConnection = async (parentFunction=null) => {
     return await mongoose.connection.close();
 }
-const disconectFromDB =  async () => {
-   return await mongoose.disconnect()
+const disconectFromDB =  async (parentFunction=null) => {
+    return await mongoose.disconnect()
 }
+
+const connection = mongoose.createConnection(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true", { 
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
+
+    bufferCommands: false,
+    autoCreate: false,
+    poolSize: 10,
+
+    autoIndex : true, 
+    useCreateIndex : true,
+   
+    auth: {
+        user: process.env.COSMODDB_USER,
+        password: process.env.COSMOSDB_PASSWORD
+    }
+});
+
+
+
 const connectionToDB = async (functionName=null) => {
     
-    let stateOfMDB = await readyStateMongoose();
-    console.log('Pre Start MongoDB Conn : ', functionName, stateOfMDB);
+    let stateOfMongoConnection = await readyStateMongoose();
+    //console.log('Pre Start MongoDB Conn : ', functionName, stateOfMDB);
     
     try {
         // mongoose.set('useCreateIndex', true) // or we can use in connect
         // &replicaSet=globaldb
-        await mongoose.connect(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true", {
-            useNewUrlParser: true,
-            useCreateIndex: true,
-            useUnifiedTopology: true,
-            useFindAndModify: false,
-            auth: {
-                user: process.env.COSMODDB_USER,
-                password: process.env.COSMOSDB_PASSWORD
+        console.log("START connectionToDB=1", "stateOfmongo: "+await readyStateMongoose(), functionName);
+        //await varifyDbState(0);
+        console.log("FINISH connectionToDB=2", "stateOfmongo: "+await readyStateMongoose(), functionName);
+     
+        await mongoose.createConnection(`${process.env.COSMOSDB_CONNSTR}/exams` + "?ssl=true", { // https://mongoosejs.com/docs/connections.html
+                useNewUrlParser: true,
+                useCreateIndex: true,
+                useFindAndModify: false,
+                useUnifiedTopology: true,
+                autoIndex : true, 
+                useCreateIndex : true,
+    
+                auth: {
+                    user: process.env.COSMODDB_USER,
+                    password: process.env.COSMOSDB_PASSWORD
+                }
+            });
+          
+            console.log(functionName);
+            let messageBody = {
+                message: "Connection to CosmosDB successful",
+                readystate: mongoose.connection.readyState
             }
-        });
+            return Promise.resolve(messageBody);
 
-        console.log(functionName);
-        let messageBody = {
-            message: "Connection to CosmosDB successful",
-            readystate: mongoose.connection.readyState
-        }
-        return Promise.resolve(messageBody);
-
+       
+        
     } catch (error) {
         let messageBody = {
             message: error,   
@@ -65,7 +92,10 @@ const connectionToDB = async (functionName=null) => {
 }
 
 const testIfExamIsInProgress = async (examId, context) => {
+    
     context.log(" >>>> >>>> >>>> testIfExamIsInProgress examId : ", examId);
+    
+    let Exam = require('../models/exam');
 
     try {
         await validateIfStringExist(examId)
@@ -120,7 +150,7 @@ const testIfExamIsInProgress = async (examId, context) => {
 }
 
 const getSpecificDataFromDB = async (fields) => {
-    const Basics = require('../models/basic');
+    let Basics = require('../models/basic');
     try {
        const getData = await Basics.find({ name: fields, basicssk : basicssk });
 
@@ -148,6 +178,7 @@ const getSpecificDataFromDB = async (fields) => {
 
 
 module.exports = {
+    connection,
     connectionToDB,
     disconectFromDB,
     handleMongoConnection,

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { connection } = require('../utils/database');
 const Schema = mongoose.Schema;
 
 const basicSchema = new Schema({
@@ -33,4 +33,4 @@ const basicSchema = new Schema({
 { shardKey: { basicssk: 1 }}
 );
 
-module.exports = mongoose.model('Basics', basicSchema);
+module.exports = connection.model('Basics', basicSchema);

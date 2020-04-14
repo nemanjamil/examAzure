@@ -1,6 +1,6 @@
 
 const Picture = require('../models/picture');
-const { connectionToDB, handleMongoConnection } = require('../utils/database');
+const { handleMongoConnection } = require('../utils/database');
 const { responseErrorJson, responseOkJson } = require('../utils/common');
 
 /**
@@ -12,15 +12,13 @@ module.exports = async function (context, req) {
     const validationType = req.body.validationType;
     const picturesIds = req.body.picturesIds;
 
-    console.log(picturesIds);
-
     try {
 
         let updateAllExamPicturesColor = null;
 
         if(examId && picturesIds.length > 0){
 
-            await connectionToDB("updateExamPicturesValidation");
+            // await connectionToDB("updateExamPicturesValidation");
 
             updateAllExamPicturesColor = await updateAllExamPictures(context, examId, picturesIds, validationType);
 
