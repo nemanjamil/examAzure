@@ -113,6 +113,13 @@ const generateToken = async (user, dataExam, proctorEmailReceiver, uuidNmb) => {
 
     let time = Math.floor(new Date().getTime() / 1000);
 
+    let dateObject = new Date(dataExam.tokenValidFrom);
+    let timeHour = dataExam.tokenValidFromTime;
+    let hourMinutes = timeHour.split(':');
+    dateObject.setHours(hourMinutes[0], hourMinutes[1])
+
+    let tokenValidFrom =  Math.round(dateObject.getTime()/1000);
+
     let data = {
         Participant_EXTERNAL_ID: user.Participant_EXTERNAL_ID,
         Participant_Firstname: user.Participant_Firstname.trim(),
@@ -127,7 +134,7 @@ const generateToken = async (user, dataExam, proctorEmailReceiver, uuidNmb) => {
         fe_endpoint: dataExam.fe_endpoint,
         ExamVersion_plannedDuration: dataExam.ExamVersion_plannedDuration,
         tokenvalidfor: dataExam.tokenvalidfor * 24 * 60 * 60,
-        tokenValidFrom: Math.round(new Date(dataExam.tokenValidFrom).getTime()/1000),
+        tokenValidFrom: tokenValidFrom,
         ExamEvent_GenerationTime: time,
         ExamEvent_EXTERNAL_ID: uuidNmb,
         cameraAndCognitoServices: dataExam.cameraAndCognitoServices,
