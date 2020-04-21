@@ -35,7 +35,9 @@ module.exports = async function (context, req) {
         let copyExamVersionResponse = "";
 
         // test if exam token duration expired
-        const now = Math.round(Date.now()/1000);
+        let dt = new Date();
+        dt.setHours( dt.getHours() + 2 );
+        const now = Math.round(dt/1000);
 
         await validateIfStringExist(verifyTokenResponse.tokenValidFrom);
 
@@ -44,6 +46,11 @@ module.exports = async function (context, req) {
         let canStartExamValidFrom = now > tokenValidFrom;
 
         let hasTokenExpire = now > (examData.ExamEvent_GenerationTime + examData.tokenvalidfor);
+
+
+        // context.log("Date.now() : ", Math.round(Date.now()/1000));
+        // context.log("dt.getHours() + 2 : ", now);
+        // context.log("tokenValidFrom : ", tokenValidFrom);
 
         if(hasTokenExpire){
 

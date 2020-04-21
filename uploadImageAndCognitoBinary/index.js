@@ -115,9 +115,9 @@ const  calculateCongnito = async (requestComputerVisionResponse) => {
     var numberOfPersons = cognitoRes.objects.reduce((acc, cur) => cur.object === "person" ? ++acc : acc, 0);
 
     let stateOfPicture = 0;
-    if (numberOfPersons==1) {
+    if (numberOfFaces==1) {
         stateOfPicture = 1;
-    } else if (numberOfPersons>1) {
+    } else if (numberOfFaces>1) {
         stateOfPicture = 2 
     } 
 
