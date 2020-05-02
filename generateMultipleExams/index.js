@@ -48,8 +48,6 @@ module.exports = async function (context, req) {
         let generateTokenRes = await generateTokens(users, dataExam, proctorEmailReceiver, reactAppBaseUrl, 
                                                     parseJsonArrayToKeyValueRes, fieldsDB)
 
-        console.log(generateTokenRes);
-
         let handleMongoConn = await handleMongoConnection()
         
         context.res = await responseOkJson(generateTokenRes, handleMongoConn);
@@ -71,12 +69,12 @@ const generateTokens = async (users, dataExam, proctorEmailReceiver, reactAppBas
 
 const prepareGenerationOfToken = async (user, dataExam, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB) => {
    
-       return Promise.all(dataExam.map(oneexam => {
+        return Promise.all(dataExam.map(oneexam => {
             return generateAllExamforOneUser(user, oneexam, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB)
-           }
-       )).then(response => {
-           return { "examsPerUser" : response }
-       })
+        }
+        )).then(response => {
+            return { "examsPerUser" : response }
+        })
 }
 
 const generateAllExamforOneUser =  async (user, oneexam, proctorEmailReceiver, 
@@ -99,11 +97,11 @@ const generateAllExamforOneUser =  async (user, oneexam, proctorEmailReceiver,
             oneexam.ExamVersion_EXTERNAL_ID + "_" +
             uuidNmb;
       
-        // let saveExamInDBResponse = await saveExamInDB(oneexam, user, examId, ExamVersion_maxPoints, 
-        //         ExamVersion_passingPoints, Exam_SuccessPercent, uuidNmb, generateTokenResponse.token);
+        let saveExamInDBResponse = await saveExamInDB(oneexam, user, examId, ExamVersion_maxPoints, 
+                ExamVersion_passingPoints, Exam_SuccessPercent, uuidNmb, generateTokenResponse.token);
 
-        // let sendMailResponse = await sendMailgenerateMultipleExams(generateTokenResponse.token, generateTokenResponse.data,
-        //      user, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB);
+        let sendMailResponse = await sendMailgenerateMultipleExams(generateTokenResponse.token, generateTokenResponse.data,
+             user, proctorEmailReceiver, reactAppBaseUrl, parseJsonArrayToKeyValueRes, fieldsDB);
 
         return {
             generateTokenResponse
